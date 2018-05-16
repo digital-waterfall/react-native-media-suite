@@ -2,10 +2,6 @@
 
 Video(and audio) component for react-native apps, supporting both iOS and Android, with API similar to HTML video.
 
-A default set of controls is provided to play/pause, seek and to display current playback and buffer progress.
-
-Runs on react-native 0.28+ (The limit exists due to [ActivityIndicator](https://facebook.github.io/react-native/docs/activityindicator.html) comes after 0.28).
-
 Supported media types:
 
 * iOS: Should be same as those supported by [AVPlayer](https://developer.apple.com/library/ios/documentation/AVFoundation/Reference/AVPlayer_Class/)
@@ -21,7 +17,12 @@ Supported media types:
 
 #### iOS
 
-For now, just drag ***react-native-media-kit.xcodeproj*** into your Xcode project and link the **libreact-native-media-kit.a** library.
+* Step 1: Right click on **Libraries** and choose 'Add files to "Project Name"'.
+* Step 2: Navigate to `project_name/node_modules/react-native-media-kit/ios/` and add the file `react-native-media-kit.xcodeproj`.
+* Step 3: Open project settings and at the top choose '**Build Phases**'
+* Step 4: Expand the '**Link Binary With Libraries**' section.
+* Step 5: Click the + at the bottom of the list
+* Step 6: Add the `libreact-native-media-kit.a` file
 
 #### Android
 
@@ -113,4 +114,7 @@ For details about the usage of above APIs, check `library/MediaPlayerView.js`.
 
 ## TODO
 
-* background play
+* Downloading
+* DRM
+* Google Play
+* Air Play
