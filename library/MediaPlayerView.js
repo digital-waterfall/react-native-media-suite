@@ -8,7 +8,7 @@ import ReactNative, {
   Image
 } from 'react-native';
 
-import Controls from './Controls';
+// import Controls from './Controls';
 
 const UIManager = NativeModules.UIManager;
 const RCT_MEDIA_PLAYER_VIEW_REF = "RCTMediaPlayerView";
@@ -36,13 +36,11 @@ export default class MediaPlayerView extends React.Component {
 
   static propTypes = {
     ...RCTMediaPlayerView.propTypes,
-    controls: PropTypes.bool,
     poster: PropTypes.string
   }
 
   static defaultProps = {
     autoplay: false,
-    controls: true,
     preload: 'none',
     loop: false,
   }
@@ -84,27 +82,6 @@ export default class MediaPlayerView extends React.Component {
       );
     }
 
-    let controlsView;
-    if (this.props.controls) {
-      controlsView = (
-        <Controls
-          buffering={this.state.buffering}
-          playing={this.state.playing}
-          current={this.state.current}
-          total={this.state.total}
-          onSeekTo={this.seekTo.bind(this)}
-          onPauseOrPlay={() => {
-            if(this.state.playing) {
-              this.pause();
-            } else {
-              this.play();
-            }
-          }}
-          bufferRanges={this.state.bufferRanges}
-        />
-      );
-    }
-
     return (
       <View
         style={this.props.style}
@@ -124,7 +101,6 @@ export default class MediaPlayerView extends React.Component {
         />
 
         {posterView}
-        {controlsView}
       </View>
     );
   }
