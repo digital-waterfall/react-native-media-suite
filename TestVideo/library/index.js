@@ -1,8 +1,7 @@
 'use strict';
 
-import MediaPlayerView from './MediaPlayerView';
+import MediaPlayerView from './media-player/media-player-view';
+import MediaDownloader from './media-downloader/media-downloader';
 
-const Video = MediaPlayerView;
-const Audio = MediaPlayerView;
-
-export {Video, Audio};
+export default MediaPlayerView;
+export { MediaDownloader};

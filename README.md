@@ -108,7 +108,7 @@ The API is designed to mimics html [`<video />`](https://developer.mozilla.org/e
 - ***seekTo***
 
 
-For details about the usage of above APIs, check `library/MediaPlayerView.js`.
+For details about the usage of above APIs, check `library/media-player-view.js`.
 
 
 
