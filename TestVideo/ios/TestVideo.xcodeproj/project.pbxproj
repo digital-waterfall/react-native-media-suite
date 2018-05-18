@@ -37,6 +37,10 @@
 		2DF0FFEE2056DD460020B375 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3DAD3EA31DF850E9000B6D8A /* libReact.a */; };
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		622B5E4220AC6A0A000B80DB /* libreact-native-media-kit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 622B5E3120AC680C000B80DB /* libreact-native-media-kit.a */; };
+		62DD6D4820AEA1D2008A0652 /* RNPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 767AE6861FCE49BA84AABB21 /* RNPlaceholder.swift */; };
+		62DD6D4920AEA1D2008A0652 /* RNPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 767AE6861FCE49BA84AABB21 /* RNPlaceholder.swift */; };
+		62DD6D4A20AEA1D2008A0652 /* RNPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 767AE6861FCE49BA84AABB21 /* RNPlaceholder.swift */; };
+		68FF0B5CF87D46B8B1192955 /* RNPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 767AE6861FCE49BA84AABB21 /* RNPlaceholder.swift */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
 /* End PBXBuildFile section */
@@ -349,6 +353,7 @@
 		2D16E6891FA4F8E400B85C8A /* libReact.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libReact.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTAnimation.xcodeproj; path = "../node_modules/react-native/Libraries/NativeAnimation/RCTAnimation.xcodeproj"; sourceTree = "<group>"; };
 		622B5E1720AC680C000B80DB /* react-native-media-kit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "react-native-media-kit.xcodeproj"; path = "../../ios/react-native-media-kit.xcodeproj"; sourceTree = "<group>"; };
+		767AE6861FCE49BA84AABB21 /* RNPlaceholder.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; path = RNPlaceholder.swift; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
@@ -551,6 +556,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		62DD6D4B20AEA1D2008A0652 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				767AE6861FCE49BA84AABB21 /* RNPlaceholder.swift */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		78C398B11ACF4ADC00677621 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -597,6 +610,7 @@
 				00E356EF1AD99517003FC87E /* TestVideoTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
+				62DD6D4B20AEA1D2008A0652 /* Recovered References */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -704,7 +718,7 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 610;
 				ORGANIZATIONNAME = Facebook;
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
@@ -1137,6 +1151,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				00E356F31AD99517003FC87E /* TestVideoTests.m in Sources */,
+				62DD6D4820AEA1D2008A0652 /* RNPlaceholder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1146,6 +1161,7 @@
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				68FF0B5CF87D46B8B1192955 /* RNPlaceholder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1155,6 +1171,7 @@
 			files = (
 				2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */,
 				2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */,
+				62DD6D4920AEA1D2008A0652 /* RNPlaceholder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1163,6 +1180,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2DCD954D1E0B4F2C00145EB5 /* TestVideoTests.m in Sources */,
+				62DD6D4A20AEA1D2008A0652 /* RNPlaceholder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1210,6 +1228,7 @@
 					"-lc++",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestVideo.app/TestVideo";
 			};
 			name = Debug;
@@ -1227,6 +1246,7 @@
 					"-lc++",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestVideo.app/TestVideo";
 			};
 			name = Release;
@@ -1245,6 +1265,7 @@
 					"-lc++",
 				);
 				PRODUCT_NAME = TestVideo;
+				SWIFT_VERSION = 4.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -1262,6 +1283,7 @@
 					"-lc++",
 				);
 				PRODUCT_NAME = TestVideo;
+				SWIFT_VERSION = 4.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
@@ -1287,6 +1309,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.TestVideo-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.2;
 			};
@@ -1313,6 +1336,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.TestVideo-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.2;
 			};
@@ -1338,6 +1362,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.TestVideo-tvOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestVideo-tvOS.app/TestVideo-tvOS";
 				TVOS_DEPLOYMENT_TARGET = 10.1;
 			};
@@ -1363,6 +1388,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.TestVideo-tvOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestVideo-tvOS.app/TestVideo-tvOS";
 				TVOS_DEPLOYMENT_TARGET = 10.1;
 			};
@@ -1406,6 +1432,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -1440,6 +1467,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_VERSION = 4.0;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

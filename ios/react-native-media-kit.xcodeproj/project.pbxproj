@@ -9,7 +9,8 @@
 /* Begin PBXBuildFile section */
 		5FDB0B7A1CBB7B1900EDD727 /* RCTMediaPlayerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FDB0B771CBB7B1900EDD727 /* RCTMediaPlayerManager.m */; };
 		5FDB0B7B1CBB7B1900EDD727 /* RCTMediaPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FDB0B791CBB7B1900EDD727 /* RCTMediaPlayerView.m */; };
-		622B5E6020ADA3F0000B80DB /* RCTMediaDownloaderManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 622B5E5F20ADA3F0000B80DB /* RCTMediaDownloaderManager.m */; };
+		62DD6D2B20AE9F48008A0652 /* RCTMediaDownloaderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62DD6D2A20AE9F48008A0652 /* RCTMediaDownloaderManager.swift */; };
+		62DD6D2D20AE9F68008A0652 /* RCTMediaDownloaderManagerBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 62DD6D2C20AE9F68008A0652 /* RCTMediaDownloaderManagerBridge.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -30,8 +31,9 @@
 		5FDB0B771CBB7B1900EDD727 /* RCTMediaPlayerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTMediaPlayerManager.m; sourceTree = "<group>"; };
 		5FDB0B781CBB7B1900EDD727 /* RCTMediaPlayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTMediaPlayerView.h; sourceTree = "<group>"; };
 		5FDB0B791CBB7B1900EDD727 /* RCTMediaPlayerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTMediaPlayerView.m; sourceTree = "<group>"; };
-		622B5E5F20ADA3F0000B80DB /* RCTMediaDownloaderManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTMediaDownloaderManager.m; sourceTree = "<group>"; };
-		622B5E6120ADA5FC000B80DB /* RCTMediaDownloadManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTMediaDownloadManager.h; sourceTree = "<group>"; };
+		62DD6D2920AE9F47008A0652 /* react-native-media-kit-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "react-native-media-kit-Bridging-Header.h"; sourceTree = "<group>"; };
+		62DD6D2A20AE9F48008A0652 /* RCTMediaDownloaderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RCTMediaDownloaderManager.swift; sourceTree = "<group>"; };
+		62DD6D2C20AE9F68008A0652 /* RCTMediaDownloaderManagerBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTMediaDownloaderManagerBridge.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,8 +79,9 @@
 		622B5E4C20AD9860000B80DB /* media-downloader */ = {
 			isa = PBXGroup;
 			children = (
-				622B5E5F20ADA3F0000B80DB /* RCTMediaDownloaderManager.m */,
-				622B5E6120ADA5FC000B80DB /* RCTMediaDownloadManager.h */,
+				62DD6D2A20AE9F48008A0652 /* RCTMediaDownloaderManager.swift */,
+				62DD6D2920AE9F47008A0652 /* react-native-media-kit-Bridging-Header.h */,
+				62DD6D2C20AE9F68008A0652 /* RCTMediaDownloaderManagerBridge.m */,
 			);
 			path = "media-downloader";
 			sourceTree = "<group>";
@@ -141,8 +144,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				62DD6D2D20AE9F68008A0652 /* RCTMediaDownloaderManagerBridge.m in Sources */,
+				62DD6D2B20AE9F48008A0652 /* RCTMediaDownloaderManager.swift in Sources */,
 				5FDB0B7B1CBB7B1900EDD727 /* RCTMediaPlayerView.m in Sources */,
-				622B5E6020ADA3F0000B80DB /* RCTMediaDownloaderManager.m in Sources */,
 				5FDB0B7A1CBB7B1900EDD727 /* RCTMediaPlayerManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -241,7 +245,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "react-native-media-kit-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "media-downloader/react-native-media-kit-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 			};
@@ -256,7 +260,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "react-native-media-kit-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "media-downloader/react-native-media-kit-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
