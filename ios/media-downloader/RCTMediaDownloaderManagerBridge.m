@@ -3,6 +3,6 @@
 
 @interface RCT_EXTERN_MODULE(MediaDownloader, NSObject)
 
-RCT_EXTERN_METHOD(test:(NSString *)name)
+RCT_EXTERN_METHOD(setupAssetDownload:(NSString *)url)
 
 @end
