@@ -26,7 +26,7 @@ class MediaDownloader: RCTEventEmitter {
         // Create new AVAssetDownloadTask for the desired asset
         if #available(iOS 10.0, *) {
             let downloadTask = downloadSession?.makeAssetDownloadTask(asset: asset,
-                                                                     assetTitle: "Test Asset",
+                                                                     assetTitle: "Zootopia",
                                                                      assetArtworkData: nil,
                                                                      options: nil)
             // Start task and begin download
@@ -48,7 +48,7 @@ extension MediaDownloader: AVAssetDownloadDelegate {
         //Called when a download task has finished downloading a requested asset.
         NSLog("onDownloadFinished")
         NSLog(location.relativeString)
-        UserDefaults.standard.set(location.relativePath, forKey: assetDownloadTask.urlAsset.url.absoluteString)
+        UserDefaults.standard.set(location.relativeString, forKey: assetDownloadTask.urlAsset.url.absoluteString)
         self.sendEvent(withName: "onDownloadFinished", body:"Finished Downloading!: " + location.absoluteString)
     }
     
@@ -65,7 +65,7 @@ extension MediaDownloader: AVAssetDownloadDelegate {
         }
         percentComplete *= 100
         NSLog("onDownloadProgress")
-        self.sendEvent(withName: "onDownloadProgress", body: "Download progress update: " + String(percentComplete))
+        self.sendEvent(withName: "onDownloadProgress", body: String(percentComplete))
     }
     
     func urlSession(_ session: URLSession,

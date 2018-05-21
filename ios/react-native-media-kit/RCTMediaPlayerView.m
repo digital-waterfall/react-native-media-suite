@@ -53,7 +53,7 @@
       if (assetPath == nil) {
           player = [AVPlayer playerWithURL:[NSURL URLWithString:self.src]];
       } else {
-          NSURL *baseURL = [NSURL fileURLWithPath:NSHomeDirectory()];
+          NSURL *baseURL = [NSURL URLWithString: NSHomeDirectory()];
           NSURL *assetURL = [baseURL URLByAppendingPathComponent:assetPath];
           NSLog(assetURL.absoluteString);
           AVURLAsset *asset = [AVURLAsset assetWithURL:assetURL];
