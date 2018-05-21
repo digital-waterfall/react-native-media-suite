@@ -7,7 +7,7 @@ class MediaDownloader: RCTEventEmitter {
     var downloadSession: AVAssetDownloadURLSession?
     
     override func supportedEvents() -> [String]! {
-        return ["testEvent1", "testEvent2", "testEvent3"]
+        return ["onDownloadFinished", "onDownloadProgress", "onDownloadStarted"]
     }
     
     @objc(setupAssetDownload:)
@@ -46,8 +46,10 @@ extension MediaDownloader: AVAssetDownloadDelegate {
                     assetDownloadTask: AVAssetDownloadTask,
                     didFinishDownloadingTo location: URL) {
         //Called when a download task has finished downloading a requested asset.
-        NSLog("testEvent1")
-        self.sendEvent(withName: "testEvent1", body:"Finished Downloading!")
+        NSLog("onDownloadFinished")
+        NSLog(location.relativeString)
+        UserDefaults.standard.set(location.relativePath, forKey: assetDownloadTask.urlAsset.url.absoluteString)
+        self.sendEvent(withName: "onDownloadFinished", body:"Finished Downloading!: " + location.absoluteString)
     }
     
     func urlSession(_ session: URLSession, assetDownloadTask: AVAssetDownloadTask, didLoad timeRange: CMTimeRange, totalTimeRangesLoaded loadedTimeRanges: [NSValue], timeRangeExpectedToLoad: CMTimeRange) {
@@ -62,16 +64,16 @@ extension MediaDownloader: AVAssetDownloadDelegate {
             percentComplete += loadedTimeRange.duration.seconds / timeRangeExpectedToLoad.duration.seconds
         }
         percentComplete *= 100
-        NSLog("testEvent2")
-        self.sendEvent(withName: "testEvent2", body: "Download progress update: " + String(percentComplete))
+        NSLog("onDownloadProgress")
+        self.sendEvent(withName: "onDownloadProgress", body: "Download progress update: " + String(percentComplete))
     }
     
     func urlSession(_ session: URLSession,
                     assetDownloadTask: AVAssetDownloadTask,
                     didResolve resolvedMediaSelection: AVMediaSelection) {
         //Called when the media selection for the download is fully resolved, including any automatic selections.
-        NSLog("testEvent3")
-        self.sendEvent(withName: "testEvent3", body: "Media selection for the download is fully resolved, Starting Download!")
+        NSLog("onDownloadStarted")
+        self.sendEvent(withName: "onDownloadStarted", body: "Media selection for the download is fully resolved, Starting Download!1")
     }
     
 }

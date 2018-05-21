@@ -49,7 +49,23 @@
 
 - (void)initPlayerIfNeeded {
   if(!player) {
-    player = [AVPlayer playerWithURL:[NSURL URLWithString:self.src]];
+      NSString *assetPath = [[[NSUserDefaults standardUserDefaults] URLForKey:self.src] relativeString];
+      if (assetPath == nil) {
+          player = [AVPlayer playerWithURL:[NSURL URLWithString:self.src]];
+      } else {
+          NSURL *baseURL = [NSURL fileURLWithPath:NSHomeDirectory()];
+          NSURL *assetURL = [baseURL URLByAppendingPathComponent:assetPath];
+          NSLog(assetURL.absoluteString);
+          AVURLAsset *asset = [AVURLAsset assetWithURL:assetURL];
+          
+          if ([asset.assetCache isPlayableOffline]) {
+              player = [AVPlayer playerWithURL:assetURL];
+          } else {
+              NSLog(@"Cannot play this asset offline!");
+          }
+       }
+    }
+      
     [self setPlayer:player];
     [self addProgressObserver];
     [self addObservers];
@@ -61,7 +77,6 @@
         player.muted = NO;
       }
     }
-  }
 }
 
 - (void)releasePlayer {
@@ -83,6 +98,7 @@
 - (void) setSrc: (NSString *)uri {
   NSLog(@"setSrc...src=%@", uri);
   _src = uri;
+  
 
   if(player) {
     [self releasePlayer];
