@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 
 import ReactNative, {
     View,
-    requireNativeComponent
+    requireNativeComponent,
+    UIManager
 } from 'react-native';
 
 class MediaPlayerView extends Component {
@@ -11,6 +12,7 @@ class MediaPlayerView extends Component {
         autoplay: false,
         preload: 'none',
         loop: false,
+        ignoreSilentSwitch: true
     };
 
     constructor(props) {
@@ -182,6 +184,7 @@ MediaPlayerView.propTypes = {
     preload: PropTypes.string,
     loop: PropTypes.bool,
     muted: PropTypes.bool,
+    ignoreSilentSwitch: PropTypes.bool,
 
     onPlayerPaused: PropTypes.func,
     onPlayerPlaying: PropTypes.func,

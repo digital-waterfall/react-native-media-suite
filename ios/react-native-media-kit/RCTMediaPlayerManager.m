@@ -15,6 +15,7 @@ RCT_EXPORT_VIEW_PROPERTY(src, NSString*)
 RCT_EXPORT_VIEW_PROPERTY(preload, NSString*)
 RCT_EXPORT_VIEW_PROPERTY(loop, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(muted, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(ignoreSilentSwitch, BOOL)
 
 
 RCT_EXPORT_VIEW_PROPERTY(onPlayerPaused, RCTBubblingEventBlock)
@@ -24,6 +25,7 @@ RCT_EXPORT_VIEW_PROPERTY(onPlayerBuffering, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onPlayerBufferOK, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onPlayerProgress, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onPlayerBufferChange, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onPlaybackError, RCTBubblingEventBlock)
 
 
 - (NSDictionary<NSString *, id> *)constantsToExport {

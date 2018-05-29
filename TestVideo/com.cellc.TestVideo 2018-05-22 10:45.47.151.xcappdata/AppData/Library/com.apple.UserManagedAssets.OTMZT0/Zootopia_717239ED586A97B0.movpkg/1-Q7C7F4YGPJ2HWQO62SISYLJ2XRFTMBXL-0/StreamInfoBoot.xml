@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StreamInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://apple.com/IMG/Schemas/HLSPersistentStreamInfo" xsi:schemaLocation="http://apple.com/IMG/Schemas/HLSPersistentStreamInfo /System/Library/Schemas/HLSPersistentStreamInfo.xsd">
+  <Version>1.0</Version>
+  <Complete>YES</Complete>
+  <PeakBandwidth>0</PeakBandwidth>
+  <Compressable>NO</Compressable>
+  
+<MediaPlaylist><NetworkURL>https://d2h2jy22itvgms.cloudfront.net/hls/_hls_audio_160k__v4.m3u8</NetworkURL><PathToLocalCopy>1-Q7C7F4YGPJ2HWQO62SISYLJ2XRFTMBXL-0.m3u8</PathToLocalCopy></MediaPlaylist><MediaTypeList><MediaType type="soun"/></MediaTypeList><Type>Supplemental</Type><EvictionPolicy>StreamInfoEvictionPolicyPersists</EvictionPolicy><MediaSegments><SEG URL="https://d2h2jy22itvgms.cloudfront.net/hls/_hls_audio_160k_.ts" PATH="[0]_[0]_[4.01706].frag" Tim="0.0000000" Dur="4.0170551" Off="0" Len="91368"/></MediaSegments><MediaBytesStored>91368</MediaBytesStored></StreamInfo>

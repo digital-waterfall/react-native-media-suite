@@ -49,34 +49,38 @@
 
 - (void)initPlayerIfNeeded {
   if(!player) {
-      NSString *assetPath = [[[NSUserDefaults standardUserDefaults] URLForKey:self.src] relativeString];
+      NSString *assetPath = [[[NSUserDefaults standardUserDefaults] URLForKey:self.src] relativePath];
       if (assetPath == nil) {
           player = [AVPlayer playerWithURL:[NSURL URLWithString:self.src]];
       } else {
-          NSURL *baseURL = [NSURL URLWithString: NSHomeDirectory()];
+          NSURL *baseURL = [NSURL fileURLWithPath: NSHomeDirectory()];
           NSURL *assetURL = [baseURL URLByAppendingPathComponent:assetPath];
-          NSLog(assetURL.absoluteString);
-          AVURLAsset *asset = [AVURLAsset assetWithURL:assetURL];
+          AVURLAsset *asset = [AVURLAsset URLAssetWithURL:assetURL options:nil];
           
           if ([asset.assetCache isPlayableOffline]) {
-              player = [AVPlayer playerWithURL:assetURL];
+              player = [AVPlayer playerWithPlayerItem:[AVPlayerItem playerItemWithAsset:[AVURLAsset URLAssetWithURL:assetURL options:nil]]];
           } else {
-              NSLog(@"Cannot play this asset offline!");
+              self.onPlaybackError(@{@"Error": @"The asset cannot be played offline."});
+              NSLog(@"he asset cannot be played offline.!");
           }
        }
-    }
       
-    [self setPlayer:player];
-    [self addProgressObserver];
-    [self addObservers];
-
-    if(player) {
-      if(self.muted) {
-        player.muted = YES;
-      } else {
-        player.muted = NO;
+      if (_ignoreSilentSwitch) {
+          [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: nil];
       }
-    }
+      
+      [self setPlayer:player];
+      [self addProgressObserver];
+      [self addObservers];
+      
+      if(player) {
+          if(self.muted) {
+              player.muted = YES;
+          } else {
+              player.muted = NO;
+          }
+      }
+  }
 }
 
 - (void)releasePlayer {
@@ -122,6 +126,12 @@
   NSLog(@"setMuted...muted=%d", muted);
   _muted = muted;
   [self updateProps];
+}
+
+- (void) setIgnoreSilentSwitch:(BOOL)ignoreSilentSwitch {
+    NSLog(@"setIgnoreSilentSwitch...ignoreSilentSwitch=%d", ignoreSilentSwitch);
+    _ignoreSilentSwitch = ignoreSilentSwitch;
+    [self updateProps];
 }
 
 - (void) layoutSubviews {
@@ -248,6 +258,7 @@
   if (player) {
     [player addObserver:self forKeyPath:@"rate" options:0 context:nil];
     if (player.currentItem) {
+//      [player addObserver:self forKeyPath:@"status" options:0 context:nil];
       [player.currentItem addObserver:self forKeyPath:@"status" options:0 context:nil];
       [player.currentItem addObserver:self forKeyPath:@"loadedTimeRanges" options:0 context:nil];
       [player.currentItem addObserver:self forKeyPath:@"playbackBufferFull" options:0 context:nil];
@@ -261,6 +272,7 @@
   if (player) {
     [player removeObserver:self forKeyPath:@"rate"];
     if (player.currentItem) {
+//      [player removeObserver:self forKeyPath:@"status"];
       [player.currentItem removeObserver:self forKeyPath:@"status"];
       [player.currentItem removeObserver:self forKeyPath:@"loadedTimeRanges"];
       [player.currentItem removeObserver:self forKeyPath:@"playbackBufferFull"];
@@ -313,6 +325,7 @@
       NSLog(@"status...unknown");
     } else if(playerItem.status == AVPlayerItemStatusFailed) {
       NSLog(@"status...failed");
+      NSLog(@"%@",[playerItem.error localizedFailureReason]);
     }
   } else if ([keyPath isEqualToString:@"loadedTimeRanges"]) {
     NSMutableArray *array = [NSMutableArray arrayWithCapacity:1];

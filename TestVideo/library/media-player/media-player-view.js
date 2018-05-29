@@ -3,14 +3,16 @@ import PropTypes from 'prop-types';
 
 import ReactNative, {
     View,
-    requireNativeComponent
+    requireNativeComponent,
+    UIManager
 } from 'react-native';
 
 class MediaPlayerView extends Component {
     static defaultProps = {
         autoplay: false,
-        preload: 'none',
+        preload: 'auto',
         loop: false,
+        ignoreSilentSwitch: true
     };
 
     constructor(props) {
@@ -47,6 +49,7 @@ class MediaPlayerView extends Component {
                     onPlayerBufferOK={this._onPlayerBufferOK.bind(this)}
                     onPlayerFinished={this._onPlayerFinished.bind(this)}
                     onPlayerBufferChange={this._onPlayerBufferChange.bind(this)}
+                    onPlaybackError={this._onPlaybackError(this)}
                 />
             </View>
         );
@@ -61,14 +64,14 @@ class MediaPlayerView extends Component {
 
     pause() {
         UIManager.dispatchViewManagerCommand(
-            this._getMediaPlayerViewHandle(),
-            UIManager.RCTMediaPlayerView.Commands.pause,
+            // this._getMediaPlayerViewHandle(),
+            RCTMediaPlayerView.Commands.pause,
             null
         );
     }
 
     play() {
-        this.setState({showPoster: false})
+        this.setState({showPoster: false});
         UIManager.dispatchViewManagerCommand(
             this._getMediaPlayerViewHandle(),
             UIManager.RCTMediaPlayerView.Commands.play,
@@ -79,7 +82,7 @@ class MediaPlayerView extends Component {
     stop() {
         UIManager.dispatchViewManagerCommand(
             this._getMediaPlayerViewHandle(),
-            UIManager.RCTMediaPlayerView.Commands.stop,
+            RCTMediaPlayerView.Commands.stop,
             null
         );
     }
@@ -89,7 +92,7 @@ class MediaPlayerView extends Component {
         let args = [timeMs];
         UIManager.dispatchViewManagerCommand(
             this._getMediaPlayerViewHandle(),
-            UIManager.RCTMediaPlayerView.Commands.seekTo,
+            RCTMediaPlayerView.Commands.seekTo,
             args
         );
     }
@@ -166,13 +169,13 @@ class MediaPlayerView extends Component {
         let total = event.nativeEvent.total; //in ms
 
         this.props.onPlayerProgress && this.props.onPlayerProgress(current, total);
+    }
 
-        if (this.props.controls) {
-            this.setState({
-                current: current,
-                total: total
-            });
-        }
+    _onPlaybackError(event) {
+        console.log(event);
+        // const error = event.nativeEvent.error;
+
+        // this.props.onPlaybackError(error);
     }
 }
 
@@ -182,6 +185,7 @@ MediaPlayerView.propTypes = {
     preload: PropTypes.string,
     loop: PropTypes.bool,
     muted: PropTypes.bool,
+    ignoreSilentSwitch: PropTypes.bool,
 
     onPlayerPaused: PropTypes.func,
     onPlayerPlaying: PropTypes.func,
@@ -189,7 +193,8 @@ MediaPlayerView.propTypes = {
     onPlayerBuffering: PropTypes.func,
     onPlayerBufferOK: PropTypes.func,
     onPlayerProgress: PropTypes.func,
-    onPlayerBufferChange: PropTypes.func
+    onPlayerBufferChange: PropTypes.func,
+    onPlaybackError: PropTypes.func
 };
 
 const RCTMediaPlayerView = requireNativeComponent('RCTMediaPlayerView', MediaPlayerView);
