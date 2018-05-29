@@ -61,7 +61,7 @@
               player = [AVPlayer playerWithPlayerItem:[AVPlayerItem playerItemWithAsset:[AVURLAsset URLAssetWithURL:assetURL options:nil]]];
           } else {
               self.onPlaybackError(@{@"Error": @"The asset cannot be played offline."});
-              NSLog(@"he asset cannot be played offline.!");
+              NSLog(@"The asset cannot be played offline!");
           }
        }
       

@@ -10,11 +10,10 @@ class MediaDownloader: RCTEventEmitter {
     fileprivate var activeDownloadsMap = [String: AVAssetDownloadTask]()
     
     override func supportedEvents() -> [String]! {
-        return ["onDownloadFinished", "onDownloadProgress", "onDownloadStarted", "onDownloadError"]
+        return ["onDownloadFinished", "onDownloadProgress", "onDownloadStarted", "onDownloadError", "onDownloadCanceled"]
     }
     
-    @objc
-    func restoreMediaDownloader() {
+    @objc func restoreMediaDownloader() {
         guard !didRestorePersistenceManager else { return }
         
         didRestorePersistenceManager = true
@@ -48,7 +47,7 @@ class MediaDownloader: RCTEventEmitter {
         
         self.prepareDownloader()
         
-        if !(isDownloaded(url: url)) && !(isDownloading(downloadID: downloadID)) {
+        if !(isDownloaded(downloadID: downloadID)) && !(isDownloading(downloadID: downloadID)) {
         
             let asset = AVURLAsset(url: URL(string:url)!)
             
@@ -67,63 +66,70 @@ class MediaDownloader: RCTEventEmitter {
                                                                          assetArtworkData: nil)
                 }
                 
-                downloadTask?.taskDescription = downloadID as String
+                downloadTask?.taskDescription = downloadID
                 downloadTask?.resume()
                 activeDownloadsMap[downloadID] = downloadTask
-                NSLog("Download started for asset from: %s", url)
                 
             } else {
-                self.sendEvent(withName: "onDownloadError", body:["error" : "Download not supported for iOS versions prior to iOS 10"])
+                self.sendEvent(withName: "onDownloadError", body:["error" : "Download not supported for iOS versions prior to iOS 10", "downloadID" : downloadID])
                 return
             }
         } else {
-            self.sendEvent(withName: "onDownloadError", body: ["error" : "The asset is already downloaded"])
+            self.sendEvent(withName: "onDownloadError", body: ["error" : "The asset is already downloaded", "downloadID" : downloadID])
             return
         }
     }
     
-    @objc(isDownloaded:callback:)
-    func isDownloaded(url: NSString, callback isDownloadedCallback: RCTResponseSenderBlock) {
-        isDownloadedCallback([NSNull(), isDownloaded(url: url as String)])
+    @objc func isDownloaded(_ downloadID: String, isDownloadedCallback: RCTResponseSenderBlock) {
+        isDownloadedCallback([NSNull(), isDownloaded(downloadID: downloadID)])
     }
     
-    func isDownloaded(url: String) -> Bool {
-        if UserDefaults.standard.object(forKey: url) != nil {
+    func isDownloaded(downloadID: String) -> Bool {
+        if UserDefaults.standard.object(forKey: downloadID) != nil {
             let baseURL = URL(fileURLWithPath: NSHomeDirectory())
-            let assetURL = baseURL.appendingPathComponent((UserDefaults.standard.url(forKey: url)?.relativeString)!)
+            let assetURL = baseURL.appendingPathComponent((UserDefaults.standard.url(forKey: downloadID)?.relativeString)!)
             if FileManager.default.fileExists(atPath: assetURL.path) {
                 return true
             }
-            UserDefaults.standard.removeObject(forKey: url)
+            UserDefaults.standard.removeObject(forKey: downloadID)
             return false
         }
         return false
     }
     
     func isDownloading(downloadID: String) -> Bool {
-        print(activeDownloadsMap.keys.contains(downloadID))
         return activeDownloadsMap.keys.contains(downloadID)
     }
     
-    @objc func deleteDownloadedStream(_ url: String) {
+    @objc func deleteDownloadedStream(_ downloadID: String) {
         let userDefaults = UserDefaults.standard
         
-        if isDownloaded(url: url as String) {
+        if isDownloaded(downloadID: downloadID) {
             do {
                 let baseURL = URL(fileURLWithPath: NSHomeDirectory())
-                let assetURL = baseURL.appendingPathComponent((UserDefaults.standard.url(forKey: url)?.relativeString)!)
+                let assetURL = baseURL.appendingPathComponent((UserDefaults.standard.url(forKey: downloadID)?.relativeString)!)
                 try FileManager.default.removeItem(atPath: assetURL.path)
                 
-                userDefaults.removeObject(forKey: url as String)
+                userDefaults.removeObject(forKey: downloadID)
             } catch {
-                self.sendEvent(withName: "onDownloadError", body: ["error" : "An error occured deleting the file: \(error)"])
+                self.sendEvent(withName: "onDownloadError", body: ["error" : "An error occured deleting the file: \(error)", "downloadID" : downloadID])
             }
         }
     }
     
-    @objc(cancelDownload:)
-    func cancelDownload(downloadID: NSString) {
-         activeDownloadsMap[downloadID as String]?.cancel()
+    @objc func cancelDownload(_ downloadID: String) {
+         activeDownloadsMap[downloadID]?.cancel()
+        print("(\(downloadID)) canceled")
+    }
+    
+    @objc func pauseDownload(_ downloadID: String) {
+        activeDownloadsMap[downloadID]?.suspend()
+        print("(\(downloadID)) paused")
+    }
+    
+    @objc func resumeDownload(_ downloadID: String) {
+        activeDownloadsMap[downloadID]?.resume()
+        print("(\(downloadID)) resumed")
     }
     
 }
@@ -134,16 +140,21 @@ extension MediaDownloader: AVAssetDownloadDelegate {
                     task: URLSessionTask,
                     didCompleteWithError error: Error?) {
         
+        activeDownloadsMap.removeValue(forKey: task.taskDescription!)
+        
         if let error = error as NSError? {
             switch (error.domain, error.code) {
             case (NSURLErrorDomain, NSURLErrorCancelled):
-                NSLog("Canceled")
+                deleteDownloadedStream(task.taskDescription!)
+                print("Deleting downloaded files.")
+                self.sendEvent(withName: "onDownloadCanceled", body: ["downloadID" : task.taskDescription])
+                
             case (NSURLErrorDomain, NSURLErrorUnknown):
-                self.sendEvent(withName: "onDownloadError", body:["error" : "Downloading HLS streams is not supported in the simulator."])
+                self.sendEvent(withName: "onDownloadError", body:["downloadID" : task.taskDescription, "error" : "Downloading HLS streams is not supported in the simulator."])
                 print("Downloading HLS streams is not supported in the simulator.")
                 
             default:
-                self.sendEvent(withName: "onDownloadError", body:["error" : "An unexpected error occured \(error.domain)"])
+                self.sendEvent(withName: "onDownloadError", body:["downloadID" : task.taskDescription, "error" : "An unexpected error occured \(error.domain)"])
                 print("An unexpected error occured \(error.domain)")
             }
         }
@@ -155,10 +166,10 @@ extension MediaDownloader: AVAssetDownloadDelegate {
                     didFinishDownloadingTo location: URL) {
         
         activeDownloadsMap.removeValue(forKey: assetDownloadTask.taskDescription!)
-        NSLog(location.relativeString)
-        UserDefaults.standard.set(location.relativePath, forKey: assetDownloadTask.urlAsset.url.absoluteString)
+
+        UserDefaults.standard.set(location.relativePath, forKey: assetDownloadTask.taskDescription!)
         
-        self.sendEvent(withName: "onDownloadFinished", body:["downloadID" : assetDownloadTask.taskDescription, "dwonloadLocation" : location.relativeString])
+        self.sendEvent(withName: "onDownloadFinished", body:["downloadID" : assetDownloadTask.taskDescription!, "dwonloadLocation" : location.relativeString])
         NSLog("Asset download")
         
     }

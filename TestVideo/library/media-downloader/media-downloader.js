@@ -8,13 +8,14 @@ export default class Downloader {
         this.onDownloadStarted = this.onDownloadStarted.bind(this);
         this.onDownloadFinished = this.onDownloadFinished.bind(this);
         this.onDownloadError = this.onDownloadError.bind(this);
+        this.onDownloadCanceled = this.onDownloadCanceled.bind(this);
+        this.pauseDownload = this.pauseDownload.bind(this);
+        this.resumeDownload = this.resumeDownload.bind(this);
         this.cancelDownload = this.cancelDownload.bind(this);
         this.downloadStream = this.downloadStream.bind(this);
         this.restoreMediaDownloader = this.restoreMediaDownloader.bind(this);
 
         this.downloadEvents = downloadEvents || {};
-
-        this.downloadedItems = [];
 
         this.downloader = NativeModules.MediaDownloader;
         const downloaderEvent = new NativeEventEmitter(NativeModules.MediaDownloader);
@@ -23,6 +24,7 @@ export default class Downloader {
         downloaderEvent.addListener('onDownloadProgress', this.onDownloadProgress);
         downloaderEvent.addListener('onDownloadStarted', this.onDownloadStarted);
         downloaderEvent.addListener('onDownloadError', this.onDownloadError);
+        downloaderEvent.addListener('onDownloadCanceled', this.onDownloadCanceled);
     }
 
     restoreMediaDownloader() {
@@ -39,6 +41,14 @@ export default class Downloader {
 
     deleteDownloadedStream(url) {
         this.downloader.deleteDownloadedStream(url);
+    }
+
+    pauseDownload(downloadID) {
+        this.downloader.pauseDownload(downloadID);
+    }
+
+    resumeDownload(downloadID) {
+        this.downloader.resumeDownload(downloadID);
     }
 
     cancelDownload(downloadID) {
@@ -59,5 +69,9 @@ export default class Downloader {
 
     onDownloadError(data) {
         if (this.downloadEvents.onDownloadError) this.downloadEvents.onDownloadError(data);
+    }
+
+    onDownloadCanceled(data) {
+        if (this.downloadEvents.onDownloadCanceled) this.downloadEvents.onDownloadCanceled(data);
     }
 }
