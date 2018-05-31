@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<HLSMoviePackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://apple.com/IMG/Schemas/HLSMoviePackage" xsi:schemaLocation="http://apple.com/IMG/Schemas/HLSMoviePackage /System/Library/Schemas/HLSMoviePackage.xsd">
-  <Version>1.0</Version>
-  <HLSMoviePackageType>PersistedStore</HLSMoviePackageType>
-  <Streams><Stream ID="1-Q7C7F4YGPJ2HWQO62SISYLJ2XRFTMBXL-0" Path="1-Q7C7F4YGPJ2HWQO62SISYLJ2XRFTMBXL-0" NetworkURL="https://d2h2jy22itvgms.cloudfront.net/hls/_hls_audio_160k__v4.m3u8"><Complete>YES</Complete></Stream><Stream ID="0-52A5DZHQTTQILZ45EVOUDTGWZK2AX5OO-2389000" Path="0-52A5DZHQTTQILZ45EVOUDTGWZK2AX5OO-2389000" NetworkURL="https://d2h2jy22itvgms.cloudfront.net/hls/_hls_2m__v4.m3u8"><Complete>YES</Complete></Stream></Streams>
-<MasterPlaylist><NetworkURL>https://d2h2jy22itvgms.cloudfront.net/hls/short_test.m3u8</NetworkURL></MasterPlaylist><DataItems Directory="Data"><DataItem><ID>5C2B4E9A-CB3A-4CD8-B44C-2ECA65ADCD4B</ID><Category>Playlist</Category><Name>master.m3u8</Name><DataPath>Playlist-master.m3u8-5C2B4E9A-CB3A-4CD8-B44C-2ECA65ADCD4B.data</DataPath><Role>Master</Role></DataItem></DataItems></HLSMoviePackage>
