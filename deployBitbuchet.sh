@@ -8,4 +8,4 @@ rm -rf TestVideo/
 rm ./deployBitbuchet.sh
 git add .
 git commit -m 'Created release-'$VERSION
-git push
+git push --set-upstream origin "release-"$VERSION
