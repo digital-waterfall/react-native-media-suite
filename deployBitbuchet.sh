@@ -5,6 +5,6 @@ git checkout "release-"$VERSION
 git push origin "release-"$VERSION
 cp -R TestVideo/library library
 rm -rf TestVideo/
-rm ./deployBitbucket.sh
+rm ./deployBitbuchet.sh
 git add .
 git commit -m 'Created release-'$VERSION
