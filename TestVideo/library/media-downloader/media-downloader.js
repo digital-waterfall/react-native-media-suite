@@ -39,8 +39,8 @@ export default class Downloader {
         }
     }
 
-    deleteDownloadedStream(url) {
-        this.downloader.deleteDownloadedStream(url);
+    deleteDownloadedStream(downloadID) {
+        this.downloader.deleteDownloadedStream(downloadID);
     }
 
     pauseDownload(downloadID) {
