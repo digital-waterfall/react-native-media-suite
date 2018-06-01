@@ -71,19 +71,19 @@ class MediaDownloader: RCTEventEmitter {
                 activeDownloadsMap[downloadID] = downloadTask
                 
             } else {
-                self.sendEvent(withName: "onDownloadError", body:["error" : "Download not supported for iOS versions prior to iOS 10", "downloadID" : downloadID])
+                self.sendEvent(withName: "onDownloadError", body:["error" : "Download not supported for iOS versions prior to iOS 10", "errorType" : "NOT_SUPPORTED" "downloadID", : downloadID])
                 return
             }
         } else {
-            self.sendEvent(withName: "onDownloadError", body: ["error" : "The asset is already downloaded", "downloadID" : downloadID])
+            self.sendEvent(withName: "onDownloadError", body: ["error" : "The asset is already downloaded", "errorType" : "ALREADY_DOWNLOADED", "downloadID" : downloadID])
             return
         }
     }
-    
+
     @objc func isDownloaded(_ downloadID: String, isDownloadedCallback: RCTResponseSenderBlock) {
         isDownloadedCallback([NSNull(), isDownloaded(downloadID: downloadID)])
     }
-    
+
     func isDownloaded(downloadID: String) -> Bool {
         if UserDefaults.standard.object(forKey: downloadID) != nil {
             let baseURL = URL(fileURLWithPath: NSHomeDirectory())
@@ -96,65 +96,65 @@ class MediaDownloader: RCTEventEmitter {
         }
         return false
     }
-    
+
     func isDownloading(downloadID: String) -> Bool {
         return activeDownloadsMap.keys.contains(downloadID)
     }
-    
+
     @objc func deleteDownloadedStream(_ downloadID: String) {
         let userDefaults = UserDefaults.standard
-        
+
         if isDownloaded(downloadID: downloadID) {
             do {
                 let baseURL = URL(fileURLWithPath: NSHomeDirectory())
                 let assetURL = baseURL.appendingPathComponent((UserDefaults.standard.url(forKey: downloadID)?.relativeString)!)
                 try FileManager.default.removeItem(atPath: assetURL.path)
-                
+
                 userDefaults.removeObject(forKey: downloadID)
             } catch {
-                self.sendEvent(withName: "onDownloadError", body: ["error" : "An error occured deleting the file: \(error)", "downloadID" : downloadID])
+                self.sendEvent(withName: "onDownloadError", body: ["error" : "An error occured deleting the file: \(error)", "errorType" : "DELETE" "downloadID" : downloadID])
             }
         }
     }
-    
+
     @objc func cancelDownload(_ downloadID: String) {
          activeDownloadsMap[downloadID]?.cancel()
         print("(\(downloadID)) canceled")
     }
-    
+
     @objc func pauseDownload(_ downloadID: String) {
         activeDownloadsMap[downloadID]?.suspend()
         print("(\(downloadID)) paused")
     }
-    
+
     @objc func resumeDownload(_ downloadID: String) {
         activeDownloadsMap[downloadID]?.resume()
         print("(\(downloadID)) resumed")
     }
-    
+
 }
 
 extension MediaDownloader: AVAssetDownloadDelegate {
-    
+
     func urlSession(_ session: URLSession,
                     task: URLSessionTask,
                     didCompleteWithError error: Error?) {
-        
+
         activeDownloadsMap.removeValue(forKey: task.taskDescription!)
-        
+
         if let error = error as NSError? {
             switch (error.domain, error.code) {
             case (NSURLErrorDomain, NSURLErrorCancelled):
                 deleteDownloadedStream(task.taskDescription!)
                 print("Deleting downloaded files.")
                 self.sendEvent(withName: "onDownloadCanceled", body: ["downloadID" : task.taskDescription])
-                
+
             case (NSURLErrorDomain, NSURLErrorUnknown):
-                self.sendEvent(withName: "onDownloadError", body:["downloadID" : task.taskDescription, "error" : "Downloading HLS streams is not supported in the simulator."])
+                self.sendEvent(withName: "onDownloadError", body:["downloadID" : task.taskDescription, "error" : "Downloading HLS streams is not supported in the simulator.", "errorType" : "SIMULATOR_NOT_SUPPORTED"])
                 print("Downloading HLS streams is not supported in the simulator.")
-                
+
             default:
-                self.sendEvent(withName: "onDownloadError", body:["downloadID" : task.taskDescription, "error" : "An unexpected error occured \(error.domain)"])
+                self.sendEvent(withName: "onDownloadError", body:["downloadID" : task.taskDescription, "error" : "An unexpected error occured \(error.domain)", "errorType" : "UNKNOWN"])
                 print("An unexpected error occured \(error.domain)")
             }
         }
