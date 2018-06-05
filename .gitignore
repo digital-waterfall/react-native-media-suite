@@ -27,6 +27,7 @@ project.xcworkspace
 # Android/IJ
 #
 .idea
+node_modules/
 .gradle
 local.properties
 *.log

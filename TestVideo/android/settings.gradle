@@ -1,3 +1,6 @@
 rootProject.name = 'TestVideo'
 
 include ':app'
+
+include ':react-native-media-kit'
+project(':react-native-media-kit').projectDir = new File(rootProject.projectDir, '../../android')

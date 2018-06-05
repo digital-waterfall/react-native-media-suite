@@ -1,13 +1,25 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Platform } from 'react-native';
+import MediaPlayerView from './library/index';
+const videoUri = `https://d2h2jy22itvgms.cloudfront.net/${
+    Platform.OS === 'ios' ? 'hls' : 'dash'
+    }/269149/trailer.${Platform.OS === 'ios' ? 'm3u8' : 'mpd'}`;
 
 export default class App extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text>Open up App.js to start working on your app!</Text>
-        <Text>Changes you make will automatically reload.</Text>
-        <Text>Shake your phone to open the developer menu.</Text>
+          <MediaPlayerView
+              ref={(ref) => {
+                  this.player = ref
+              }}
+              style={{width: 200, height: 150, backgroundColor: 'black'}}
+              autoplay={true}
+              preload='auto'
+              loop={true}
+              muted={false}
+              src={videoUri}
+          />
       </View>
     );
   }
