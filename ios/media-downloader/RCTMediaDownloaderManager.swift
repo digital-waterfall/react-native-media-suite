@@ -18,10 +18,12 @@ class MediaDownloader: RCTEventEmitter {
         
         didRestorePersistenceManager = true
         
-        downloadSession.getAllTasks { tasksArray in
-            for task in tasksArray {
-                guard let downloadTask = task as? AVAssetDownloadTask, let assetID = task.taskDescription else { break }
-                self.activeDownloadsMap[assetID] = downloadTask
+        if (downloadSession != nil) {
+            downloadSession.getAllTasks { tasksArray in
+                for task in tasksArray {
+                    guard let downloadTask = task as? AVAssetDownloadTask, let assetID = task.taskDescription else { break }
+                    self.activeDownloadsMap[assetID] = downloadTask
+                }
             }
         }
     }
