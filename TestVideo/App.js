@@ -33,10 +33,10 @@ export default class App extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                <TouchableOpacity onPress={() => {this.downloader.downloadStream('https://d2h2jy22itvgms.cloudfront.net/hls/269149/trailer.m3u8', '269149')}}>
+                <TouchableOpacity onPress={() => {console.log('Setup download service.')}}>
                     <Text>setupAssetDownload()</Text>
                 </TouchableOpacity>
-                <Text>{ this.state.progress}%</Text>
+                <Text>{ this.state.progress }%</Text>
             </View>
         );
     }

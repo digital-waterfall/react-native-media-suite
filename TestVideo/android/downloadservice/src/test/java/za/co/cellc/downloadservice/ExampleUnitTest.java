@@ -1,4 +1,4 @@
-package com.example.download_service;
+package za.co.cellc.downloadservice;
 
 import org.junit.Test;
 

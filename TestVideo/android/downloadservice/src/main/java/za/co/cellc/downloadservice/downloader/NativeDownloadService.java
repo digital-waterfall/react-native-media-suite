@@ -1,4 +1,4 @@
-package com.example.download_service;
+package za.co.cellc.downloadservice.downloader;
 
 import android.app.Notification;
 
@@ -44,7 +44,7 @@ public class NativeDownloadService extends DownloadService {
                 /* message= */ null,
                 taskStates);
     }
-//
+
 //    @Override
 //    protected void onTaskStateChanged(TaskState taskState) {
 //        if (taskState.action.isRemoveAction) {

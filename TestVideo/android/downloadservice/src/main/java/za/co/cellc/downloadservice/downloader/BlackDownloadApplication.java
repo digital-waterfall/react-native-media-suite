@@ -1,6 +1,8 @@
-package com.example.download_service;
+package za.co.cellc.downloadservice.downloader;
 
 import android.app.Application;
+
+import com.google.android.exoplayer2.BuildConfig;
 import com.google.android.exoplayer2.offline.DownloadAction.Deserializer;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
