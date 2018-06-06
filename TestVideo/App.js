@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Platform } from 'react-native';
 import MediaPlayerView, {Downloader} from './library/index';
+import AndroidDownloader from './library/media-downloader/android-downloader';
 const videoUri = `https://d2h2jy22itvgms.cloudfront.net/${
     Platform.OS === 'ios' ? 'hls' : 'dash'
     }/269149/trailer.${Platform.OS === 'ios' ? 'm3u8' : 'mpd'}`;
@@ -20,6 +21,7 @@ export default class App extends React.Component {
         };
 
         this.onDownloadProgress = this.onDownloadProgress.bind(this);
+        this.androidDownloadTest = this.androidDownloadTest.bind(this);
         this.downloader = new Downloader({
             onDownloadProgress: this.onDownloadProgress,
             onDownloadError: (data) => console.log(data),
@@ -27,18 +29,23 @@ export default class App extends React.Component {
             onDownloadFinished: (data) => console.log(data),
             onDownloadCanceled: (data) => console.log(data)
         });
+        this.androidDownloader = new AndroidDownloader();
         console.log('Downloader',this.downloader);
     }
 
     render() {
         return (
             <View style={styles.container}>
-                <TouchableOpacity onPress={() => {console.log('Setup download service.')}}>
+                <TouchableOpacity onPress={this.androidDownloadTest}>
                     <Text>setupAssetDownload()</Text>
                 </TouchableOpacity>
                 <Text>{ this.state.progress }%</Text>
             </View>
         );
+    }
+
+    androidDownloadTest(){
+        this.androidDownloader.testFn();
     }
 
     renderVideo() {

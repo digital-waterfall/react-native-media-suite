@@ -10,6 +10,8 @@ import com.google.android.exoplayer2.ui.DownloadNotificationUtil;
 import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
 
+import za.co.cellc.downloadservice.R;
+
 public class NativeDownloadService extends DownloadService {
 
     private static final String CHANNEL_ID = "download_channel";
