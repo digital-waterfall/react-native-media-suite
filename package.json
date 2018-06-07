@@ -1,6 +1,6 @@
 {
   "name": "@cellc/yarnp",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "The native video player for Black. It was forked from react-native-media-kit.",
   "main": "library/index.js",
   "scripts": {
