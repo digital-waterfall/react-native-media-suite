@@ -171,7 +171,7 @@ extension MediaDownloader: AVAssetDownloadDelegate {
         
         UserDefaults.standard.set(location.relativePath, forKey: assetDownloadTask.taskDescription!)
         
-        self.sendEvent(withName: "onDownloadFinished", body:["downloadID" : assetDownloadTask.taskDescription!, "dwonloadLocation" : location.relativeString])
+        self.sendEvent(withName: "onDownloadFinished", body:["downloadID" : assetDownloadTask.taskDescription!, "downloadLocation" : location.relativeString])
         NSLog("Asset download")
         
     }

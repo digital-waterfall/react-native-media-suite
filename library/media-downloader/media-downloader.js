@@ -39,8 +39,8 @@ export default class Downloader {
         }
     }
 
-    deleteDownloadedStream(url) {
-        this.downloader.deleteDownloadedStream(url);
+    deleteDownloadedStream(downloadID) {
+        this.downloader.deleteDownloadedStream(downloadID);
     }
 
     pauseDownload(downloadID) {
@@ -56,15 +56,15 @@ export default class Downloader {
     }
 
     onDownloadProgress(data) {
-        if (this.downloadEvents.onDownloadProgress) this.downloadEvents.onDownloadProgress(data);
+        if (this.downloadEvents.onDownloadProgress) this.downloadEvents.onDownloadProgress(data.downloadID, data.percentComplete);
     }
 
     onDownloadStarted(data) {
-        if (this.downloadEvents.onDownloadStarted) this.downloadEvents.onDownloadStarted(data);
+        if (this.downloadEvents.onDownloadStarted) this.downloadEvents.onDownloadStarted(data.downloadID);
     }
 
     onDownloadFinished(data) {
-        if (this.downloadEvents.onDownloadFinished) this.downloadEvents.onDownloadFinished(data);
+        if (this.downloadEvents.onDownloadFinished) this.downloadEvents.onDownloadFinished(data.downloadID, data.dwonloadLocation);
     }
 
     onDownloadError(data) {
