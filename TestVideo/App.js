@@ -21,7 +21,6 @@ export default class App extends React.Component {
         };
 
         this.onDownloadProgress = this.onDownloadProgress.bind(this);
-        this.androidDownloadTest = this.androidDownloadTest.bind(this);
         this.downloader = new Downloader({
             onDownloadProgress: this.onDownloadProgress,
             onDownloadError: (data) => console.log(data),
@@ -30,22 +29,17 @@ export default class App extends React.Component {
             onDownloadCanceled: (data) => console.log(data)
         });
         this.androidDownloader = new AndroidDownloader();
-        console.log('Downloader',this.downloader);
     }
 
     render() {
         return (
             <View style={styles.container}>
-                <TouchableOpacity onPress={this.androidDownloadTest}>
+                <TouchableOpacity onPress={() => this.androidDownloader.downloadStream(videoUri, '269149')}>
                     <Text>setupAssetDownload()</Text>
                 </TouchableOpacity>
                 <Text>{ this.state.progress }%</Text>
             </View>
         );
-    }
-
-    androidDownloadTest(){
-        this.androidDownloader.testFn();
     }
 
     renderVideo() {

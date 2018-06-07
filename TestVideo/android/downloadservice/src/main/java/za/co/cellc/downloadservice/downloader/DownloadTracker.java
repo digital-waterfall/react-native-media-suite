@@ -98,7 +98,7 @@ public class DownloadTracker implements DownloadManager.Listener {
         return Collections.emptyList();
     }
 
-    public void toggleDownload(Activity activity, String name, Uri uri, String extension) {
+    public void toggleDownload( String name, Uri uri, String extension) {
         DownloadHelper downloadHelper = getDownloadHelper(uri, extension);
         if (isDownloaded(uri)) {
             DownloadAction removeAction =
@@ -170,6 +170,7 @@ public class DownloadTracker implements DownloadManager.Listener {
     }
 
     private void startDownload(DownloadAction action) {
+        Log.i(TAG, "Started Download");
         if (trackedDownloadStates.containsKey(action.uri)) {
             // This content is already being downloaded. Do nothing.
             return;
