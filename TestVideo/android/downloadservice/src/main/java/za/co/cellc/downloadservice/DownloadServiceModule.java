@@ -2,7 +2,6 @@ package za.co.cellc.downloadservice;
 
 import android.net.Uri;
 
-import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -54,7 +53,8 @@ public class DownloadServiceModule extends ReactContextBaseJavaModule {
     public DownloadServiceModule(ReactApplicationContext reactContext) {
         super(reactContext);
         ctx = reactContext;
-//        userAgent = Util.getUserAgent(reactContext, "ExoPlayerDemo");
+        downloadManager = getDownloadManager();
+        userAgent = Util.getUserAgent(reactContext, "DownloadServiceModule");
     }
 
 
@@ -131,8 +131,10 @@ public class DownloadServiceModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void downloadStream(String videoUri, String downloadId){
         Uri movieUri = Uri.parse(videoUri);
-        initDownloadManager();
-        downloadTracker.toggleDownload(downloadId, movieUri, ".dash" );
+        downloadTracker.toggleDownload(downloadId, movieUri, ".mpd" );
+//        DownloadAction downloadAction = downloadTracker.getDownloadAction(downloadId, movieUri, ".mpd");
+//        downloadManager.handleAction(downloadAction);
+//        downloadManager.startDownloads();
 
 
     }

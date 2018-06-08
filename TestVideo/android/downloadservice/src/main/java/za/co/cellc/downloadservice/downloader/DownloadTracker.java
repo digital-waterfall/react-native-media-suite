@@ -1,11 +1,11 @@
 package za.co.cellc.downloadservice.downloader;
 
-import android.app.Activity;
-import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
+
+import com.facebook.react.bridge.ReactApplicationContext;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.ActionFile;
 import com.google.android.exoplayer2.offline.DownloadAction;
@@ -49,7 +49,7 @@ public class DownloadTracker implements DownloadManager.Listener {
 
     private static final String TAG = "DownloadTracker";
 
-    private final Context context;
+    private final ReactApplicationContext context;
     private final DataSource.Factory dataSourceFactory;
     private final TrackNameProvider trackNameProvider;
     private final CopyOnWriteArraySet<Listener> listeners;
@@ -58,11 +58,11 @@ public class DownloadTracker implements DownloadManager.Listener {
     private final Handler actionFileWriteHandler;
 
     public DownloadTracker(
-            Context context,
+            ReactApplicationContext context,
             DataSource.Factory dataSourceFactory,
             File actionFile,
             DownloadAction.Deserializer[] deserializers) {
-        this.context = context.getApplicationContext();
+        this.context = context;
         this.dataSourceFactory = dataSourceFactory;
         this.actionFile = new ActionFile(actionFile);
         trackNameProvider = new DefaultTrackNameProvider(context.getResources());
@@ -98,19 +98,27 @@ public class DownloadTracker implements DownloadManager.Listener {
         return Collections.emptyList();
     }
 
+    public DownloadAction getDownloadAction(String name, Uri uri, String extension ){
+        DownloadHelper downloadHelper = getDownloadHelper(uri, extension);
+        List<TrackKey> trackKeys = new ArrayList<>();
+        DownloadAction downloadAction =
+                downloadHelper.getDownloadAction(Util.getUtf8Bytes(name), trackKeys);
+        return downloadAction;
+    }
+
     public void toggleDownload( String name, Uri uri, String extension) {
         DownloadHelper downloadHelper = getDownloadHelper(uri, extension);
-        if (isDownloaded(uri)) {
-            DownloadAction removeAction =
-                    downloadHelper.getRemoveAction(Util.getUtf8Bytes(name));
-            startServiceWithAction(removeAction);
-        } else {
+//        if (isDownloaded(uri)) {
+//            DownloadAction removeAction =
+//                    downloadHelper.getRemoveAction(Util.getUtf8Bytes(name));
+//            startServiceWithAction(removeAction);
+//        } else {
             Log.i("DownloadDiaglogHelper", "To show dialog");
             List<TrackKey> trackKeys = new ArrayList<>();
             DownloadAction downloadAction =
                     downloadHelper.getDownloadAction(Util.getUtf8Bytes(name), trackKeys);
             startDownload(downloadAction);
-        }
+        //}
     }
 
     // DownloadManager.Listener
@@ -171,17 +179,18 @@ public class DownloadTracker implements DownloadManager.Listener {
 
     private void startDownload(DownloadAction action) {
         Log.i(TAG, "Started Download");
-        if (trackedDownloadStates.containsKey(action.uri)) {
-            // This content is already being downloaded. Do nothing.
-            return;
-        }
+//        if (trackedDownloadStates.containsKey(action.uri)) {
+//            // This content is already being downloaded. Do nothing.
+//            return;
+//        }
         trackedDownloadStates.put(action.uri, action);
         handleTrackedDownloadStatesChanged();
-        startServiceWithAction(action);
+
+//        startServiceWithAction(action);
     }
 
     private void startServiceWithAction(DownloadAction action) {
-        DownloadService.startWithAction(context, NativeDownloadService.class, action, false);
+        DownloadService.startWithAction(context, DownloadService.class, action, false);
     }
 
     private DownloadHelper getDownloadHelper(Uri uri, String extension) {

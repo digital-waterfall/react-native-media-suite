@@ -35,7 +35,7 @@ export default class App extends React.Component {
         return (
             <View style={styles.container}>
                 <TouchableOpacity onPress={() => this.androidDownloader.downloadStream(videoUri, '269149')}>
-                    <Text>setupAssetDownload()</Text>
+                    <Text>Prepare download</Text>
                 </TouchableOpacity>
                 <Text>{ this.state.progress }%</Text>
             </View>
