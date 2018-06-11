@@ -2,6 +2,7 @@ package za.co.cellc.downloadservice;
 
 import android.net.Uri;
 
+import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -128,16 +129,22 @@ public class DownloadServiceModule extends ReactContextBaseJavaModule {
                 /* eventListener= */ null);
     }
 
-//    , Callback callback
     @ReactMethod
-    public void downloadStream(String videoUri, String downloadId){
+    public void startDownload(String videoUri, String downloadId){
         Uri movieUri = Uri.parse(videoUri);
         //downloadTracker.toggleDownload(downloadId, movieUri, ".mpd" );
         DownloadAction downloadAction = downloadTracker.getDownloadAction(downloadId, movieUri, ".mpd");
         downloadManager.handleAction(downloadAction);
         downloadManager.startDownloads();
+    }
 
-
+    @ReactMethod
+    public void getProgress(Callback callback){
+        DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
+        if(taskStates.length > 0) {
+            DownloadManager.TaskState taskState = taskStates[0];
+            callback.invoke(taskState.downloadPercentage);
+        }
     }
 
     @Override

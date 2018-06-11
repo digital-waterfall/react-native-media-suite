@@ -20,6 +20,8 @@ export default class App extends React.Component {
             play: false
         };
 
+        this.getProgress = this.getProgress.bind(this);
+
         this.onDownloadProgress = this.onDownloadProgress.bind(this);
         this.downloader = new Downloader({
             onDownloadProgress: this.onDownloadProgress,
@@ -34,12 +36,22 @@ export default class App extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                <TouchableOpacity onPress={() => this.androidDownloader.downloadStream(videoUri, '269149')}>
-                    <Text>Prepare download</Text>
+                <TouchableOpacity onPress={() => this.androidDownloader.startDownload(videoUri, '269149')}>
+                    <Text>Start download</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={this.getProgress}>
+                    <Text>Get Download Progress</Text>
                 </TouchableOpacity>
                 <Text>{ this.state.progress }%</Text>
             </View>
         );
+    }
+
+    getProgress(){
+        this.androidDownloader.getProgress().then((progress) => {
+            console.log('Recorded progress', progress);
+            this.setState({progress:progress});
+        });
     }
 
     renderVideo() {

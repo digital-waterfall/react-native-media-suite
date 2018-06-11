@@ -108,17 +108,18 @@ public class DownloadTracker implements DownloadManager.Listener {
 
     public void toggleDownload( String name, Uri uri, String extension) {
         DownloadHelper downloadHelper = getDownloadHelper(uri, extension);
-//        if (isDownloaded(uri)) {
-//            DownloadAction removeAction =
-//                    downloadHelper.getRemoveAction(Util.getUtf8Bytes(name));
-//            startServiceWithAction(removeAction);
-//        } else {
-            Log.i("DownloadDiaglogHelper", "To show dialog");
+        if (isDownloaded(uri)) {
+            Log.i(TAG, "Remove download");
+            DownloadAction removeAction =
+                    downloadHelper.getRemoveAction(Util.getUtf8Bytes(name));
+            startServiceWithAction(removeAction);
+        } else {
+            Log.i(TAG, "Start download");
             List<TrackKey> trackKeys = new ArrayList<>();
             DownloadAction downloadAction =
                     downloadHelper.getDownloadAction(Util.getUtf8Bytes(name), trackKeys);
             startDownload(downloadAction);
-        //}
+        }
     }
 
     // DownloadManager.Listener
@@ -178,15 +179,14 @@ public class DownloadTracker implements DownloadManager.Listener {
     }
 
     private void startDownload(DownloadAction action) {
+        if (trackedDownloadStates.containsKey(action.uri)) {
+            // This content is already being downloaded. Do nothing.
+            return;
+        }
         Log.i(TAG, "Started Download");
-//        if (trackedDownloadStates.containsKey(action.uri)) {
-//            // This content is already being downloaded. Do nothing.
-//            return;
-//        }
         trackedDownloadStates.put(action.uri, action);
         handleTrackedDownloadStatesChanged();
-
-//        startServiceWithAction(action);
+        startServiceWithAction(action);
     }
 
     private void startServiceWithAction(DownloadAction action) {
