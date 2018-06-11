@@ -53,8 +53,9 @@ public class DownloadServiceModule extends ReactContextBaseJavaModule {
     public DownloadServiceModule(ReactApplicationContext reactContext) {
         super(reactContext);
         ctx = reactContext;
-        downloadManager = getDownloadManager();
         userAgent = Util.getUserAgent(reactContext, "DownloadServiceModule");
+        downloadManager = getDownloadManager();
+
     }
 
 
@@ -131,10 +132,10 @@ public class DownloadServiceModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void downloadStream(String videoUri, String downloadId){
         Uri movieUri = Uri.parse(videoUri);
-        downloadTracker.toggleDownload(downloadId, movieUri, ".mpd" );
-//        DownloadAction downloadAction = downloadTracker.getDownloadAction(downloadId, movieUri, ".mpd");
-//        downloadManager.handleAction(downloadAction);
-//        downloadManager.startDownloads();
+        //downloadTracker.toggleDownload(downloadId, movieUri, ".mpd" );
+        DownloadAction downloadAction = downloadTracker.getDownloadAction(downloadId, movieUri, ".mpd");
+        downloadManager.handleAction(downloadAction);
+        downloadManager.startDownloads();
 
 
     }
