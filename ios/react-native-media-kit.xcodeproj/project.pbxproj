@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		5FDB0B7A1CBB7B1900EDD727 /* RCTMediaPlayerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FDB0B771CBB7B1900EDD727 /* RCTMediaPlayerManager.m */; };
 		5FDB0B7B1CBB7B1900EDD727 /* RCTMediaPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FDB0B791CBB7B1900EDD727 /* RCTMediaPlayerView.m */; };
+		62DD2D0A20CE772E00814D23 /* NRFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62DD2D0920CE772D00814D23 /* NRFileManager.swift */; };
 		62DD6D2B20AE9F48008A0652 /* RCTMediaDownloaderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62DD6D2A20AE9F48008A0652 /* RCTMediaDownloaderManager.swift */; };
 		62DD6D2D20AE9F68008A0652 /* RCTMediaDownloaderManagerBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 62DD6D2C20AE9F68008A0652 /* RCTMediaDownloaderManagerBridge.m */; };
 /* End PBXBuildFile section */
@@ -31,6 +32,7 @@
 		5FDB0B771CBB7B1900EDD727 /* RCTMediaPlayerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTMediaPlayerManager.m; sourceTree = "<group>"; };
 		5FDB0B781CBB7B1900EDD727 /* RCTMediaPlayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTMediaPlayerView.h; sourceTree = "<group>"; };
 		5FDB0B791CBB7B1900EDD727 /* RCTMediaPlayerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTMediaPlayerView.m; sourceTree = "<group>"; };
+		62DD2D0920CE772D00814D23 /* NRFileManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NRFileManager.swift; sourceTree = "<group>"; };
 		62DD6D2920AE9F47008A0652 /* react-native-media-kit-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "react-native-media-kit-Bridging-Header.h"; sourceTree = "<group>"; };
 		62DD6D2A20AE9F48008A0652 /* RCTMediaDownloaderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RCTMediaDownloaderManager.swift; sourceTree = "<group>"; };
 		62DD6D2C20AE9F68008A0652 /* RCTMediaDownloaderManagerBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTMediaDownloaderManagerBridge.m; sourceTree = "<group>"; };
@@ -79,6 +81,7 @@
 		622B5E4C20AD9860000B80DB /* media-downloader */ = {
 			isa = PBXGroup;
 			children = (
+				62DD2D0920CE772D00814D23 /* NRFileManager.swift */,
 				62DD6D2A20AE9F48008A0652 /* RCTMediaDownloaderManager.swift */,
 				62DD6D2920AE9F47008A0652 /* react-native-media-kit-Bridging-Header.h */,
 				62DD6D2C20AE9F68008A0652 /* RCTMediaDownloaderManagerBridge.m */,
@@ -146,6 +149,7 @@
 			files = (
 				62DD6D2D20AE9F68008A0652 /* RCTMediaDownloaderManagerBridge.m in Sources */,
 				62DD6D2B20AE9F48008A0652 /* RCTMediaDownloaderManager.swift in Sources */,
+				62DD2D0A20CE772E00814D23 /* NRFileManager.swift in Sources */,
 				5FDB0B7B1CBB7B1900EDD727 /* RCTMediaPlayerView.m in Sources */,
 				5FDB0B7A1CBB7B1900EDD727 /* RCTMediaPlayerManager.m in Sources */,
 			);

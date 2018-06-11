@@ -136,6 +136,15 @@ class MediaDownloader: RCTEventEmitter {
     
 }
 
+extension AVURLAsset {
+    var fileSize: Int? {
+        let keys: Set<URLResourceKey> = [.totalFileSizeKey, .fileSizeKey]
+        let resourceValues = try? url.resourceValues(forKeys: keys)
+        
+        return resourceValues?.fileSize ?? resourceValues?.totalFileSize
+    }
+}
+
 extension MediaDownloader: AVAssetDownloadDelegate {
     
     func urlSession(_ session: URLSession,
@@ -171,9 +180,15 @@ extension MediaDownloader: AVAssetDownloadDelegate {
         
         UserDefaults.standard.set(location.relativePath, forKey: assetDownloadTask.taskDescription!)
         
-        self.sendEvent(withName: "onDownloadFinished", body:["downloadID" : assetDownloadTask.taskDescription!, "downloadLocation" : location.relativeString])
-        NSLog("Asset download")
+        let estimatedSize: UInt64
+        do {
+            estimatedSize = try FileManager.default.allocatedSizeOfDirectory(atUrl: location.absoluteURL)
+        } catch {
+            estimatedSize = 0
+        }
         
+        self.sendEvent(withName: "onDownloadFinished", body:["downloadID" : assetDownloadTask.taskDescription!, "downloadLocation" : location.relativeString, "size": estimatedSize])
+        NSLog("Asset downloaded")
     }
     
     func urlSession(_ session: URLSession, assetDownloadTask: AVAssetDownloadTask, didLoad timeRange: CMTimeRange, totalTimeRangesLoaded loadedTimeRanges: [NSValue], timeRangeExpectedToLoad: CMTimeRange) {
