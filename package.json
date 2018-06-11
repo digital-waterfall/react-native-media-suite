@@ -1,7 +1,7 @@
 {
-  "name": "@cellc/yarnp",
-  "version": "0.1.8",
-  "description": "The native video player for Black. It was forked from react-native-media-kit.",
+  "name": "react-native-media-suite",
+  "version": "0.1.1",
+  "description": "A native media player.. It was forked from react-native-media-kit.",
   "main": "library/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -25,7 +25,7 @@
     "exoplayer",
     "avplayer"
   ],
-  "author": "Cell C Digital",
+  "author": "Digital Waterfall",
   "license": "MIT",
   "homepage": "https://bitbucket.org/cellcdigital/cellc-digital-black-native-player#readme",
   "dependencies": {
