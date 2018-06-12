@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Platform } from 'react-native';
 import MediaPlayerView, {Downloader} from './library/index';
-import AndroidDownloader from './library/media-downloader/android-downloader';
 const videoUri = `https://d2h2jy22itvgms.cloudfront.net/${
     Platform.OS === 'ios' ? 'hls' : 'dash'
     }/269149/trailer.${Platform.OS === 'ios' ? 'm3u8' : 'mpd'}`;
@@ -20,9 +19,6 @@ export default class App extends React.Component {
             play: false
         };
 
-        this.downloadStream = this.downloadStream.bind(this);
-        this.getProgress = this.getProgress.bind(this);
-        this.getCachedStreamFile = this.getCachedStreamFile.bind(this);
         this.onDownloadProgress = this.onDownloadProgress.bind(this);
         this.showVideo = this.showVideo.bind(this);
         this.downloader = new Downloader({
@@ -32,13 +28,12 @@ export default class App extends React.Component {
             onDownloadFinished: (data) => console.log(data),
             onDownloadCanceled: (data) => console.log(data)
         });
-        this.androidDownloader = new AndroidDownloader();
     }
 
     render() {
         return (
             <View style={styles.container}>
-                <TouchableOpacity onPress={() => {this.downloadStream('269149')}}>
+                <TouchableOpacity onPress={() => {this.downloader.downloadStream(videoUri, '269149')}}>
                     <Text>setupAssetDownload()</Text>
                 </TouchableOpacity>
                 <Text>{ this.state.progress}%</Text>
@@ -60,24 +55,6 @@ export default class App extends React.Component {
                 { this.showVideo() }
             </View>
         );
-    }
-
-    downloadStream(downloadId) {
-        Platform.OS === 'ios' ? this.downloader.downloadStream(videoUri, downloadId) :
-        this.androidDownloader.startDownload(videoUri, downloadId);
-    }
-
-    getCachedStreamFile(){
-        this.androidDownloader.getDownloadedStreams(videoUri).then((cachedVideoAbsolutePath) => {
-            console.log('cachedVideoAbsolutePath', cachedVideoAbsolutePath);
-            this.setState({cachedVideoUrl:cachedVideoAbsolutePath});
-        });
-    }
-
-    getProgress(){
-        this.androidDownloader.getProgress(videoUri).then((progress) => {
-            this.setState({progress:progress});
-        });
     }
 
     showVideo() {
@@ -113,6 +90,7 @@ export default class App extends React.Component {
     }
 
     onDownloadProgress(data) {
+        console.log('Download progress',data);
         this.setState({progress:data.percentComplete});
     }
 }

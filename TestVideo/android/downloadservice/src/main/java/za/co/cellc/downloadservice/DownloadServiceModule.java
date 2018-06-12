@@ -2,10 +2,13 @@ package za.co.cellc.downloadservice;
 
 import android.net.Uri;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
@@ -32,6 +35,8 @@ import java.io.File;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import za.co.cellc.downloadservice.downloader.DownloadTracker;
 
@@ -59,9 +64,8 @@ public class DownloadServiceModule extends ReactContextBaseJavaModule {
     public DownloadServiceModule(ReactApplicationContext reactContext) {
         super(reactContext);
         ctx = reactContext;
-        userAgent = Util.getUserAgent(reactContext, "DownloadServiceModule");
+        userAgent = Util.getUserAgent(reactContext, "MediaDownloader");
         downloadManager = getDownloadManager();
-
     }
 
 
@@ -108,6 +112,7 @@ public class DownloadServiceModule extends ReactContextBaseJavaModule {
                             DOWNLOAD_DESERIALIZERS);
             downloadManager.addListener(downloadTracker);
         }
+
     }
 
     /** Returns a {@link HttpDataSource.Factory}. */
@@ -135,12 +140,25 @@ public class DownloadServiceModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void startDownload(String videoUri, String downloadId){
+    public void downloadStream(String videoUri, String downloadId){
         Uri movieUri = Uri.parse(videoUri);
         //downloadTracker.toggleDownload(downloadId, movieUri, ".mpd" );
         DownloadAction downloadAction = downloadTracker.getDownloadAction(downloadId, movieUri, ".mpd");
         downloadManager.handleAction(downloadAction);
         downloadManager.startDownloads();
+
+        new Timer().scheduleAtFixedRate(new TimerTask(){
+            @Override
+            public void run(){
+                DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
+                if(taskStates.length > 0) {
+                    DownloadManager.TaskState taskState = taskStates[0];
+                    WritableMap params = Arguments.createMap();
+                    params.putDouble("percentComplete", taskState.downloadPercentage);
+                    ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadProgress", params);
+                }
+            }
+        },0,1000);
     }
 
     @ReactMethod
@@ -166,6 +184,6 @@ public class DownloadServiceModule extends ReactContextBaseJavaModule {
 
     @Override
     public String getName(){
-        return "DownloadServiceModule";
+        return "MediaDownloader";
     }
 }
