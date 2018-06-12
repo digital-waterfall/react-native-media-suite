@@ -21,6 +21,8 @@ export default class App extends React.Component {
         };
 
         this.getProgress = this.getProgress.bind(this);
+        this.getCachedStreamFile = this.getCachedStreamFile.bind(this);
+        this.renderVideo = this.renderVideo.bind(this);
 
         this.onDownloadProgress = this.onDownloadProgress.bind(this);
         this.downloader = new Downloader({
@@ -47,9 +49,15 @@ export default class App extends React.Component {
         );
     }
 
+    getCachedStreamFile(){
+        this.androidDownloader.getDownloadedStreams(videoUri).then((cachedVideoAbsolutePath) => {
+            console.log('cachedVideoAbsolutePath', cachedVideoAbsolutePath);
+            this.setState({cachedVideoUrl:cachedVideoAbsolutePath});
+        });
+    }
+
     getProgress(){
-        this.androidDownloader.getProgress().then((progress) => {
-            console.log('Recorded progress', progress);
+        this.androidDownloader.getProgress(videoUri).then((progress) => {
             this.setState({progress:progress});
         });
     }
@@ -73,7 +81,6 @@ export default class App extends React.Component {
     }
 
     onDownloadProgress(data) {
-        console.log(data);
         this.setState({progress:data.percentComplete});
     }
 }

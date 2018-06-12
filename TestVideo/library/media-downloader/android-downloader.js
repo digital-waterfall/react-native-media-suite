@@ -11,12 +11,22 @@ export default class AndroidDownloader {
         this.downloader.startDownload(url, downloadID);
     }
 
-    getProgress() {
+    getProgress(url) {
         const that = this;
-        return new Promise(function(resolve, reject){
-            that.downloader.getProgress((data)=>{
+        return new Promise(function(resolve){
+            that.downloader.getProgress(url, (data)=>{
                 resolve(data);
             });
         });
+    }
+
+    getDownloadedStreams(url){
+        const that = this;
+        return new Promise(function(resolve){
+            that.downloader.getCachedStreamFile(url, (data)=>{
+                resolve(data);
+            });
+        });
+
     }
 }

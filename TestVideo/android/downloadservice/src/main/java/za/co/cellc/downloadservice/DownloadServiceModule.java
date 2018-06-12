@@ -22,11 +22,16 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory;
+import com.google.android.exoplayer2.upstream.cache.CacheSpan;
+import com.google.android.exoplayer2.upstream.cache.ContentMetadata;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Util;
 
 import java.io.File;
+import java.util.List;
+import java.util.NavigableSet;
+import java.util.Set;
 
 import za.co.cellc.downloadservice.downloader.DownloadTracker;
 
@@ -139,12 +144,24 @@ public class DownloadServiceModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void getProgress(Callback callback){
+    public void getProgress(String videoUri, Callback callback){
+        //Uri movieUri = Uri.parse(videoUri);
+        //Boolean isDownloaded = downloadTracker.isDownloaded(movieUri);
         DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
         if(taskStates.length > 0) {
             DownloadManager.TaskState taskState = taskStates[0];
             callback.invoke(taskState.downloadPercentage);
         }
+    }
+
+    @ReactMethod
+    public void getCachedStreamFile(String videoUri, Callback callback){
+        Uri movieUri = Uri.parse(videoUri);
+        List<String> offlineStreamKeys = downloadTracker.getOfflineStreamKeys(movieUri);
+        Set<String> keys = downloadCache.getKeys();
+        NavigableSet<CacheSpan> cachedSpans = downloadCache.getCachedSpans(videoUri);
+
+        callback.invoke(cachedSpans.first().file.getAbsolutePath());
     }
 
     @Override
