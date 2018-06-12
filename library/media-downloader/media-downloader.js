@@ -39,8 +39,8 @@ export default class Downloader {
         }
     }
 
-    deleteDownloadedStream(downloadID) {
-        this.downloader.deleteDownloadedStream(downloadID);
+    deleteDownloadedStream(url) {
+        this.downloader.deleteDownloadedStream(url);
     }
 
     pauseDownload(downloadID) {
@@ -56,22 +56,22 @@ export default class Downloader {
     }
 
     onDownloadProgress(data) {
-        if (this.downloadEvents.onDownloadProgress) this.downloadEvents.onDownloadProgress({downloadID: data.downloadID, percentComplete: data.percentComplete});
+        if (this.downloadEvents.onDownloadProgress) this.downloadEvents.onDownloadProgress(data);
     }
 
     onDownloadStarted(data) {
-        if (this.downloadEvents.onDownloadStarted) this.downloadEvents.onDownloadStarted({downloadID: data.downloadID});
+        if (this.downloadEvents.onDownloadStarted) this.downloadEvents.onDownloadStarted(data);
     }
 
     onDownloadFinished(data) {
-        if (this.downloadEvents.onDownloadFinished) this.downloadEvents.onDownloadFinished({downloadID: data.downloadID, downloadLocation: data.downloadLocation, size: data.size});
+        if (this.downloadEvents.onDownloadFinished) this.downloadEvents.onDownloadFinished(data);
     }
 
     onDownloadError(data) {
-        if (this.downloadEvents.onDownloadError) this.downloadEvents.onDownloadError({downloadID: data.downloadID, error: data.error, errorType: data.errorType});
+        if (this.downloadEvents.onDownloadError) this.downloadEvents.onDownloadError(data);
     }
 
     onDownloadCanceled(data) {
-        if (this.downloadEvents.onDownloadCanceled) this.downloadEvents.onDownloadCanceled({downloadID: data.downloadID});
+        if (this.downloadEvents.onDownloadCanceled) this.downloadEvents.onDownloadCanceled(data);
     }
 }

@@ -7,9 +7,12 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
+import com.greatdroid.reactnative.media.MediaKitPackage;
 
 import java.util.Arrays;
 import java.util.List;
+
+import za.co.cellc.downloadservice.DownloadServicePackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -22,7 +25,9 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
-          new MainReactPackage()
+          new MainReactPackage(),
+          new MediaKitPackage(),
+          new DownloadServicePackage()
       );
     }
 
