@@ -143,7 +143,6 @@ public class DownloadServiceModule extends ReactContextBaseJavaModule {
 
         DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
         DownloadManager.TaskState taskState = null;
-        Boolean isDownloaded = false;
         Boolean isDownloading = false;
         for (int i = 0; i < taskStates.length; i++) {
             if(taskStates[i].action.uri.equals(movieUri)){
@@ -155,8 +154,7 @@ public class DownloadServiceModule extends ReactContextBaseJavaModule {
         if(isDownloading){
             downloadManager.startDownloads();
         } else if(taskState == null) {
-            isDownloaded = downloadTracker.isDownloaded(movieUri);
-            if(!isDownloaded){
+            if(!downloadTracker.isDownloaded(movieUri)){
                 DownloadAction downloadAction = downloadTracker.getDownloadAction(downloadId, movieUri, ".mpd");
                 int taskId = downloadManager.handleAction(downloadAction);
                 downloadManager.startDownloads();
@@ -187,6 +185,43 @@ public class DownloadServiceModule extends ReactContextBaseJavaModule {
                 }
             }
         },0,1000);
+    }
+
+    @ReactMethod
+    public void pauseDownload(final String videoUri){
+        Uri movieUri = Uri.parse(videoUri);
+        DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
+        Boolean isDownloading = false;
+        for (int i = 0; i < taskStates.length; i++) {
+            if(taskStates[i].action.uri.equals(movieUri)){
+                if(taskStates[i].state == 1) {
+                    isDownloading = true;
+                }
+                break;
+            }
+        }
+        if(isDownloading) {
+            downloadManager.stopDownloads();
+        }
+    }
+
+    @ReactMethod
+    public void resumeDownload(final String videoUri){
+        Uri movieUri = Uri.parse(videoUri);
+        DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
+        Boolean isDownloaded = downloadTracker.isDownloaded(movieUri);
+        Boolean isDownloading = false;
+        for (int i = 0; i < taskStates.length; i++) {
+            if(taskStates[i].action.uri.equals(movieUri)){
+                if(taskStates[i].state == 1){
+                    isDownloading = true;
+                }
+                break;
+            }
+        }
+        if(!isDownloading && !isDownloaded) {
+            downloadManager.startDownloads();
+        }
     }
 
     @Override

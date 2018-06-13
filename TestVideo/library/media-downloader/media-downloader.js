@@ -1,4 +1,4 @@
-import {NativeModules, NativeEventEmitter} from 'react-native';
+import {NativeModules, NativeEventEmitter, Platform} from 'react-native';
 
 export default class Downloader {
 
@@ -43,12 +43,20 @@ export default class Downloader {
         this.downloader.deleteDownloadedStream(downloadID);
     }
 
-    pauseDownload(downloadID) {
-        this.downloader.pauseDownload(downloadID);
+    pauseDownload(downloadID, url) {
+        if(Platform.OS === 'android'){
+            this.downloader.pauseDownload(url);
+        } else {
+            this.downloader.pauseDownload(downloadID);
+        }
     }
 
-    resumeDownload(downloadID) {
-        this.downloader.resumeDownload(downloadID);
+    resumeDownload(downloadID, url) {
+        if(Platform.OS === 'android') {
+            this.downloader.resumeDownload(url);
+        } else {
+            this.downloader.resumeDownload(downloadID);
+        }
     }
 
     cancelDownload(downloadID) {
