@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.google.android.exoplayer2.C;
@@ -16,6 +17,8 @@ import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.ProgressiveDownloadHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloadAction;
 import com.google.android.exoplayer2.offline.TrackKey;
+import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.offline.DashDownloadHelper;
 import com.google.android.exoplayer2.source.hls.offline.HlsDownloadHelper;
 import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadHelper;
@@ -98,31 +101,18 @@ public class DownloadTracker implements DownloadManager.Listener {
         return Collections.emptyList();
     }
 
-    public DownloadAction getDownloadAction(String name, Uri uri, String extension ){
-        DownloadHelper downloadHelper = getDownloadHelper(uri, extension);
-        List<TrackKey> trackKeys = new ArrayList<>();
-        DownloadAction downloadAction =
-                downloadHelper.getDownloadAction(Util.getUtf8Bytes(name), trackKeys);
-        return downloadAction;
-    }
-
-    public void toggleDownload( String name, Uri uri, String extension) {
-        DownloadHelper downloadHelper = getDownloadHelper(uri, extension);
+    public void toggleDownload(String name, Uri uri, String extension) {
         if (isDownloaded(uri)) {
-            Log.i(TAG, "Remove download");
             DownloadAction removeAction =
-                    downloadHelper.getRemoveAction(Util.getUtf8Bytes(name));
+                    getDownloadHelper(uri, extension).getRemoveAction(Util.getUtf8Bytes(name));
             startServiceWithAction(removeAction);
-        } else {
-            Log.i(TAG, "Start download");
-            List<TrackKey> trackKeys = new ArrayList<>();
-            DownloadAction downloadAction =
-                    downloadHelper.getDownloadAction(Util.getUtf8Bytes(name), trackKeys);
-            startDownload(downloadAction);
+        }  else {
+            StartDownloadHelper helper = new StartDownloadHelper(getDownloadHelper(uri, extension),name);
+            helper.prepare();
         }
     }
 
-    // DownloadManager.Listener
+    //DownloadManager.Listener
 
     @Override
     public void onInitialized(DownloadManager downloadManager) {
@@ -209,4 +199,63 @@ public class DownloadTracker implements DownloadManager.Listener {
         }
     }
 
+    private final class StartDownloadHelper
+            implements DownloadHelper.Callback {
+
+        private final DownloadHelper downloadHelper;
+        private final String name;
+        private final List<TrackKey> trackKeys;
+
+
+        public StartDownloadHelper(
+                DownloadHelper downloadHelper, String name) {
+            this.downloadHelper = downloadHelper;
+            this.name = name;
+            trackKeys = new ArrayList<>();
+        }
+
+        public void prepare() {
+            downloadHelper.prepare(this);
+        }
+
+
+        @Override
+        public void onPrepared(DownloadHelper helper) {
+            for (int i = 0; i < downloadHelper.getPeriodCount(); i++) {
+                TrackGroupArray trackGroups = downloadHelper.getTrackGroups(i);
+                for (int j = 0; j < trackGroups.length; j++) {
+                    TrackGroup trackGroup = trackGroups.get(j);
+                    for (int k = 0; k < trackGroup.length; k++) {
+                        trackKeys.add(new TrackKey(i, j, k));
+                        //trackTitles.add(trackNameProvider.getTrackName(trackGroup.getFormat(k)));
+                    }
+
+                }
+                if (!trackKeys.isEmpty()) {
+                    Log.d(TAG, trackKeys.toString());
+                    DownloadAction downloadAction =
+                            downloadHelper.getDownloadAction(Util.getUtf8Bytes(name), trackKeys);
+                    startDownload(downloadAction);
+                }
+
+            }
+        }
+
+        @Override
+        public void onPrepareError(DownloadHelper helper, IOException e) {
+            Toast.makeText(
+                    context.getApplicationContext(), "Download start error", Toast.LENGTH_LONG)
+                    .show();
+        }
+    }
+
+
+    public DownloadAction getDownloadAction(String name, Uri uri, String extension ){
+        DownloadHelper downloadHelper = getDownloadHelper(uri, extension);
+        List<TrackKey> trackKeys = new ArrayList<>();
+        DownloadAction downloadAction =
+                downloadHelper.getDownloadAction(Util.getUtf8Bytes(name), trackKeys);
+        return downloadAction;
+    }
+    
 }
