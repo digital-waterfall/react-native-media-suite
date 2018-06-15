@@ -68,7 +68,10 @@ export default class App extends React.Component {
                     preload='auto'
                     loop={true}
                     muted={this.state.muted}
-                    src="269149"
+                    src="https://d2h2jy22itvgms.cloudfront.net/hls/short_test.m3u8"
+                    offline
+                    onPlaybackError={() => console.log('lol')}
+                    onPlayerProgress={data => console.log(data)}
                 />
                 <TouchableOpacity onPress={() => {
                     if (this.state.play) {
