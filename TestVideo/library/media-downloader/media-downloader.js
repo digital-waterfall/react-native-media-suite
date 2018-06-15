@@ -59,8 +59,12 @@ export default class Downloader {
         }
     }
 
-    cancelDownload(downloadID) {
-        this.downloader.cancelDownload(downloadID);
+    cancelDownload(downloadID, url) {
+        if(Platform.OS === 'android') {
+            this.downloader.cancelDownload(url);
+        } else {
+            this.downloader.cancelDownload(downloadID);
+        }
     }
 
     onDownloadProgress(data) {

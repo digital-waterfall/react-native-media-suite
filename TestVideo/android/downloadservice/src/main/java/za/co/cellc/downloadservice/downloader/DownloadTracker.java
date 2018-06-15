@@ -59,6 +59,7 @@ public class DownloadTracker implements DownloadManager.Listener {
     private final HashMap<Uri, DownloadAction> trackedDownloadStates;
     private final ActionFile actionFile;
     private final Handler actionFileWriteHandler;
+    BlackDownloadService downloadService;
 
     public DownloadTracker(
             ReactApplicationContext context,
@@ -101,14 +102,20 @@ public class DownloadTracker implements DownloadManager.Listener {
         return Collections.emptyList();
     }
 
-    public void toggleDownload(String name, Uri uri, String extension) {
+    public void toggleDownload(DownloadManager downloadManager, String name, Uri uri, String extension) {
         if (isDownloaded(uri)) {
             DownloadAction removeAction =
                     getDownloadHelper(uri, extension).getRemoveAction(Util.getUtf8Bytes(name));
             startServiceWithAction(removeAction);
         }  else {
-            StartDownloadHelper helper = new StartDownloadHelper(getDownloadHelper(uri, extension),name);
-            helper.prepare();
+            DownloadAction downloadAction = this.getDownloadAction(name, uri, ".mpd");
+            startDownload(downloadAction);
+            startServiceWithAction(downloadAction);
+
+//                int taskId = downloadManager.handleAction(downloadAction);
+//                downloadManager.startDownloads();
+            //StartDownloadHelper helper = new StartDownloadHelper(getDownloadHelper(uri, extension),name);
+            //helper.prepare();
         }
     }
 
@@ -180,7 +187,7 @@ public class DownloadTracker implements DownloadManager.Listener {
     }
 
     private void startServiceWithAction(DownloadAction action) {
-        DownloadService.startWithAction(context, DownloadService.class, action, false);
+        downloadService.startWithAction(context, BlackDownloadService.class, action, false);
     }
 
     private DownloadHelper getDownloadHelper(Uri uri, String extension) {

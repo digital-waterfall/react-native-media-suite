@@ -36,12 +36,6 @@ import za.co.cellc.downloadservice.downloader.DownloadTracker;
 
 public class DownloadServiceModule extends ReactContextBaseJavaModule {
 
-    protected String userAgent;
-
-    private File downloadDirectory;
-    private Cache downloadCache;
-    private DownloadManager downloadManager;
-    private DownloadTracker downloadTracker;
     private static final String DOWNLOAD_ACTION_FILE = "actions";
     private static final String DOWNLOAD_TRACKER_ACTION_FILE = "tracked_actions";
     private static final String DOWNLOAD_CONTENT_DIRECTORY = "downloads";
@@ -53,6 +47,14 @@ public class DownloadServiceModule extends ReactContextBaseJavaModule {
                     SsDownloadAction.DESERIALIZER,
                     ProgressiveDownloadAction.DESERIALIZER
             };
+
+    protected String userAgent;
+
+    private File downloadDirectory;
+    private Cache downloadCache;
+    private DownloadManager downloadManager;
+    private DownloadTracker downloadTracker;
+
     ReactApplicationContext ctx = null;
 
     public DownloadServiceModule(ReactApplicationContext reactContext) {
@@ -140,7 +142,6 @@ public class DownloadServiceModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void downloadStream(String videoUri, final String downloadId){
         final Uri movieUri = Uri.parse(videoUri);
-
         DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
         DownloadManager.TaskState taskState = null;
         Boolean isDownloading = false;
@@ -169,8 +170,12 @@ public class DownloadServiceModule extends ReactContextBaseJavaModule {
                 if(!downloadTracker.isDownloaded(movieUri)) {
                     DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
                     for (int i = 0; i < taskStates.length; i++) {
-                        if (taskStates[i].action.equals(activeTaskState.action)) {
+                        if (taskStates[i].action.uri.equals(movieUri)) {
                             if (taskStates[i].state == 1) {
+                                WritableMap params = Arguments.createMap();
+                                params.putDouble("percentComplete", taskStates[i].downloadPercentage);
+                                ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadProgress", params);
+                            } else if (taskStates[i].state == 2) {
                                 WritableMap params = Arguments.createMap();
                                 params.putDouble("percentComplete", taskStates[i].downloadPercentage);
                                 ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadProgress", params);
@@ -223,6 +228,25 @@ public class DownloadServiceModule extends ReactContextBaseJavaModule {
             downloadManager.startDownloads();
         }
     }
+
+//    @ReactMethod
+//    public void cancelDownload(final String videoUri){
+//        Uri movieUri = Uri.parse(videoUri);
+//        DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
+//        Boolean isDownloaded = downloadTracker.isDownloaded(movieUri);
+//        Boolean isDownloading = false;
+//        for (int i = 0; i < taskStates.length; i++) {
+//            if(taskStates[i].action.uri.equals(movieUri)){
+//                if(taskStates[i].state == 1){
+//                    isDownloading = true;
+//                }
+//                break;
+//            }
+//        }
+//        if(!isDownloaded) {
+//            downloadCache.();
+//        }
+//    }
 
     @Override
     public String getName(){
