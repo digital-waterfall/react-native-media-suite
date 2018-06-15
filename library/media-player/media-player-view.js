@@ -10,6 +10,7 @@ import ReactNative, {
 class MediaPlayerView extends Component {
     static defaultProps = {
         autoplay: false,
+        offline: false,
         preload: 'auto',
         loop: false,
         ignoreSilentSwitch: true
@@ -49,7 +50,7 @@ class MediaPlayerView extends Component {
                     onPlayerBufferOK={this._onPlayerBufferOK.bind(this)}
                     onPlayerFinished={this._onPlayerFinished.bind(this)}
                     onPlayerBufferChange={this._onPlayerBufferChange.bind(this)}
-                    onPlaybackError={this._onPlaybackError(this)}
+                    onPlaybackError={this._onPlaybackError.bind(this)}
                 />
             </View>
         );
@@ -172,15 +173,15 @@ class MediaPlayerView extends Component {
     }
 
     _onPlaybackError(event) {
-        console.log(event);
-        // const error = event.nativeEvent.error;
-
-        // this.props.onPlaybackError(error);
+        const error = event.nativeEvent.error;
+        console.log(error);
+        this.props.onPlaybackError(error);
     }
 }
 
 MediaPlayerView.propTypes = {
     src: PropTypes.string,
+    offline: PropTypes.bool,
     autoplay: PropTypes.bool,
     preload: PropTypes.string,
     loop: PropTypes.bool,
