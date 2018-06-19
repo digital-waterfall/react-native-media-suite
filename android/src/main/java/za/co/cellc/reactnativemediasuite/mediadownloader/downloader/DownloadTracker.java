@@ -137,15 +137,10 @@ public class DownloadTracker implements DownloadManager.Listener {
         if (taskState.state == TaskState.STATE_COMPLETED) {
             WritableMap params = Arguments.createMap();
             params.putString("downloadID", taskState.action.uri.toString());
-            params.putDouble("percentComplete", 100);
-            context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadProgress", params);
-
-            params = Arguments.createMap();
-            params.putString("downloadID", taskState.action.uri.toString());
             params.putDouble("size", taskState.downloadedBytes);
             params.putString("downloadLocation", "N/A");
             context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadFinished", params);
-            toggleDownload("test", taskState.action.uri,".mpd");
+            toggleDownload(taskState.action.uri.toString(), taskState.action.uri,".mpd");
         }
 //        else if (taskState.state == TaskState.STATE_STARTED) {
 //            WritableMap params = Arguments.createMap();
@@ -203,7 +198,7 @@ public class DownloadTracker implements DownloadManager.Listener {
     }
 
     private void startServiceWithAction(DownloadAction action) {
-        DownloadService.startWithAction(context, BlackDownloadService.class, action, false);
+        DownloadService.startWithAction(context, NativeDownloadService.class, action, false);
     }
 
     private DownloadHelper getDownloadHelper(Uri uri, String extension) {
@@ -279,6 +274,12 @@ public class DownloadTracker implements DownloadManager.Listener {
         DownloadAction downloadAction =
                 downloadHelper.getDownloadAction(Util.getUtf8Bytes(name), trackKeys);
         return downloadAction;
+    }
+
+    public DownloadAction getRemoveDownloadAction(String name, Uri uri, String extension){
+        DownloadAction removeAction =
+                getDownloadHelper(uri, extension).getRemoveAction(Util.getUtf8Bytes(name));
+        return removeAction;
     }
 
 }

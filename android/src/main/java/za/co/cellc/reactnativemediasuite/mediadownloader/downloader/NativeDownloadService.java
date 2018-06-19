@@ -13,14 +13,14 @@ import com.google.android.exoplayer2.util.Util;
 import za.co.cellc.reactnativemediasuite.R;
 
 /** A service for downloading media. */
-public class BlackDownloadService extends DownloadService {
+public class NativeDownloadService extends DownloadService {
 
     private static final String CHANNEL_ID = "download_channel";
     private static final int JOB_ID = 1;
     private static final int FOREGROUND_NOTIFICATION_ID = 1;
     DownloadManager downloadManager;
 
-    public BlackDownloadService(DownloadManager manager) {
+    public NativeDownloadService(DownloadManager manager) {
         super(
                 FOREGROUND_NOTIFICATION_ID,
                 DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL,

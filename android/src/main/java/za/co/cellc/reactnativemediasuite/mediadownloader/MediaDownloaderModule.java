@@ -1,6 +1,7 @@
 package za.co.cellc.reactnativemediasuite.mediadownloader;
 
 import android.net.Uri;
+import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -24,11 +25,14 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory;
+import com.google.android.exoplayer2.upstream.cache.CacheUtil;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Util;
 
 import java.io.File;
+import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -234,24 +238,37 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
         }
     }
 
-//    @ReactMethod
-//    public void cancelDownload(final String videoUri){
-//        Uri movieUri = Uri.parse(videoUri);
-//        DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
-//        Boolean isDownloaded = downloadTracker.isDownloaded(movieUri);
-//        Boolean isDownloading = false;
-//        for (int i = 0; i < taskStates.length; i++) {
-//            if(taskStates[i].action.uri.equals(movieUri)){
-//                if(taskStates[i].state == 1){
-//                    isDownloading = true;
-//                }
-//                break;
-//            }
-//        }
-//        if(!isDownloaded) {
-//            downloadCache.();
-//        }
-//    }
+    @ReactMethod
+    public void cancelDownload(final String videoUri){
+        Uri movieUri = Uri.parse(videoUri);
+        Boolean isDownloaded = downloadTracker.isDownloaded(movieUri);
+        Boolean isDownloading = false;
+        if(!isDownloaded){
+            DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
+            for (int i = 0; i < taskStates.length; i++) {
+                if(taskStates[i].action.uri.equals(movieUri)){
+                    if(taskStates[i].state == DownloadManager.TaskState.STATE_STARTED){
+                        isDownloading = true;
+                    }
+                    break;
+                }
+            }
+        }
+        if(isDownloaded || isDownloading){
+            //DownloadAction downloadAction = downloadTracker.getRemoveDownloadAction(videoUri, movieUri, ".mpd");
+            //int taskId = downloadManager.handleAction(downloadAction);
+
+            Cache downloadCache = getDownloadCache();
+            Set keys = downloadCache.getKeys();
+            if(keys.size() > 0){
+                for (int i = 0; i < keys.size(); i++) {
+                    String key = keys.iterator().next().toString();
+                    CacheUtil.remove(downloadCache, key);
+                }
+            }
+
+        }
+    }
 
     @Override
     public String getName(){
