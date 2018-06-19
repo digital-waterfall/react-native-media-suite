@@ -6,7 +6,10 @@ import android.os.HandlerThread;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.ActionFile;
 import com.google.android.exoplayer2.offline.DownloadAction;
@@ -59,7 +62,6 @@ public class DownloadTracker implements DownloadManager.Listener {
     private final HashMap<Uri, DownloadAction> trackedDownloadStates;
     private final ActionFile actionFile;
     private final Handler actionFileWriteHandler;
-    BlackDownloadService downloadService;
 
     public DownloadTracker(
             ReactApplicationContext context,
@@ -102,7 +104,7 @@ public class DownloadTracker implements DownloadManager.Listener {
         return Collections.emptyList();
     }
 
-    public void toggleDownload(DownloadManager downloadManager, String name, Uri uri, String extension) {
+    public void toggleDownload(String name, Uri uri, String extension) {
         if (isDownloaded(uri)) {
             DownloadAction removeAction =
                     getDownloadHelper(uri, extension).getRemoveAction(Util.getUtf8Bytes(name));
@@ -110,12 +112,6 @@ public class DownloadTracker implements DownloadManager.Listener {
         }  else {
             DownloadAction downloadAction = this.getDownloadAction(name, uri, ".mpd");
             startDownload(downloadAction);
-            startServiceWithAction(downloadAction);
-
-//                int taskId = downloadManager.handleAction(downloadAction);
-//                downloadManager.startDownloads();
-            //StartDownloadHelper helper = new StartDownloadHelper(getDownloadHelper(uri, extension),name);
-            //helper.prepare();
         }
     }
 
@@ -137,6 +133,22 @@ public class DownloadTracker implements DownloadManager.Listener {
                 handleTrackedDownloadStatesChanged();
             }
         }
+
+        if (taskState.state == TaskState.STATE_COMPLETED) {
+            WritableMap params = Arguments.createMap();
+            String uriString = taskState.action.uri.toString();
+            params.putString("downloadID", uriString);
+            params.putDouble("size", taskState.downloadedBytes);
+            params.putString("downloadLocation", "N/A");
+            context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadFinished", params);
+            toggleDownload("test", taskState.action.uri,".mpd");
+        }
+//        else if (taskState.state == TaskState.STATE_STARTED) {
+//            WritableMap params = Arguments.createMap();
+//            String uriString = taskState.action.uri.toString();
+//            params.putString("downloadID", uriString);
+//            context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadStarted", params);
+//        }
     }
 
     @Override
@@ -187,7 +199,7 @@ public class DownloadTracker implements DownloadManager.Listener {
     }
 
     private void startServiceWithAction(DownloadAction action) {
-        downloadService.startWithAction(context, BlackDownloadService.class, action, false);
+        DownloadService.startWithAction(context, BlackDownloadService.class, action, true);
     }
 
     private DownloadHelper getDownloadHelper(Uri uri, String extension) {
