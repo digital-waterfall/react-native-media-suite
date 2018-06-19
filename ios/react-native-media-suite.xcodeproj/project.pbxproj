@@ -27,7 +27,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		5FDB0B6A1CBB7ACA00EDD727 /* libreact-native-media-kit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libreact-native-media-kit.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5FDB0B6A1CBB7ACA00EDD727 /* libreact-native-media-suite.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libreact-native-media-suite.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FDB0B761CBB7B1900EDD727 /* RCTMediaPlayerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTMediaPlayerManager.h; sourceTree = "<group>"; };
 		5FDB0B771CBB7B1900EDD727 /* RCTMediaPlayerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTMediaPlayerManager.m; sourceTree = "<group>"; };
 		5FDB0B781CBB7B1900EDD727 /* RCTMediaPlayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTMediaPlayerView.h; sourceTree = "<group>"; };
@@ -61,7 +61,7 @@
 		5FDB0B6B1CBB7ACA00EDD727 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				5FDB0B6A1CBB7ACA00EDD727 /* libreact-native-media-kit.a */,
+				5FDB0B6A1CBB7ACA00EDD727 /* libreact-native-media-suite.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -75,7 +75,7 @@
 				5FDB0B791CBB7B1900EDD727 /* RCTMediaPlayerView.m */,
 			);
 			name = "media-player";
-			path = "react-native-media-kit";
+			path = "react-native-media-suite";
 			sourceTree = "<group>";
 		};
 		622B5E4C20AD9860000B80DB /* media-downloader */ = {
@@ -92,9 +92,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		5FDB0B691CBB7ACA00EDD727 /* react-native-media-kit */ = {
+		5FDB0B691CBB7ACA00EDD727 /* react-native-media-suite */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5FDB0B731CBB7ACA00EDD727 /* Build configuration list for PBXNativeTarget "react-native-media-kit" */;
+			buildConfigurationList = 5FDB0B731CBB7ACA00EDD727 /* Build configuration list for PBXNativeTarget "react-native-media-suite" */;
 			buildPhases = (
 				5FDB0B661CBB7ACA00EDD727 /* Sources */,
 				5FDB0B671CBB7ACA00EDD727 /* Frameworks */,
@@ -104,9 +104,9 @@
 			);
 			dependencies = (
 			);
-			name = "react-native-media-kit";
+			name = "react-native-media-suite";
 			productName = "react-native-media-kit";
-			productReference = 5FDB0B6A1CBB7ACA00EDD727 /* libreact-native-media-kit.a */;
+			productReference = 5FDB0B6A1CBB7ACA00EDD727 /* libreact-native-media-suite.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -125,7 +125,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 5FDB0B651CBB7ACA00EDD727 /* Build configuration list for PBXProject "react-native-media-kit" */;
+			buildConfigurationList = 5FDB0B651CBB7ACA00EDD727 /* Build configuration list for PBXProject "react-native-media-suite" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -137,7 +137,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				5FDB0B691CBB7ACA00EDD727 /* react-native-media-kit */,
+				5FDB0B691CBB7ACA00EDD727 /* react-native-media-suite */,
 			);
 		};
 /* End PBXProject section */
@@ -272,7 +272,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		5FDB0B651CBB7ACA00EDD727 /* Build configuration list for PBXProject "react-native-media-kit" */ = {
+		5FDB0B651CBB7ACA00EDD727 /* Build configuration list for PBXProject "react-native-media-suite" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5FDB0B711CBB7ACA00EDD727 /* Debug */,
@@ -281,7 +281,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5FDB0B731CBB7ACA00EDD727 /* Build configuration list for PBXNativeTarget "react-native-media-kit" */ = {
+		5FDB0B731CBB7ACA00EDD727 /* Build configuration list for PBXNativeTarget "react-native-media-suite" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5FDB0B741CBB7ACA00EDD727 /* Debug */,

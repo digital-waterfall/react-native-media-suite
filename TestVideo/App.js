@@ -1,14 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Platform } from 'react-native';
-import MediaPlayerView, {Downloader} from './library/index';
-// const videoUri = `https://d2h2jy22itvgms.cloudfront.net/${
-//     Platform.OS === 'ios' ? 'hls' : 'dash'
-//     }/269149/trailer.${Platform.OS === 'ios' ? 'm3u8' : 'mpd'}`;
-const videoUri = 'https://d2h2jy22itvgms.cloudfront.net/dash/short_test.mpd';
+import {StyleSheet, Text, View, Dimensions, TouchableOpacity} from 'react-native';
+import  Video, { Downloader }  from './library/index';
+
 const {width, height} = Dimensions.get('window');
 
 export default class App extends React.Component {
-    constructor(props){
+    constructor(props) {
         super(props);
 
         this.state = {
@@ -34,8 +31,7 @@ export default class App extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                <Text>{videoUri}</Text>
-                <TouchableOpacity onPress={() => {this.downloader.downloadStream(videoUri, '111111')}}>
+                <TouchableOpacity onPress={() => {this.downloader.downloadStream('https://d2h2jy22itvgms.cloudfront.net/hls/short_test.m3u8', '269149')}}>
                     <Text>setupAssetDownload()</Text>
                 </TouchableOpacity>
                 <Text>{ this.state.progress}%</Text>
@@ -45,10 +41,10 @@ export default class App extends React.Component {
                 <TouchableOpacity onPress={() => {this.downloader.deleteDownloadedStream('269149')}}>
                     <Text>deleteDownloadedStream()</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => {this.downloader.pauseDownload('111111', videoUri)}}>
+                <TouchableOpacity onPress={() => {this.downloader.pauseDownload('269149')}}>
                     <Text>pauseDownload()</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => {this.downloader.resumeDownload('111111', videoUri)}}>
+                <TouchableOpacity onPress={() => {this.downloader.resumeDownload('269149')}}>
                     <Text>resumeDownload()</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => {this.downloader.cancelDownload('269149')}}>
@@ -63,28 +59,31 @@ export default class App extends React.Component {
         if (this.state.showPlayer) {
             return (
                 <View>
-                    <Video
-                        ref={(ref) => {
-                            this.player = ref
-                        }}
-                        style={{width: this.state.width, height: 190, backgroundColor: 'black'}}
-                        autoplay={true}
-                        preload='auto'
-                        loop={true}
-                        muted={this.state.muted}
-                        src="269149"
-                    />
-                    <TouchableOpacity onPress={() => {
-                        if (this.state.play) {
-                            this.setState({play: false});
-                            this.player.pause();
-                        } else {
-                            this.setState({play: true});
-                            this.player.play();
-                        }
-                    }}>
-                        <Text>play()</Text>
-                    </TouchableOpacity>
+                <Video
+                    ref={(ref) => {
+                        this.player = ref
+                    }}
+                    style={{width: this.state.width, height: 190, backgroundColor: 'black'}}
+                    autoplay={true}
+                    preload='auto'
+                    loop={true}
+                    muted={this.state.muted}
+                    src="https://d2h2jy22itvgms.cloudfront.net/hls/short_test.m3u8"
+                    offline
+                    onPlaybackError={() => console.log('lol')}
+                    onPlayerProgress={data => console.log(data)}
+                />
+                <TouchableOpacity onPress={() => {
+                    if (this.state.play) {
+                        this.setState({play: false});
+                        this.player.pause();
+                    } else {
+                        this.setState({play: true});
+                        this.player.play();
+                    }
+                }}>
+                    <Text>play()</Text>
+                </TouchableOpacity>
                 </View>
             );
         }
@@ -92,7 +91,7 @@ export default class App extends React.Component {
     }
 
     onDownloadProgress(data) {
-        console.log('Download progress',data);
+        console.log(data);
         this.setState({progress:data.percentComplete});
     }
 }
@@ -103,5 +102,5 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
-    }
+    },
 });

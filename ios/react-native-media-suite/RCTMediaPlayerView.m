@@ -49,10 +49,16 @@
 
 - (void)initPlayerIfNeeded {
   if(!player) {
-      NSString *assetPath = [[[NSUserDefaults standardUserDefaults] URLForKey:self.src] relativePath];
-      if (assetPath == nil) {
+      if (!self.offline) {
           player = [AVPlayer playerWithURL:[NSURL URLWithString:self.src]];
       } else {
+          NSString *assetPath = [[[NSUserDefaults standardUserDefaults] URLForKey:self.src] relativePath];
+          if (assetPath == nil) {
+              if(self.onPlaybackError) {
+                  self.onPlaybackError(@{@"error": [NSString stringWithFormat:@"Could not find the download with the given ID: %@", self.src]});
+              }
+              return;
+          }
           NSURL *baseURL = [NSURL fileURLWithPath: NSHomeDirectory()];
           NSURL *assetURL = [baseURL URLByAppendingPathComponent:assetPath];
           AVURLAsset *asset = [AVURLAsset URLAssetWithURL:assetURL options:nil];
@@ -60,7 +66,9 @@
           if ([asset.assetCache isPlayableOffline]) {
               player = [AVPlayer playerWithPlayerItem:[AVPlayerItem playerItemWithAsset:[AVURLAsset URLAssetWithURL:assetURL options:nil]]];
           } else {
-              self.onPlaybackError(@{@"Error": @"The asset cannot be played offline."});
+              if(self.onPlaybackError) {
+                  self.onPlaybackError(@{@"error": @"The asset cannot be played offline."});
+              }
               NSLog(@"The asset cannot be played offline!");
           }
        }
@@ -108,6 +116,12 @@
     [self releasePlayer];
   }
   [self updateProps];
+}
+
+- (void) setOffline:(BOOL)offline {
+    NSLog(@"setOffline...offline=%d", offline);
+    _offline = offline;
+    [self updateProps];
 }
 
 - (void) setPreload:(NSString *)preload {
@@ -258,7 +272,6 @@
   if (player) {
     [player addObserver:self forKeyPath:@"rate" options:0 context:nil];
     if (player.currentItem) {
-//      [player addObserver:self forKeyPath:@"status" options:0 context:nil];
       [player.currentItem addObserver:self forKeyPath:@"status" options:0 context:nil];
       [player.currentItem addObserver:self forKeyPath:@"loadedTimeRanges" options:0 context:nil];
       [player.currentItem addObserver:self forKeyPath:@"playbackBufferFull" options:0 context:nil];
@@ -272,7 +285,6 @@
   if (player) {
     [player removeObserver:self forKeyPath:@"rate"];
     if (player.currentItem) {
-//      [player removeObserver:self forKeyPath:@"status"];
       [player.currentItem removeObserver:self forKeyPath:@"status"];
       [player.currentItem removeObserver:self forKeyPath:@"loadedTimeRanges"];
       [player.currentItem removeObserver:self forKeyPath:@"playbackBufferFull"];

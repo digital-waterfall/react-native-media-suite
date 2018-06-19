@@ -1,4 +1,6 @@
-# react-native-media-kit
+# react-native-media-suite
+
+Forked from react-native-media-kit
 
 Video(and audio) component for react-native apps, supporting both iOS and Android, with API similar to HTML video.
 
@@ -79,15 +81,16 @@ render() {
 
 ```
 
-### API
+### Player API
 
-The API is designed to mimics html [`<video />`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video). (*For now, the Video and Audio component are identical*)
+The API is designed to mimic the html [`<video />`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video).
 
 ##### Properties
 
 | key                  | value                                    | iOS  | Android |
 | -------------------- | ---------------------------------------- | ---- | ------- |
 | src                  | the URL of the video                     | OK   | OK      |
+| offline             | the ID of the downloaded asset    | OK   | WIP    |
 | autoplay             | true to automatically begins to play. Default is false. | OK   | OK      |
 | preload              | can be 'none', 'auto'. Default is 'none'. | OK   | OK      |
 | loop                 | true to automatically seek back to the start upon reaching the end of the video. Default is 'false'. | OK   | OK      |
@@ -100,6 +103,7 @@ The API is designed to mimics html [`<video />`](https://developer.mozilla.org/e
 | onPlayerBuffering    |                                          | OK   | OK      |
 | onPlayerBufferOK     |                                          | OK   | OK      |
 | onPlayerProgress     |                                          | OK   | OK      |
+| onPlayerError           |                                          | OK   | WIP     |
 | onPlayerBufferChange |                                          | OK   | OK      |
 
 - ***pause***
@@ -110,11 +114,34 @@ The API is designed to mimics html [`<video />`](https://developer.mozilla.org/e
 
 For details about the usage of above APIs, check `library/media-player-view.js`.
 
+### Downloader API
 
+The downloader currently only works in iOS, but the Android is speedily on its way.
+
+##### Properties
+
+The following methods can be called on the downloader.
+| key                    | value                    | iOS | Android |
+|------------------------|--------------------------|-----|---------|
+| restoreMediaDownloader |                          | OK  | WIP     |
+| downloadStream         | url, downloadID, bitRate | OK  | WIP     |
+| deleteDownloadedStream | downloadID               | OK  | WIP     |
+| pauseDownload          | downloadID               | OK  | WIP     |
+| resumeDownload         | downloadID               | OK  | WIP     |
+| cancelDownload         | downloadID               | OK  | WIP     |
+
+Methods can be passed to the constructor to be called when events occur. The following callbacks are supported. 
+| key                | value                                                                              | iOS | Android |
+|--------------------|------------------------------------------------------------------------------------|-----|---------|
+| onDownloadFinished | returns: {downloadID: string, downloadLocation: string, size: number of bytes}     | OK  | WIP     |
+| onDownloadProgress | returns: {downloadID: string, percentComplete: percent as a float}                 | OK  | WIP     |
+| onDownloadStarted  | returns: {downloadID: string}                                                      | OK  | WIP     |
+| onDownloadError    | returns: {downloadID: string, error: message as string, errorType: type as string} | OK  | WIP     |
+| onDownloadCanceled | returns: {downloadID: string}                                                      | OK  | WIP     |
 
 ## TODO
 
-* Downloading
+* Downloading - **W**ork **I**n **P**rogress 
 * DRM
 * Google Play
 * Air Play
