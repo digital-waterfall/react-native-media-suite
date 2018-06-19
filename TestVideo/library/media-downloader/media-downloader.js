@@ -31,16 +31,24 @@ export default class Downloader {
         this.downloader.restoreMediaDownloader();
     }
 
-    downloadStream(url, downloadID, bitRate) {
-        if (bitRate) {
-            this.downloader.downloadStreamWithBitRate(url, downloadID, bitRate)
+    downloadStream(downloadID, url, bitRate) {
+        if(Platform.OS === 'android'){
+            this.downloader.downloadStream(url);
         } else {
-            this.downloader.downloadStream(url, downloadID);
+            if (bitRate) {
+                this.downloader.downloadStreamWithBitRate(url, downloadID, bitRate)
+            } else {
+                this.downloader.downloadStream(url, downloadID);
+            }
         }
     }
 
-    deleteDownloadedStream(downloadID) {
-        this.downloader.deleteDownloadedStream(downloadID);
+    deleteDownloadedStream(downloadID, url) {
+        if(Platform.OS === 'android') {
+            this.downloader.deleteDownloadedStream(url);
+        } else {
+            this.downloader.deleteDownloadedStream(downloadID);
+        }
     }
 
     pauseDownload(downloadID, url) {

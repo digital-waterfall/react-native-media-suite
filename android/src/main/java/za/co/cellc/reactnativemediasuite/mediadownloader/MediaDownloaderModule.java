@@ -112,6 +112,7 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
                             DOWNLOAD_DESERIALIZERS);
             downloadManager.addListener(downloadTracker);
             downloadManager.startDownloads();
+            downloadProgressUpdate();
         }
 
     }
@@ -129,6 +130,26 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
         return buildReadOnlyCacheDataSource(upstreamFactory, getDownloadCache());
     }
 
+    public void downloadProgressUpdate(){
+        new Timer().scheduleAtFixedRate(new TimerTask(){
+            @Override
+            public void run(){
+                if (ctx.hasActiveCatalystInstance()) {
+                    DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
+                    for (int i = 0; i < taskStates.length; i++) {
+                        if (taskStates[i].state == 1) {
+                            WritableMap params = Arguments.createMap();
+                            params.putString("downloadID", taskStates[i].action.uri.toString());
+                            params.putDouble("percentComplete", taskStates[i].downloadPercentage);
+                            ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadProgress", params);
+                        }
+                    }
+                }
+
+            }
+        },0,1000);
+    }
+
     private static CacheDataSourceFactory buildReadOnlyCacheDataSource(
             DefaultDataSourceFactory upstreamFactory, Cache cache) {
         return new CacheDataSourceFactory(
@@ -141,7 +162,7 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void downloadStream(String videoUri, final String downloadId){
+    public void downloadStream(String videoUri){
         final Uri movieUri = Uri.parse(videoUri);
 
         Boolean isDownloaded = downloadTracker.isDownloaded(movieUri);
@@ -150,7 +171,7 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
             WritableMap params = Arguments.createMap();
             params.putString("error", "The asset is already downloaded");
             params.putString("errorType", "ALREADY_DOWNLOADED");
-            params.putString("downloadID", downloadId);
+            params.putString("downloadID", videoUri);
             ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadError", params);
             return;
         }
@@ -164,64 +185,15 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
             }
         }
         if(taskState == null){
-            DownloadAction downloadAction = downloadTracker.getDownloadAction(downloadId, movieUri, ".mpd");
+            DownloadAction downloadAction = downloadTracker.getDownloadAction(videoUri, movieUri, ".mpd");
             int taskId = downloadManager.handleAction(downloadAction);
         } else if (taskState.state == DownloadManager.TaskState.STATE_STARTED) {
             WritableMap params = Arguments.createMap();
             params.putString("error", "The asset download is in progress");
             params.putString("errorType", "DOWNLOAD_IN_PROGRESS");
-            params.putString("downloadID", downloadId);
+            params.putString("downloadID", videoUri);
             ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadError", params);
         }
-
-
-
-
-//        if(isDownloading){
-//            downloadManager.startDownloads();
-//        } else if(taskState == null) {
-//            Boolean isDownloaded = downloadTracker.isDownloaded(movieUri);
-//            if(!isDownloaded){
-//                DownloadAction downloadAction = downloadTracker.getDownloadAction(downloadId, movieUri, ".mpd");
-//                int taskId = downloadManager.handleAction(downloadAction);
-//                downloadManager.startDownloads();
-//            }
-//        }
-//
-//        final DownloadManager.TaskState activeTaskState = taskState;
-////
-//        new Timer().scheduleAtFixedRate(new TimerTask(){
-//            @Override
-//            public void run(){
-//                DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
-//
-//                DownloadAction downloadAction = downloadTracker.getDownloadAction(downloadId, movieUri, ".mpd");
-//                int taskId = downloadManager.handleAction(downloadAction);
-//                downloadManager.startDownloads();
-//                Boolean isDownloaded = downloadTracker.isDownloaded(movieUri);
-//                if(!isDownloaded) {
-//                    DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
-//                    for (int i = 0; i < taskStates.length; i++) {
-//                        if (taskStates[i].action.uri.equals(movieUri)) {
-//                            if (taskStates[i].state == 1) {
-//                                WritableMap params = Arguments.createMap();
-//                                params.putDouble("percentComplete", taskStates[i].downloadPercentage);
-//                                ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadProgress", params);
-//                            } else if (taskStates[i].state == 2) {
-//                                WritableMap params = Arguments.createMap();
-//                                params.putDouble("percentComplete", taskStates[i].downloadPercentage);
-//                                ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadProgress", params);
-//                            }
-//                            break;
-//                        }
-//                    }
-//                } else {
-//                    WritableMap params = Arguments.createMap();
-//                    params.putDouble("percentComplete", 100);
-//                    ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadProgress", params);
-//                }
-//            }
-//        },0,1000);
     }
 
     @ReactMethod

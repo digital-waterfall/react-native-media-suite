@@ -4,10 +4,10 @@ import  Video, { Downloader }  from './library/index';
 
 const {width, height} = Dimensions.get('window');
 
-// const videoUri = `https://d2h2jy22itvgms.cloudfront.net/${
-// //     Platform.OS === 'ios' ? 'hls' : 'dash'
-// //     }/269149/trailer.${Platform.OS === 'ios' ? 'm3u8' : 'mpd'}`;
-const videoUri = 'https://d2h2jy22itvgms.cloudfront.net/dash/short_test.mpd';
+const videoUri = `https://d2h2jy22itvgms.cloudfront.net/${
+    Platform.OS === 'ios' ? 'hls' : 'dash'
+    }/269149/trailer.${Platform.OS === 'ios' ? 'm3u8' : 'mpd'}`;
+// const videoUri = 'https://d2h2jy22itvgms.cloudfront.net/dash/short_test.mpd';
 
 export default class App extends React.Component {
     constructor(props) {
@@ -36,14 +36,14 @@ export default class App extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                <TouchableOpacity onPress={() => {this.downloader.downloadStream(videoUri, '269149')}}>
+                <TouchableOpacity onPress={() => {this.downloader.downloadStream('269149', videoUri)}}>
                     <Text>setupAssetDownload()</Text>
                 </TouchableOpacity>
                 <Text>{ this.state.progress}%</Text>
                 <TouchableOpacity onPress={() => {this.setState({showPlayer: true});}}>
                     <Text>showVideo()</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => {this.downloader.deleteDownloadedStream('269149')}}>
+                <TouchableOpacity onPress={() => {this.downloader.deleteDownloadedStream('269149', videoUri)}}>
                     <Text>deleteDownloadedStream()</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => {this.downloader.pauseDownload('269149', videoUri)}}>
@@ -52,7 +52,7 @@ export default class App extends React.Component {
                 <TouchableOpacity onPress={() => {this.downloader.resumeDownload('269149', videoUri)}}>
                     <Text>resumeDownload()</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => {this.downloader.cancelDownload('269149')}}>
+                <TouchableOpacity onPress={() => {this.downloader.cancelDownload('269149', videoUri)}}>
                     <Text>cancelDownload()</Text>
                 </TouchableOpacity>
                 { this.showVideo() }
