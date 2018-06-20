@@ -4,10 +4,10 @@ import  Video, { Downloader }  from './library/index';
 
 const {width, height} = Dimensions.get('window');
 
-const videoUri = `https://d2h2jy22itvgms.cloudfront.net/${
-    Platform.OS === 'ios' ? 'hls' : 'dash'
-    }/269149/trailer.${Platform.OS === 'ios' ? 'm3u8' : 'mpd'}`;
-// const videoUri = 'https://d2h2jy22itvgms.cloudfront.net/dash/short_test.mpd';
+// const videoUri = `https://d2h2jy22itvgms.cloudfront.net/${
+//     Platform.OS === 'ios' ? 'hls' : 'dash'
+//     }/269149/trailer.${Platform.OS === 'ios' ? 'm3u8' : 'mpd'}`;
+const videoUri = 'https://d2h2jy22itvgms.cloudfront.net/dash/short_test.mpd';
 
 export default class App extends React.Component {
     constructor(props) {
@@ -26,10 +26,10 @@ export default class App extends React.Component {
         this.showVideo = this.showVideo.bind(this);
         this.downloader = new Downloader({
             onDownloadProgress: this.onDownloadProgress,
-            onDownloadError: (data) => console.log(data),
-            onDownloadStarted: (data) => console.log(data),
+            onDownloadError: (data) => console.log('downloadError',data),
+            onDownloadStarted: (data) => console.log('downloadStarted',data),
             onDownloadFinished: (data) => console.log('downloadFinished',data),
-            onDownloadCanceled: (data) => console.log(data)
+            onDownloadCanceled: (data) => console.log('downloadCancelled',data)
         });
     }
 

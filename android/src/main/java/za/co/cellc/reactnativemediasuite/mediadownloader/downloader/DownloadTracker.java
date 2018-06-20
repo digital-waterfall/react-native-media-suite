@@ -104,15 +104,16 @@ public class DownloadTracker implements DownloadManager.Listener {
         return Collections.emptyList();
     }
 
-    public void toggleDownload(String name, Uri uri, String extension) {
-        if (isDownloaded(uri)) {
-            DownloadAction removeAction =
-                    getDownloadHelper(uri, extension).getRemoveAction(Util.getUtf8Bytes(name));
-            startServiceWithAction(removeAction);
-        }  else {
-            DownloadAction downloadAction = this.getDownloadAction(name, uri, ".mpd");
-            startDownload(downloadAction);
-        }
+    public DownloadAction addDownloadTracking(String name, Uri uri, String extension) {
+        DownloadAction newDownloadAction =  getDownloadAction(name, uri, extension);
+        startDownloadTracking(newDownloadAction);
+        return newDownloadAction;
+    }
+
+    public DownloadAction removeDownloadTracking(String name, Uri uri, String extension) {
+        DownloadAction newDownloadAction =  getDownloadAction(name, uri, extension);
+        stopDownloadTracking(newDownloadAction);
+        return newDownloadAction;
     }
 
     //DownloadManager.Listener
@@ -133,21 +134,6 @@ public class DownloadTracker implements DownloadManager.Listener {
                 handleTrackedDownloadStatesChanged();
             }
         }
-
-        if (taskState.state == TaskState.STATE_COMPLETED) {
-            WritableMap params = Arguments.createMap();
-            params.putString("downloadID", taskState.action.uri.toString());
-            params.putDouble("size", taskState.downloadedBytes);
-            params.putString("downloadLocation", "N/A");
-            context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadFinished", params);
-            toggleDownload(taskState.action.uri.toString(), taskState.action.uri,".mpd");
-        }
-//        else if (taskState.state == TaskState.STATE_STARTED) {
-//            WritableMap params = Arguments.createMap();
-//            String uriString = taskState.action.uri.toString();
-//            params.putString("downloadID", uriString);
-//            context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadStarted", params);
-//        }
     }
 
     @Override
@@ -186,16 +172,26 @@ public class DownloadTracker implements DownloadManager.Listener {
                 });
     }
 
-    private void startDownload(DownloadAction action) {
+    private void startDownloadTracking(DownloadAction action) {
         if (trackedDownloadStates.containsKey(action.uri)) {
             // This content is already being downloaded. Do nothing.
             return;
         }
-        Log.i(TAG, "Started Download");
+        Log.i(TAG, "Started Tracking Download");
         trackedDownloadStates.put(action.uri, action);
         handleTrackedDownloadStatesChanged();
-        startServiceWithAction(action);
     }
+
+    private void stopDownloadTracking(DownloadAction action) {
+        if (trackedDownloadStates.containsKey(action.uri)) {
+            Log.i(TAG, "Stopped Tracking Download");
+            trackedDownloadStates.remove(action.uri);
+            handleTrackedDownloadStatesChanged();
+        }
+        return;
+
+    }
+
 
     private void startServiceWithAction(DownloadAction action) {
         DownloadService.startWithAction(context, NativeDownloadService.class, action, false);
@@ -253,7 +249,7 @@ public class DownloadTracker implements DownloadManager.Listener {
                     Log.d(TAG, trackKeys.toString());
                     DownloadAction downloadAction =
                             downloadHelper.getDownloadAction(Util.getUtf8Bytes(name), trackKeys);
-                    startDownload(downloadAction);
+                    startDownloadTracking(downloadAction);
                 }
 
             }

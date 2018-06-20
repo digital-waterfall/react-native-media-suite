@@ -25,14 +25,11 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory;
-import com.google.android.exoplayer2.upstream.cache.CacheUtil;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Util;
 
 import java.io.File;
-import java.util.List;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -51,6 +48,7 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
                     SsDownloadAction.DESERIALIZER,
                     ProgressiveDownloadAction.DESERIALIZER
             };
+    private static final String TAG = "DownloaderModule";
 
     protected String userAgent;
 
@@ -114,7 +112,60 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
                             buildDataSourceFactory(/* listener= */ null),
                             new File(getDownloadDirectory(), DOWNLOAD_TRACKER_ACTION_FILE),
                             DOWNLOAD_DESERIALIZERS);
-            downloadManager.addListener(downloadTracker);
+            downloadManager.addListener(new DownloadManager.Listener() {
+                @Override
+                public void onInitialized(DownloadManager downloadManager) {
+
+                }
+
+                @Override
+                public void onTaskStateChanged(DownloadManager downloadManager, DownloadManager.TaskState taskState) {
+                    Log.d(TAG, taskState.toString());
+                    if (ctx.hasActiveCatalystInstance()) {
+                        if (taskState.state == DownloadManager.TaskState.STATE_COMPLETED) {
+                            if(taskState.downloadPercentage == 100) {
+                                WritableMap params = Arguments.createMap();
+                                params.putString("downloadID", taskState.action.uri.toString());
+                                params.putDouble("percentComplete", 100);
+                                ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadProgress", params);
+
+                                params = Arguments.createMap();
+                                params.putString("downloadID", taskState.action.uri.toString());
+                                params.putDouble("size", taskState.downloadedBytes);
+                                //TODO: Add local path of downloaded file
+                                params.putString("downloadLocation", "N/A");
+                                ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadFinished", params);
+
+                                downloadTracker.addDownloadTracking(taskState.action.uri.toString(), taskState.action.uri, ".mpd");
+                            }
+                        } else if (taskState.state == DownloadManager.TaskState.STATE_STARTED) {
+                            if(taskState.action.isRemoveAction){
+                                WritableMap params = Arguments.createMap();
+                                params.putString("downloadID", taskState.action.uri.toString());
+                                ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadCanceled", params);
+                            } else if(taskState.downloadPercentage == -1) {
+                                WritableMap params = Arguments.createMap();
+                                params.putString("downloadID", taskState.action.uri.toString());
+                                ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadStarted", params);
+                            }
+                        } else {
+                            Log.d(TAG, "Other event emitters");
+                        }
+                    }
+                }
+
+                @Override
+                public void onIdle(DownloadManager downloadManager) {
+
+                }
+            });
+            downloadTracker.addListener(new DownloadTracker.Listener() {
+                @Override
+                public void onDownloadsChanged() {
+                    Log.d("Module","download");
+                }
+
+            });
             downloadManager.startDownloads();
             downloadProgressUpdate();
         }
@@ -141,7 +192,7 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
                 if (ctx.hasActiveCatalystInstance()) {
                     DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
                     for (int i = 0; i < taskStates.length; i++) {
-                        if (taskStates[i].state == 1) {
+                        if (taskStates[i].state == DownloadManager.TaskState.STATE_STARTED && !taskStates[i].action.isRemoveAction) {
                             WritableMap params = Arguments.createMap();
                             params.putString("downloadID", taskStates[i].action.uri.toString());
                             params.putDouble("percentComplete", taskStates[i].downloadPercentage);
@@ -177,6 +228,11 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
             params.putString("errorType", "ALREADY_DOWNLOADED");
             params.putString("downloadID", videoUri);
             ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadError", params);
+
+            params = Arguments.createMap();
+            params.putString("downloadID", videoUri);
+            params.putDouble("percentComplete", 100);
+            ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadProgress", params);
             return;
         }
 
@@ -214,8 +270,8 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
             }
         }
         if(isDownloading) {
+            //TODO: Develop pause functionality per video, currently all downloads are paused
             downloadManager.stopDownloads();
-
         }
     }
 
@@ -223,7 +279,6 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     public void resumeDownload(final String videoUri){
         Uri movieUri = Uri.parse(videoUri);
         DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
-        Boolean isDownloaded = downloadTracker.isDownloaded(movieUri);
         Boolean isDownloading = false;
         for (int i = 0; i < taskStates.length; i++) {
             if(taskStates[i].action.uri.equals(movieUri)){
@@ -233,41 +288,29 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
                 break;
             }
         }
-        if(!isDownloading && !isDownloaded) {
+        if(!isDownloading) {
+            //TODO: Develop start functionality per video, currently all downloads are started
             downloadManager.startDownloads();
         }
     }
 
     @ReactMethod
     public void cancelDownload(final String videoUri){
+        pauseDownload(videoUri);
+        deleteDownloadedStream(videoUri);
+    }
+
+    @ReactMethod
+    public void deleteDownloadedStream(final String videoUri){
         Uri movieUri = Uri.parse(videoUri);
-        Boolean isDownloaded = downloadTracker.isDownloaded(movieUri);
-        Boolean isDownloading = false;
-        if(!isDownloaded){
-            DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
-            for (int i = 0; i < taskStates.length; i++) {
-                if(taskStates[i].action.uri.equals(movieUri)){
-                    if(taskStates[i].state == DownloadManager.TaskState.STATE_STARTED){
-                        isDownloading = true;
-                    }
-                    break;
-                }
-            }
-        }
-        if(isDownloaded || isDownloading){
-            //DownloadAction downloadAction = downloadTracker.getRemoveDownloadAction(videoUri, movieUri, ".mpd");
-            //int taskId = downloadManager.handleAction(downloadAction);
+        DownloadAction removeDownloadAction = downloadTracker.getRemoveDownloadAction(videoUri, movieUri, ".mpd");
+        downloadManager.handleAction(removeDownloadAction);
+        downloadTracker.removeDownloadTracking(videoUri, movieUri, ".mpd");
 
-            Cache downloadCache = getDownloadCache();
-            Set keys = downloadCache.getKeys();
-            if(keys.size() > 0){
-                for (int i = 0; i < keys.size(); i++) {
-                    String key = keys.iterator().next().toString();
-                    CacheUtil.remove(downloadCache, key);
-                }
-            }
-
-        }
+        WritableMap params = Arguments.createMap();
+        params.putString("downloadID", videoUri);
+        params.putDouble("percentComplete", 0);
+        ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadProgress", params);
     }
 
     @Override
