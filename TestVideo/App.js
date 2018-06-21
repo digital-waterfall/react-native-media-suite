@@ -43,16 +43,16 @@ export default class App extends React.Component {
                 <TouchableOpacity onPress={() => {this.setState({showPlayer: true});}}>
                     <Text>showVideo()</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => {this.downloader.deleteDownloadedStream('269149', videoUri)}}>
+                <TouchableOpacity onPress={() => {this.downloader.deleteDownloadedStream('269149')}}>
                     <Text>deleteDownloadedStream()</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => {this.downloader.pauseDownload('269149', videoUri)}}>
+                <TouchableOpacity onPress={() => {this.downloader.pauseDownload('269149')}}>
                     <Text>pauseDownload()</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => {this.downloader.resumeDownload('269149', videoUri)}}>
+                <TouchableOpacity onPress={() => {this.downloader.resumeDownload('269149')}}>
                     <Text>resumeDownload()</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => {this.downloader.cancelDownload('269149', videoUri)}}>
+                <TouchableOpacity onPress={() => {this.downloader.cancelDownload('269149')}}>
                     <Text>cancelDownload()</Text>
                 </TouchableOpacity>
                 { this.showVideo() }

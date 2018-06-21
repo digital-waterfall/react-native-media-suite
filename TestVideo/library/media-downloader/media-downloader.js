@@ -32,47 +32,27 @@ export default class Downloader {
     }
 
     downloadStream(downloadID, url, bitRate) {
-        if(Platform.OS === 'android'){
-            this.downloader.downloadStream(url);
+        if (bitRate) {
+            this.downloader.downloadStreamWithBitRate(url, downloadID, bitRate)
         } else {
-            if (bitRate) {
-                this.downloader.downloadStreamWithBitRate(url, downloadID, bitRate)
-            } else {
-                this.downloader.downloadStream(url, downloadID);
-            }
+            this.downloader.downloadStream(url, downloadID);
         }
     }
 
-    deleteDownloadedStream(downloadID, url) {
-        if(Platform.OS === 'android') {
-            this.downloader.deleteDownloadedStream(url);
-        } else {
-            this.downloader.deleteDownloadedStream(downloadID);
-        }
+    deleteDownloadedStream(downloadID) {
+        this.downloader.deleteDownloadedStream(downloadID);
     }
 
-    pauseDownload(downloadID, url) {
-        if(Platform.OS === 'android'){
-            this.downloader.pauseDownload(url);
-        } else {
-            this.downloader.pauseDownload(downloadID);
-        }
+    pauseDownload(downloadID) {
+        this.downloader.pauseDownload(downloadID);
     }
 
-    resumeDownload(downloadID, url) {
-        if(Platform.OS === 'android') {
-            this.downloader.resumeDownload(url);
-        } else {
-            this.downloader.resumeDownload(downloadID);
-        }
+    resumeDownload(downloadID) {
+        this.downloader.resumeDownload(downloadID);
     }
 
-    cancelDownload(downloadID, url) {
-        if(Platform.OS === 'android') {
-            this.downloader.cancelDownload(url);
-        } else {
-            this.downloader.cancelDownload(downloadID);
-        }
+    cancelDownload(downloadID) {
+        this.downloader.cancelDownload(downloadID);
     }
 
     onDownloadProgress(data) {

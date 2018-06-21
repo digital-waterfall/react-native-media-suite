@@ -1,5 +1,7 @@
 package za.co.cellc.reactnativemediasuite.mediadownloader;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
 
@@ -56,6 +58,7 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     private Cache downloadCache;
     private DownloadManager downloadManager;
     private DownloadTracker downloadTracker;
+    private SharedPreferences sharedPref;
 
     ReactApplicationContext ctx = null;
 
@@ -64,6 +67,7 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
         ctx = reactContext;
         userAgent = Util.getUserAgent(reactContext, "MediaDownloader");
         downloadManager = getDownloadManager();
+        sharedPref = ctx.getSharedPreferences(TAG, Context.MODE_PRIVATE);
     }
 
     public DownloadManager getDownloadManager() {
@@ -92,6 +96,16 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
             }
         }
         return downloadDirectory;
+    }
+
+    private String lookupUri(String uuid){
+        return sharedPref.getString(uuid, null);
+    }
+
+    private void addUuidUriMapping(String uuid, String videoUri){
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(uuid,videoUri);
+        editor.commit();
     }
 
     private synchronized void initDownloadManager() {
@@ -162,7 +176,7 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
             downloadTracker.addListener(new DownloadTracker.Listener() {
                 @Override
                 public void onDownloadsChanged() {
-                    Log.d("Module","download");
+                    Log.d(TAG,"onDownloadsChanged");
                 }
 
             });
@@ -217,7 +231,8 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void downloadStream(String videoUri){
+    public void downloadStream(String videoUri, String uuid){
+        addUuidUriMapping(uuid, videoUri);
         final Uri movieUri = Uri.parse(videoUri);
 
         Boolean isDownloaded = downloadTracker.isDownloaded(movieUri);
@@ -257,7 +272,8 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void pauseDownload(final String videoUri){
+    public void pauseDownload(final String uuid){
+        String videoUri = lookupUri(uuid);
         Uri movieUri = Uri.parse(videoUri);
         DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
         Boolean isDownloading = false;
@@ -276,7 +292,8 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void resumeDownload(final String videoUri){
+    public void resumeDownload(final String uuid){
+        String videoUri = lookupUri(uuid);
         Uri movieUri = Uri.parse(videoUri);
         DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
         Boolean isDownloading = false;
@@ -295,13 +312,15 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void cancelDownload(final String videoUri){
+    public void cancelDownload(final String uuid){
+        String videoUri = lookupUri(uuid);
         pauseDownload(videoUri);
         deleteDownloadedStream(videoUri);
     }
 
     @ReactMethod
-    public void deleteDownloadedStream(final String videoUri){
+    public void deleteDownloadedStream(final String uuid){
+        String videoUri = lookupUri(uuid);
         Uri movieUri = Uri.parse(videoUri);
         DownloadAction removeDownloadAction = downloadTracker.getRemoveDownloadAction(videoUri, movieUri, ".mpd");
         downloadManager.handleAction(removeDownloadAction);
