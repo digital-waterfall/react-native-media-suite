@@ -231,6 +231,13 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void downloadStreamWithBitRate(String videoUri, String uuid, int bitRate){
+        //TODO: Implement bitrate
+        Log.d(TAG, bitRate + "");
+        downloadStream(videoUri,uuid);
+    }
+
+    @ReactMethod
     public void downloadStream(String videoUri, String uuid){
         addUuidUriMapping(uuid, videoUri);
         final Uri movieUri = Uri.parse(videoUri);
