@@ -1,8 +1,13 @@
 import React from 'react';
-import {StyleSheet, Text, View, Dimensions, TouchableOpacity} from 'react-native';
+import {StyleSheet, Text, View, Dimensions, TouchableOpacity, Platform} from 'react-native';
 import  Video, { Downloader }  from './library/index';
 
 const {width, height} = Dimensions.get('window');
+
+// const videoUri = `https://d2h2jy22itvgms.cloudfront.net/${
+//     Platform.OS === 'ios' ? 'hls' : 'dash'
+//     }/269149/trailer.${Platform.OS === 'ios' ? 'm3u8' : 'mpd'}`;
+const videoUri = 'https://d2h2jy22itvgms.cloudfront.net/dash/short_test.mpd';
 
 export default class App extends React.Component {
     constructor(props) {
@@ -22,17 +27,17 @@ export default class App extends React.Component {
         this.showVideo = this.showVideo.bind(this);
         this.downloader = new Downloader({
             onDownloadProgress: this.onDownloadProgress,
-            onDownloadError: (data) => console.log(data),
-            onDownloadStarted: (data) => console.log(data),
-            onDownloadFinished: (data) => console.log(data),
-            onDownloadCanceled: (data) => console.log(data)
+            onDownloadError: (data) => console.log('downloadError',data),
+            onDownloadStarted: (data) => console.log('downloadStarted',data),
+            onDownloadFinished: (data) => console.log('downloadFinished',data),
+            onDownloadCanceled: (data) => console.log('downloadCancelled',data)
         });
     }
 
     render() {
         return (
             <View style={styles.container}>
-                <TouchableOpacity onPress={() => {this.downloader.downloadStream('https://d2h2jy22itvgms.cloudfront.net/hls/short_test.m3u8', '269149')}}>
+                <TouchableOpacity onPress={() => {this.downloader.downloadStream('269149', videoUri)}}>
                     <Text>setupAssetDownload()</Text>
                 </TouchableOpacity>
                 <Text>{ this.state.progress}%</Text>
@@ -69,8 +74,8 @@ export default class App extends React.Component {
                     // preload='auto'
                     loop={true}
                     muted={this.state.muted}
-                    src="https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
-                    // offline
+                    src={videoUri}
+                    offline
                     onPlaybackError={() => console.log('lol')}
                     onPlayerProgress={data => console.log(data)}
                 />

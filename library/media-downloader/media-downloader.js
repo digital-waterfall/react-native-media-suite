@@ -31,7 +31,7 @@ export default class Downloader {
         this.downloader.restoreMediaDownloader();
     }
 
-    downloadStream(url, downloadID, bitRate) {
+    downloadStream(downloadID, url, bitRate) {
         if (bitRate) {
             this.downloader.downloadStreamWithBitRate(url, downloadID, bitRate)
         } else {

@@ -15,24 +15,24 @@ Supported media types:
 
 ## Install
 
-`npm install --save react-native-media-kit@latest `
+`npm install --save react-native-media-suite@latest `
 
 #### iOS
 
 * Step 1: Right click on **Libraries** and choose 'Add files to "Project Name"'.
-* Step 2: Navigate to `project_name/node_modules/react-native-media-kit/ios/` and add the file `react-native-media-kit.xcodeproj`.
+* Step 2: Navigate to `project_name/node_modules/react-native-media-suite/ios/` and add the file `react-native-media-suite.xcodeproj`.
 * Step 3: Open project settings and at the top choose '**Build Phases**'
 * Step 4: Expand the '**Link Binary With Libraries**' section.
 * Step 5: Click the + at the bottom of the list
-* Step 6: Add the `libreact-native-media-kit.a` file
+* Step 6: Add the `libreact-native-media-suite.a` file
 
 #### Android
 
 **android/settings.gradle**
 
 ```
-include ':react-native-media-kit'
-project(':react-native-media-kit').projectDir = new File('../node_modules/react-native-media-kit/android')
+include ':react-native-media-suite'
+project(':react-native-media-suite').projectDir = new File('../node_modules/react-native-media-suite/android')
 ```
 
 **android/app/build.gradle**
@@ -40,19 +40,19 @@ project(':react-native-media-kit').projectDir = new File('../node_modules/react-
 ```
 dependencies {
     ...
-    compile project(':react-native-media-kit')
+    compile project(':react-native-media-suite')
 }
 ```
 
 **MainActivity.java (or MainApplication on rn 0.29+)**
 
 ```
-import com.greatdroid.reactnative.media.MediaKitPackage;
+import za.co.digitalwaterfall.reactnativemediasuite.MediaSuitePackage;;
 ...
 protected List<ReactPackage> getPackages() {
     return Arrays.<ReactPackage>asList(
         new MainReactPackage(),
-            new MediaKitPackage()
+        new MediaSuitePackage()
     );
 }
 ```
@@ -62,7 +62,7 @@ protected List<ReactPackage> getPackages() {
 ## Documentation
 
 ```
-import {Video} from 'react-native-media-kit';
+import {Video} from 'react-native-media-suite';
 ...
 render() {
   return (
