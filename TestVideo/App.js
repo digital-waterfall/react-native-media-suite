@@ -18,6 +18,7 @@ export default class App extends React.Component {
         };
 
         this.onDownloadProgress = this.onDownloadProgress.bind(this);
+        this.registerPLayer = this.registerPLayer.bind(this);
         this.showVideo = this.showVideo.bind(this);
         this.downloader = new Downloader({
             onDownloadProgress: this.onDownloadProgress,
@@ -61,33 +62,41 @@ export default class App extends React.Component {
                 <View>
                 <Video
                     ref={(ref) => {
-                        this.player = ref
+                        this.registerPLayer(ref)
                     }}
                     style={{width: this.state.width, height: 190, backgroundColor: 'black'}}
                     autoplay={true}
-                    preload='auto'
+                    // preload='auto'
                     loop={true}
                     muted={this.state.muted}
-                    src="https://d2h2jy22itvgms.cloudfront.net/hls/short_test.m3u8"
-                    offline
+                    src="https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
+                    // offline
                     onPlaybackError={() => console.log('lol')}
                     onPlayerProgress={data => console.log(data)}
                 />
-                <TouchableOpacity onPress={() => {
-                    if (this.state.play) {
-                        this.setState({play: false});
-                        this.player.pause();
-                    } else {
-                        this.setState({play: true});
-                        this.player.play();
-                    }
-                }}>
+                <TouchableOpacity onPress={() => this.player.play()}>
                     <Text>play()</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => this.player.pause()}>
+                    <Text>pause()</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => this.player.seekTo(30000)}>
+                    <Text>forwardTo(30)</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => this.player.seekTo(20000)}>
+                    <Text>backwardTO(20)</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => this.player.stop()}>
+                    <Text>stop()</Text>
                 </TouchableOpacity>
                 </View>
             );
         }
         return null;
+    }
+
+    registerPLayer(ref) {
+        this.player = ref;
     }
 
     onDownloadProgress(data) {

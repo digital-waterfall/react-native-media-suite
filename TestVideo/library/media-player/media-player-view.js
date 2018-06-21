@@ -4,7 +4,9 @@ import PropTypes from 'prop-types';
 import ReactNative, {
     View,
     requireNativeComponent,
-    UIManager
+    UIManager,
+    NativeModules,
+    findNodeHandle
 } from 'react-native';
 
 class MediaPlayerView extends Component {
@@ -18,6 +20,10 @@ class MediaPlayerView extends Component {
 
     constructor(props) {
         super(props);
+
+        this.MediaPlayerView = NativeModules.MediaPlayerView;
+        this.play = this.play.bind(this);
+
         this.state = {
             buffering: false,
             playing: false,
@@ -25,10 +31,13 @@ class MediaPlayerView extends Component {
             total: 0,
 
             width: 0,
-            height: 0,
-            showPoster: true
+            height: 0
 
         };
+    }
+
+    componentDidMount() {
+        this.mapViewHandle = findNodeHandle(this.RCTMediaPlayerView);
     }
 
     componentWillUnmount() {
@@ -42,6 +51,7 @@ class MediaPlayerView extends Component {
                 onLayout={this._onLayout.bind(this)}>
                 <RCTMediaPlayerView
                     {...this.props}
+                    ref={(RCTMediaPlayerView) => this.RCTMediaPlayerView = RCTMediaPlayerView}
                     style={{flex: 1, alignSelf: 'stretch'}}
                     onPlayerPlaying={this._onPlayerPlaying.bind(this)}
                     onPlayerProgress={this._onPlayerProgress.bind(this)}
@@ -65,16 +75,15 @@ class MediaPlayerView extends Component {
 
     pause() {
         UIManager.dispatchViewManagerCommand(
-            // this._getMediaPlayerViewHandle(),
-            RCTMediaPlayerView.Commands.pause,
+            this.RCTMediaPlayerView._nativeTag,
+            UIManager.RCTMediaPlayerView.Commands.pause,
             null
         );
     }
 
     play() {
-        this.setState({showPoster: false});
         UIManager.dispatchViewManagerCommand(
-            this._getMediaPlayerViewHandle(),
+            this.RCTMediaPlayerView._nativeTag,
             UIManager.RCTMediaPlayerView.Commands.play,
             null
         );
@@ -82,24 +91,19 @@ class MediaPlayerView extends Component {
 
     stop() {
         UIManager.dispatchViewManagerCommand(
-            this._getMediaPlayerViewHandle(),
-            RCTMediaPlayerView.Commands.stop,
+            this.RCTMediaPlayerView._nativeTag,
+            UIManager.RCTMediaPlayerView.Commands.stop,
             null
         );
     }
 
     seekTo(timeMs) {
-        this.setState({showPoster: false})
         let args = [timeMs];
         UIManager.dispatchViewManagerCommand(
-            this._getMediaPlayerViewHandle(),
-            RCTMediaPlayerView.Commands.seekTo,
+            this.RCTMediaPlayerView._nativeTag,
+            UIManager.RCTMediaPlayerView.Commands.seekTo,
             args
         );
-    }
-
-    _getMediaPlayerViewHandle() {
-        return ReactNative.findNodeHandle(this.refs[RCT_MEDIA_PLAYER_VIEW_REF]);
     }
 
     _onPlayerBuffering() {
@@ -175,7 +179,7 @@ class MediaPlayerView extends Component {
     _onPlaybackError(event) {
         const error = event.nativeEvent.error;
         console.log(error);
-        this.props.onPlaybackError(error);
+        this.props.onPlaybackError && this.props.onPlaybackError(error);
     }
 }
 

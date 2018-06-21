@@ -39,6 +39,7 @@ RCT_EXPORT_METHOD(pause:(nonnull NSNumber *)reactTag) {
   } withTag:reactTag];
 }
 
+
 RCT_EXPORT_METHOD(stop:(nonnull NSNumber *)reactTag) {
   [self executeBlock:^(RCTMediaPlayerView *view) {
     [view stop];
