@@ -1,4 +1,4 @@
-import {NativeModules, NativeEventEmitter, Platform} from 'react-native';
+import {NativeModules, NativeEventEmitter} from 'react-native';
 
 export default class Downloader {
 

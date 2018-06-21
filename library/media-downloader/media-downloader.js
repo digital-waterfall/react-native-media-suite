@@ -31,7 +31,7 @@ export default class Downloader {
         this.downloader.restoreMediaDownloader();
     }
 
-    downloadStream(url, downloadID, bitRate) {
+    downloadStream(downloadID, url, bitRate) {
         if (bitRate) {
             this.downloader.downloadStreamWithBitRate(url, downloadID, bitRate)
         } else {
@@ -39,8 +39,8 @@ export default class Downloader {
         }
     }
 
-    deleteDownloadedStream(url) {
-        this.downloader.deleteDownloadedStream(url);
+    deleteDownloadedStream(downloadID) {
+        this.downloader.deleteDownloadedStream(downloadID);
     }
 
     pauseDownload(downloadID) {
@@ -56,22 +56,22 @@ export default class Downloader {
     }
 
     onDownloadProgress(data) {
-        if (this.downloadEvents.onDownloadProgress) this.downloadEvents.onDownloadProgress(data);
+        if (this.downloadEvents.onDownloadProgress) this.downloadEvents.onDownloadProgress({downloadID: data.downloadID, percentComplete: data.percentComplete});
     }
 
     onDownloadStarted(data) {
-        if (this.downloadEvents.onDownloadStarted) this.downloadEvents.onDownloadStarted(data);
+        if (this.downloadEvents.onDownloadStarted) this.downloadEvents.onDownloadStarted({downloadID: data.downloadID});
     }
 
     onDownloadFinished(data) {
-        if (this.downloadEvents.onDownloadFinished) this.downloadEvents.onDownloadFinished(data);
+        if (this.downloadEvents.onDownloadFinished) this.downloadEvents.onDownloadFinished({downloadID: data.downloadID, downloadLocation: data.downloadLocation, size: data.size});
     }
 
     onDownloadError(data) {
-        if (this.downloadEvents.onDownloadError) this.downloadEvents.onDownloadError(data);
+        if (this.downloadEvents.onDownloadError) this.downloadEvents.onDownloadError({downloadID: data.downloadID, error: data.error, errorType: data.errorType});
     }
 
     onDownloadCanceled(data) {
-        if (this.downloadEvents.onDownloadCanceled) this.downloadEvents.onDownloadCanceled(data);
+        if (this.downloadEvents.onDownloadCanceled) this.downloadEvents.onDownloadCanceled({downloadID: data.downloadID});
     }
 }
