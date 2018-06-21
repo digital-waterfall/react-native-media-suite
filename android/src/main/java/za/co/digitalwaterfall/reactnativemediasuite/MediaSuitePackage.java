@@ -1,4 +1,4 @@
-package za.co.cellc.reactnativemediasuite;
+package za.co.digitalwaterfall.reactnativemediasuite;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.JavaScriptModule;
@@ -6,7 +6,7 @@ import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 
-import za.co.cellc.reactnativemediasuite.mediadownloader.MediaDownloaderModule;
+import za.co.digitalwaterfall.reactnativemediasuite.mediadownloader.MediaDownloaderModule;
 //import ReactMediaPlayerViewManager;
 
 import java.util.ArrayList;

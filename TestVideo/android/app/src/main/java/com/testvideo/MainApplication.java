@@ -12,7 +12,7 @@ import com.facebook.soloader.SoLoader;
 import java.util.Arrays;
 import java.util.List;
 
-import za.co.cellc.reactnativemediasuite.MediaSuitePackage;
+import za.co.digitalwaterfall.reactnativemediasuite.MediaSuitePackage;
 
 public class MainApplication extends Application implements ReactApplication {
 

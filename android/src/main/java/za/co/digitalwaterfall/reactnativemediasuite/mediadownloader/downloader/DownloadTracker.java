@@ -1,4 +1,4 @@
-package za.co.cellc.reactnativemediasuite.mediadownloader.downloader;
+package za.co.digitalwaterfall.reactnativemediasuite.mediadownloader.downloader;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -6,10 +6,7 @@ import android.os.HandlerThread;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.ActionFile;
 import com.google.android.exoplayer2.offline.DownloadAction;

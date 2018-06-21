@@ -1,8 +1,7 @@
-package za.co.cellc.reactnativemediasuite.mediadownloader.downloader;
+package za.co.digitalwaterfall.reactnativemediasuite.mediadownloader.downloader;
 
 import android.app.Notification;
 
-import com.facebook.react.bridge.ReactApplicationContext;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.scheduler.PlatformScheduler;
@@ -10,7 +9,7 @@ import com.google.android.exoplayer2.ui.DownloadNotificationUtil;
 import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
 
-import za.co.cellc.reactnativemediasuite.R;
+import za.co.digitalwaterfall.reactnativemediasuite.R;
 
 /** A service for downloading media. */
 public class NativeDownloadService extends DownloadService {

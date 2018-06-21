@@ -47,7 +47,7 @@ dependencies {
 **MainActivity.java (or MainApplication on rn 0.29+)**
 
 ```
-import za.co.digital.waterfall.reactnativemediasuite.MediaSuitePackage;;
+import za.co.digitalwaterfall.reactnativemediasuite.MediaSuitePackage;;
 ...
 protected List<ReactPackage> getPackages() {
     return Arrays.<ReactPackage>asList(

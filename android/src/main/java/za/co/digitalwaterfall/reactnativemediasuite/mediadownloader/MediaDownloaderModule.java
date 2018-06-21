@@ -1,4 +1,4 @@
-package za.co.cellc.reactnativemediasuite.mediadownloader;
+package za.co.digitalwaterfall.reactnativemediasuite.mediadownloader;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -35,7 +35,7 @@ import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import za.co.cellc.reactnativemediasuite.mediadownloader.downloader.DownloadTracker;
+import za.co.digitalwaterfall.reactnativemediasuite.mediadownloader.downloader.DownloadTracker;
 
 public class MediaDownloaderModule extends ReactContextBaseJavaModule {
 
