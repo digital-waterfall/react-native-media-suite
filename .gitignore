@@ -27,7 +27,6 @@ node_modules/
 # Android/IJ
 #
 .idea
-node_modules/
 .gradle
 local.properties
 *.log
