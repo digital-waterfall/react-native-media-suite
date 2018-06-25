@@ -343,7 +343,7 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void cancelDownload(final String uuid){
         String videoUri = lookupUri(uuid);
-        pauseDownload(videoUri);
+        //pauseDownload(videoUri);
         deleteDownloadedStream(videoUri);
     }
 
