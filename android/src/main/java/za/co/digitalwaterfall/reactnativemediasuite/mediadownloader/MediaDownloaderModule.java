@@ -99,6 +99,12 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
         return downloadDirectory;
     }
 
+    private void mapDownloadID(String uuid, String videoUri){
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(uuid,videoUri);
+        editor.commit();
+    }
+
     private String getUri(String uuid){
         return sharedPref.getString(uuid, null);
     }
@@ -132,7 +138,7 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     private void onDownloadCancelledEvent(String downloadID){
         WritableMap params = Arguments.createMap();
         params.putString("downloadID", downloadID);
-        ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadCanceled", params);
+        ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadCancelled", params);
     }
 
     private void onDownloadStartedEvent(String downloadID){
@@ -147,12 +153,6 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
         params.putString("errorType", errorType);
         params.putString("downloadID", downloadID);
         ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadError", params);
-    }
-
-    private void mapDownloadID(String uuid, String videoUri){
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(uuid,videoUri);
-        editor.commit();
     }
 
     private synchronized void initDownloadManager() {
@@ -295,7 +295,7 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
         Boolean isDownloaded = downloadTracker.isDownloaded(videoUri);
 
         if(isDownloaded){
-            onDownloadErrorEvent(downloadID,"ALREADY_DOWNLOADED" ,"The asset is already downloaded");
+            onDownloadErrorEvent(downloadID,"ALREADY_DOWNLOADED","The asset is already downloaded");
             onDownloadProgressEvent(downloadID, 100);
             return;
         }
@@ -305,8 +305,7 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
             DownloadAction downloadAction = downloadTracker.getDownloadAction(downloadID, videoUri, uri.substring(uri.lastIndexOf(".")));
             downloadManager.handleAction(downloadAction);
         } else if (activeTaskState.state == DownloadManager.TaskState.STATE_STARTED) {
-            WritableMap params = Arguments.createMap();
-            onDownloadErrorEvent(downloadID,"DOWNLOAD_IN_PROGRESS" ,"The asset download is in progress");
+            onDownloadErrorEvent(downloadID,"DOWNLOAD_IN_PROGRESS","The asset download is in progress");
         }
     }
 
