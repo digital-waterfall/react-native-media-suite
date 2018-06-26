@@ -13,6 +13,7 @@ import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
 import com.facebook.react.uimanager.annotations.ReactProp;
 import com.google.android.exoplayer2.upstream.RawResourceDataSource;
+import com.google.android.exoplayer2.util.Util;
 
 import java.util.Map;
 
@@ -22,6 +23,7 @@ public class ReactMediaPlayerViewManager extends ViewGroupManager<ReactMediaPlay
 
     private static final String REACT_CLASS = "RCTMediaPlayerView";
     private ReactApplicationContext reactContext;
+    protected String userAgent;
 
     private static final String PROP_SRC = "src";
     private static final String PROP_SRC_URI = "uri";
@@ -48,6 +50,7 @@ public class ReactMediaPlayerViewManager extends ViewGroupManager<ReactMediaPlay
     {
         super();
         this.reactContext = reactContext;
+        userAgent = Util.getUserAgent(reactContext, "MediaDownloader");
     }
 
 
@@ -58,7 +61,7 @@ public class ReactMediaPlayerViewManager extends ViewGroupManager<ReactMediaPlay
 
     @Override
     protected ReactMediaPlayerView createViewInstance(ThemedReactContext themedReactContext) {
-        return new ReactMediaPlayerView(themedReactContext);
+        return new ReactMediaPlayerView(themedReactContext, reactContext);
     }
 
     @Override
@@ -90,7 +93,6 @@ public class ReactMediaPlayerViewManager extends ViewGroupManager<ReactMediaPlay
         Context context = videoView.getContext().getApplicationContext();
         String uriString = src.hasKey(PROP_SRC_URI) ? src.getString(PROP_SRC_URI) : null;
         String extension = src.hasKey(PROP_SRC_TYPE) ? src.getString(PROP_SRC_TYPE) : null;
-
         if (TextUtils.isEmpty(uriString)) {
             return;
         }

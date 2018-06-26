@@ -111,11 +111,13 @@ class ReactMediaPlayerView extends FrameLayout implements
     private float mProgressUpdateInterval = 250.0f;
     private boolean playInBackground = false;
     private boolean useTextureView = false;
+    private String userAgent;
     // \ End props
 
     // React
     private final ThemedReactContext themedReactContext;
     private final AudioManager audioManager;
+    private ReactApplicationContext reactContext;
 
     private final Handler progressHandler = new Handler() {
         @Override
@@ -137,9 +139,11 @@ class ReactMediaPlayerView extends FrameLayout implements
         }
     };
 
-    public ReactMediaPlayerView(ThemedReactContext context) {
+    public ReactMediaPlayerView(ThemedReactContext context, ReactApplicationContext rcxt) {
         super(context);
         this.themedReactContext = context;
+        this.reactContext = rcxt;
+        this.userAgent = Util.getUserAgent(rcxt, "MediaDownloader");
         createViews();
         this.eventEmitter = new VideoEventEmitter(context);
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
@@ -409,6 +413,7 @@ class ReactMediaPlayerView extends FrameLayout implements
      * @return A new DataSource factory.
      */
     private DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter) {
+        DataSourceUtil.setUserAgent(this.userAgent);
         return DataSourceUtil.getDefaultDataSourceFactory(this.themedReactContext, useBandwidthMeter ? BANDWIDTH_METER : null);
     }
 

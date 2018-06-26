@@ -51,8 +51,7 @@ class MediaPlayerView extends Component {
             <View
                 style={this.props.style}
                 onLayout={this._onLayout.bind(this)}>
-                {
-                    }
+                {this.renderPlayer()}
 
             </View>
         );
@@ -76,17 +75,20 @@ class MediaPlayerView extends Component {
             );
         } else {
             return(
-                <RCTMediaPlayerView source={{uri: this.props.src}}   // Can be a URL or a local file.
-                  ref={(RCTMediaPlayerView) => {
-                      this.RCTMediaPlayerView = RCTMediaPlayerView
-                  }}                                      // Store reference
-                  onBuffer={console.log('onBuffer')}                // Callback when remote video is buffering
-                  onEnd={console.log('onEnd')}                      // Callback when playback finishes
-                  onError={console.log('onError')}               // Callback when video cannot be loaded
-                  onFullscreenPlayerWillPresent={console.log('onFullscreenPlayerWillPresent')} // Callback before fullscreen starts
-                  onFullscreenPlayerDidPresent={console.log('onFullscreenPlayerDidPresent')}   // Callback after fullscreen started
-                  onFullscreenPlayerWillDismiss={console.log('onFullscreenPlayerWillDismiss')} // Callback before fullscreen stops
-                  onFullscreenPlayerDidDismiss={console.log('onFullscreenPlayerDidDismiss')}  // Callback after fullscreen stopped
+                <RCTMediaPlayerView src={{uri: this.props.src, type: ".mpd"}}
+                                    ref={(RCTMediaPlayerView) => {
+                                        this.RCTMediaPlayerView = RCTMediaPlayerView
+                  }}
+                  onBuffer={console.log('onBuffer')}
+                  onEnd={console.log('onEnd')}
+                  onError={console.log('onError')}
+                                    repeat={true}
+                    rate={1}
+                                    seek={0}
+                  onFullscreenPlayerWillPresent={console.log('onFullscreenPlayerWillPresent')}
+                  onFullscreenPlayerDidPresent={console.log('onFullscreenPlayerDidPresent')}
+                  onFullscreenPlayerWillDismiss={console.log('onFullscreenPlayerWillDismiss')}
+                  onFullscreenPlayerDidDismiss={console.log('onFullscreenPlayerDidDismiss')}
                   style={styles.backgroundVideo} />
             );
         }
@@ -218,6 +220,26 @@ MediaPlayerView.propTypes = {
     loop: PropTypes.bool,
     muted: PropTypes.bool,
     ignoreSilentSwitch: PropTypes.bool,
+    repeat: PropTypes.bool,
+    rate: PropTypes.number,
+    seek: PropTypes.number,
+    renderToHardwareTextureAndroid: PropTypes.bool,
+    nativeID: PropTypes.string,
+    textTracks: PropTypes.array,
+    accessibilityComponentType: PropTypes.string,
+    onLayout: PropTypes.bool,
+    accessibilityLiveRegion: PropTypes.string,
+    disableFocus: PropTypes.bool,
+    importantForAccessibility: PropTypes.string,
+    testID: PropTypes.string,
+    accessibilityLabel: PropTypes.string,
+    volume: PropTypes.number,
+    fullscreen: PropTypes.bool,
+    playInBackground: PropTypes.bool,
+    paused: PropTypes.bool,
+    useTextureView: PropTypes.bool,
+    progressUpdateInterval: PropTypes.number,
+    selectedTextTrack: PropTypes.any,
 
     onPlayerPaused: PropTypes.func,
     onPlayerPlaying: PropTypes.func,
