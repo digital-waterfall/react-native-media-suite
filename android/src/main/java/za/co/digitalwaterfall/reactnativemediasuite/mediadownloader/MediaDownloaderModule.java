@@ -66,9 +66,9 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     public MediaDownloaderModule(ReactApplicationContext reactContext) {
         super(reactContext);
         ctx = reactContext;
+        sharedPref = ctx.getSharedPreferences(TAG, Context.MODE_PRIVATE);
         userAgent = Util.getUserAgent(reactContext, "MediaDownloader");
         downloadManager = getDownloadManager();
-        sharedPref = ctx.getSharedPreferences(TAG, Context.MODE_PRIVATE);
     }
 
     public DownloadManager getDownloadManager() {
@@ -99,11 +99,11 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
         return downloadDirectory;
     }
 
-    private String lookupUri(String uuid){
+    private String getUri(String uuid){
         return sharedPref.getString(uuid, null);
     }
 
-    private String lookupUuid(String uri) {
+    private String getDownloadID(String uri) {
         Map<String,?> keys = sharedPref.getAll();
         for(Map.Entry<String,?> entry : keys.entrySet()){
             if(entry.getValue().toString().equals(uri)){
@@ -113,7 +113,7 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
         return null;
     }
 
-    private void addUuidUriMapping(String uuid, String videoUri){
+    private void mapDownloadID(String uuid, String videoUri){
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(uuid,videoUri);
         editor.commit();
@@ -146,38 +146,38 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
                 @Override
                 public void onTaskStateChanged(DownloadManager downloadManager, DownloadManager.TaskState taskState) {
                     Log.d(TAG, taskState.toString());
-                    String uuid = lookupUuid(taskState.action.uri.toString());
+                    String downloadID = getDownloadID(taskState.action.uri.toString());
                     if (ctx.hasActiveCatalystInstance()) {
                         if (taskState.state == DownloadManager.TaskState.STATE_COMPLETED) {
                             if(taskState.downloadPercentage == 100) {
-                                if(uuid != null){
+                                if(downloadID != null){
                                     WritableMap params = Arguments.createMap();
-                                    params.putString("downloadID", uuid);
+                                    params.putString("downloadID", downloadID);
                                     params.putDouble("percentComplete", 100);
                                     ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadProgress", params);
 
                                     params = Arguments.createMap();
-                                    params.putString("downloadID", uuid);
+                                    params.putString("downloadID", downloadID);
                                     params.putDouble("size", taskState.downloadedBytes);
                                     //TODO: Add local path of downloaded file
                                     params.putString("downloadLocation", "N/A");
                                     ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadFinished", params);
-
-                                    downloadTracker.addDownloadTracking(taskState.action.uri.toString(), taskState.action.uri, ".mpd");
+                                    String extension = taskState.action.uri.toString().substring(taskState.action.uri.toString().lastIndexOf("."));
+                                    downloadTracker.addDownloadTracking(downloadID, taskState.action.uri,  extension);
                                 }
 
                             }
                         } else if (taskState.state == DownloadManager.TaskState.STATE_STARTED) {
                             if(taskState.action.isRemoveAction){
-                                if(uuid != null) {
+                                if(downloadID != null) {
                                     WritableMap params = Arguments.createMap();
-                                    params.putString("downloadID", uuid);
+                                    params.putString("downloadID", downloadID);
                                     ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadCanceled", params);
                                 }
                             } else if(taskState.downloadPercentage == -1) {
-                                if(uuid != null) {
+                                if(downloadID != null) {
                                     WritableMap params = Arguments.createMap();
-                                    params.putString("downloadID", uuid);
+                                    params.putString("downloadID", downloadID);
                                     ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadStarted", params);
                                 }
                             }
@@ -226,10 +226,10 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
                     DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
                     for (int i = 0; i < taskStates.length; i++) {
                         if (taskStates[i].state == DownloadManager.TaskState.STATE_STARTED && !taskStates[i].action.isRemoveAction) {
-                            String uuid = lookupUuid(taskStates[i].action.uri.toString());
-                            if(uuid != null && taskStates[i].downloadPercentage > 0) {
+                            String downloadID = getDownloadID(taskStates[i].action.uri.toString());
+                            if(downloadID != null && taskStates[i].downloadPercentage > 0) {
                                 WritableMap params = Arguments.createMap();
-                                params.putString("downloadID", uuid);
+                                params.putString("downloadID", downloadID);
                                 params.putDouble("percentComplete", taskStates[i].downloadPercentage);
                                 ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadProgress", params);
                             }
@@ -252,111 +252,94 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
                 /* eventListener= */ null);
     }
 
-    @ReactMethod
-    public void downloadStreamWithBitRate(String videoUri, String uuid, int bitRate){
-        //TODO: Implement bitrate
-        Log.d(TAG, bitRate + "");
-        downloadStream(videoUri,uuid);
+    private DownloadManager.TaskState getActiveTaskState(Uri videoUri){
+        DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
+        for (int i = 0; i < taskStates.length; i++) {
+            if(taskStates[i].action.uri.equals(videoUri)){
+                return taskStates[i];
+            }
+        }
+        return null;
     }
 
     @ReactMethod
-    public void downloadStream(String videoUri, String uuid){
-        addUuidUriMapping(uuid, videoUri);
-        final Uri movieUri = Uri.parse(videoUri);
+    public void downloadStreamWithBitRate(String videoUri, String downloadID, int bitRate){
+        //TODO: Implement bitrate
+        downloadStream(videoUri,downloadID);
+    }
 
-        Boolean isDownloaded = downloadTracker.isDownloaded(movieUri);
+    @ReactMethod
+    public void downloadStream(String uri, String downloadID){
+        mapDownloadID(downloadID, uri);
+        final Uri videoUri = Uri.parse(uri);
+
+        Boolean isDownloaded = downloadTracker.isDownloaded(videoUri);
 
         if(isDownloaded){
             WritableMap params = Arguments.createMap();
             params.putString("error", "The asset is already downloaded");
             params.putString("errorType", "ALREADY_DOWNLOADED");
-            params.putString("downloadID", uuid);
+            params.putString("downloadID", downloadID);
             ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadError", params);
 
             params = Arguments.createMap();
-            params.putString("downloadID", uuid);
+            params.putString("downloadID", downloadID);
             params.putDouble("percentComplete", 100);
             ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadProgress", params);
             return;
         }
 
-        DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
-        DownloadManager.TaskState taskState = null;
-        for (int i = 0; i < taskStates.length; i++) {
-            if(taskStates[i].action.uri.equals(movieUri)){
-                taskState = taskStates[i];
-                break;
-            }
-        }
-        if(taskState == null){
-            DownloadAction downloadAction = downloadTracker.getDownloadAction(videoUri, movieUri, ".mpd");
-            int taskId = downloadManager.handleAction(downloadAction);
-        } else if (taskState.state == DownloadManager.TaskState.STATE_STARTED) {
+        DownloadManager.TaskState activeTaskState = getActiveTaskState(videoUri);
+        if(activeTaskState == null){
+            DownloadAction downloadAction = downloadTracker.getDownloadAction(downloadID, videoUri, uri.substring(uri.lastIndexOf(".")));
+            downloadManager.handleAction(downloadAction);
+        } else if (activeTaskState.state == DownloadManager.TaskState.STATE_STARTED) {
             WritableMap params = Arguments.createMap();
             params.putString("error", "The asset download is in progress");
             params.putString("errorType", "DOWNLOAD_IN_PROGRESS");
-            params.putString("downloadID", uuid);
+            params.putString("downloadID", downloadID);
             ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadError", params);
         }
     }
 
     @ReactMethod
-    public void pauseDownload(final String uuid){
-        String videoUri = lookupUri(uuid);
-        Uri movieUri = Uri.parse(videoUri);
-        DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
-        Boolean isDownloading = false;
-        for (int i = 0; i < taskStates.length; i++) {
-            if(taskStates[i].action.uri.equals(movieUri)){
-                if(taskStates[i].state == DownloadManager.TaskState.STATE_STARTED) {
-                    isDownloading = true;
-                }
-                break;
-            }
-        }
-        if(isDownloading) {
-            //TODO: Develop pause functionality per video, currently all downloads are paused
+    public void pauseDownload(final String downloadID){
+        String uri = getUri(downloadID);
+        Uri videoUri = Uri.parse(uri);
+        DownloadManager.TaskState activeTaskState = getActiveTaskState(videoUri);
+        if(activeTaskState != null && activeTaskState.state == DownloadManager.TaskState.STATE_STARTED) {
+            //TODO: Develop pause functionality per video, currently all downloads will be paused
             downloadManager.stopDownloads();
         }
     }
 
     @ReactMethod
-    public void resumeDownload(final String uuid){
-        String videoUri = lookupUri(uuid);
-        Uri movieUri = Uri.parse(videoUri);
-        DownloadManager.TaskState[] taskStates = downloadManager.getAllTaskStates();
-        Boolean isDownloading = false;
-        for (int i = 0; i < taskStates.length; i++) {
-            if(taskStates[i].action.uri.equals(movieUri)){
-                if(taskStates[i].state == 1){
-                    isDownloading = true;
-                }
-                break;
-            }
-        }
-        if(!isDownloading) {
-            //TODO: Develop start functionality per video, currently all downloads are started
+    public void resumeDownload(final String downloadID){
+        String uri = getUri(downloadID);
+        Uri videoUri = Uri.parse(uri);
+        DownloadManager.TaskState activeTaskState = getActiveTaskState(videoUri);
+        if(activeTaskState != null && activeTaskState.state == DownloadManager.TaskState.STATE_QUEUED){
+            //TODO: Develop start functionality per video, currently all downloads will be started
             downloadManager.startDownloads();
         }
     }
 
     @ReactMethod
-    public void cancelDownload(final String uuid){
-        String videoUri = lookupUri(uuid);
-        //pauseDownload(videoUri);
-        deleteDownloadedStream(videoUri);
+    public void cancelDownload(final String downloadID){
+        deleteDownloadedStream(downloadID);
     }
 
     @ReactMethod
-    public void deleteDownloadedStream(final String uuid){
-        String videoUri = lookupUri(uuid);
-        Uri movieUri = Uri.parse(videoUri);
-        DownloadAction removeDownloadAction = downloadTracker.getRemoveDownloadAction(videoUri, movieUri, ".mpd");
+    public void deleteDownloadedStream(final String downloadID){
+        String uri = getUri(downloadID);
+        Uri videoUri = Uri.parse(uri);
+        String extension = uri.substring(uri.lastIndexOf("."));
+        DownloadAction removeDownloadAction = downloadTracker.getRemoveDownloadAction(downloadID, videoUri, extension);
         downloadManager.handleAction(removeDownloadAction);
-        downloadTracker.removeDownloadTracking(videoUri, movieUri, ".mpd");
+        downloadTracker.removeDownloadTracking(downloadID, videoUri, extension);
 
         WritableMap params = Arguments.createMap();
-        params.putString("downloadID", uuid);
+        params.putString("downloadID", downloadID);
         params.putDouble("percentComplete", 0);
         ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onDownloadProgress", params);
     }
