@@ -1,6 +1,6 @@
 {
   "name": "react-native-media-suite",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "A native media player with download capabilities.. It was forked from react-native-media-kit.",
   "main": "library/index.js",
   "scripts": {

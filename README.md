@@ -121,16 +121,18 @@ The downloader currently only works in iOS, but the Android is speedily on its w
 ##### Properties
 
 The following methods can be called on the downloader.
+
 | key                    | value                    | iOS | Android |
 |------------------------|--------------------------|-----|---------|
-| restoreMediaDownloader |                          | OK  | OK     |
-| downloadStream         | url, downloadID, bitRate | OK  | OK     |
-| deleteDownloadedStream | downloadID               | OK  | OK     |
-| pauseDownload          | downloadID               | OK  | OK     |
-| resumeDownload         | downloadID               | OK  | OK     |
-| cancelDownload         | downloadID               | OK  | OK     |
+| restoreMediaDownloader |                          | OK  | OK      |
+| downloadStream         | url, downloadID, bitRate | OK  | OK      |
+| deleteDownloadedStream | downloadID               | OK  | OK      |
+| pauseDownload          | downloadID               | OK  | OK      |
+| resumeDownload         | downloadID               | OK  | OK      |
+| cancelDownload         | downloadID               | OK  | OK      |
 
-Methods can be passed to the constructor to be called when events occur. The following callbacks are supported. 
+Methods can be passed to the constructor to be called when events occur. The following callbacks are supported.
+
 | key                | value                                                                              | iOS | Android |
 |--------------------|------------------------------------------------------------------------------------|-----|---------|
 | onDownloadFinished | returns: {downloadID: string, downloadLocation: string, size: number of bytes}     | OK  | OK     |
