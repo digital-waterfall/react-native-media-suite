@@ -6,7 +6,9 @@ import ReactNative, {
     requireNativeComponent,
     UIManager,
     NativeModules,
-    findNodeHandle
+    findNodeHandle,
+    Platform,
+    StyleSheet
 } from 'react-native';
 
 class MediaPlayerView extends Component {
@@ -49,6 +51,16 @@ class MediaPlayerView extends Component {
             <View
                 style={this.props.style}
                 onLayout={this._onLayout.bind(this)}>
+                {
+                    }
+
+            </View>
+        );
+    }
+
+    renderPlayer(){
+        if(Platform.OS === "ios"){
+            return(
                 <RCTMediaPlayerView
                     {...this.props}
                     ref={(RCTMediaPlayerView) => this.RCTMediaPlayerView = RCTMediaPlayerView}
@@ -60,11 +72,26 @@ class MediaPlayerView extends Component {
                     onPlayerBufferOK={this._onPlayerBufferOK.bind(this)}
                     onPlayerFinished={this._onPlayerFinished.bind(this)}
                     onPlayerBufferChange={this._onPlayerBufferChange.bind(this)}
-                    onPlaybackError={this._onPlaybackError.bind(this)}
-                />
-            </View>
-        );
+                    onPlaybackError={this._onPlaybackError.bind(this)}/>
+            );
+        } else {
+            return(
+                <RCTMediaPlayerView source={{uri: this.props.src}}   // Can be a URL or a local file.
+                  ref={(RCTMediaPlayerView) => {
+                      this.RCTMediaPlayerView = RCTMediaPlayerView
+                  }}                                      // Store reference
+                  onBuffer={console.log('onBuffer')}                // Callback when remote video is buffering
+                  onEnd={console.log('onEnd')}                      // Callback when playback finishes
+                  onError={console.log('onError')}               // Callback when video cannot be loaded
+                  onFullscreenPlayerWillPresent={console.log('onFullscreenPlayerWillPresent')} // Callback before fullscreen starts
+                  onFullscreenPlayerDidPresent={console.log('onFullscreenPlayerDidPresent')}   // Callback after fullscreen started
+                  onFullscreenPlayerWillDismiss={console.log('onFullscreenPlayerWillDismiss')} // Callback before fullscreen stops
+                  onFullscreenPlayerDidDismiss={console.log('onFullscreenPlayerDidDismiss')}  // Callback after fullscreen stopped
+                  style={styles.backgroundVideo} />
+            );
+        }
     }
+
 
     _onLayout(e) {
         const {width, height} = e.nativeEvent.layout;
@@ -201,6 +228,16 @@ MediaPlayerView.propTypes = {
     onPlayerBufferChange: PropTypes.func,
     onPlaybackError: PropTypes.func
 };
+
+let styles = StyleSheet.create({
+    backgroundVideo: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
+    },
+});
 
 const RCTMediaPlayerView = requireNativeComponent('RCTMediaPlayerView', MediaPlayerView);
 
