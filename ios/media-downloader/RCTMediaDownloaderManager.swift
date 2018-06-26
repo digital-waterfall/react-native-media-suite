@@ -10,7 +10,7 @@ class MediaDownloader: RCTEventEmitter {
     fileprivate var activeDownloadsMap = [String: AVAssetDownloadTask]()
     
     override func supportedEvents() -> [String]! {
-        return ["onDownloadFinished", "onDownloadProgress", "onDownloadStarted", "onDownloadError", "onDownloadCanceled"]
+        return ["onDownloadFinished", "onDownloadProgress", "onDownloadStarted", "onDownloadError", "onDownloadCancelled"]
     }
     
     @objc func restoreMediaDownloader() {
@@ -121,7 +121,7 @@ class MediaDownloader: RCTEventEmitter {
     
     @objc func cancelDownload(_ downloadID: String) {
         activeDownloadsMap[downloadID]?.cancel()
-        print("(\(downloadID)) canceled")
+        print("(\(downloadID)) cancelled")
     }
     
     @objc func pauseDownload(_ downloadID: String) {
@@ -158,7 +158,7 @@ extension MediaDownloader: AVAssetDownloadDelegate {
             case (NSURLErrorDomain, NSURLErrorCancelled):
                 deleteDownloadedStream(task.taskDescription!)
                 print("Deleting downloaded files.")
-                self.sendEvent(withName: "onDownloadCanceled", body: ["downloadID" : task.taskDescription])
+                self.sendEvent(withName: "onDownloadCancelled", body: ["downloadID" : task.taskDescription])
                 
             case (NSURLErrorDomain, NSURLErrorUnknown):
                 self.sendEvent(withName: "onDownloadError", body:["downloadID" : task.taskDescription, "error" : "Downloading HLS streams is not supported in the simulator.", "errorType" : "SIMULATOR_NOT_SUPPORTED"])

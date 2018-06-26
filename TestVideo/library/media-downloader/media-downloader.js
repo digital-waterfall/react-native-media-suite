@@ -8,7 +8,7 @@ export default class Downloader {
         this.onDownloadStarted = this.onDownloadStarted.bind(this);
         this.onDownloadFinished = this.onDownloadFinished.bind(this);
         this.onDownloadError = this.onDownloadError.bind(this);
-        this.onDownloadCanceled = this.onDownloadCanceled.bind(this);
+        this.onDownloadCancelled = this.onDownloadCancelled.bind(this);
         this.pauseDownload = this.pauseDownload.bind(this);
         this.resumeDownload = this.resumeDownload.bind(this);
         this.cancelDownload = this.cancelDownload.bind(this);
@@ -24,7 +24,7 @@ export default class Downloader {
         downloaderEvent.addListener('onDownloadProgress', this.onDownloadProgress);
         downloaderEvent.addListener('onDownloadStarted', this.onDownloadStarted);
         downloaderEvent.addListener('onDownloadError', this.onDownloadError);
-        downloaderEvent.addListener('onDownloadCanceled', this.onDownloadCanceled);
+        downloaderEvent.addListener('onDownloadCancelled', this.onDownloadCancelled);
     }
 
     restoreMediaDownloader() {
@@ -71,7 +71,7 @@ export default class Downloader {
         if (this.downloadEvents.onDownloadError) this.downloadEvents.onDownloadError({downloadID: data.downloadID, error: data.error, errorType: data.errorType});
     }
 
-    onDownloadCanceled(data) {
-        if (this.downloadEvents.onDownloadCanceled) this.downloadEvents.onDownloadCanceled({downloadID: data.downloadID});
+    onDownloadCancelled(data) {
+        if (this.downloadEvents.onDownloadCancelled) this.downloadEvents.onDownloadCancelled({downloadID: data.downloadID});
     }
 }
