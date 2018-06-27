@@ -7,6 +7,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 
 import za.co.digitalwaterfall.reactnativemediasuite.mediadownloader.MediaDownloaderModule;
+import za.co.digitalwaterfall.reactnativemediasuite.mediaplayer.ReactMediaPlayerViewManager;
 //import ReactMediaPlayerViewManager;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class MediaSuitePackage implements ReactPackage {
   public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
     List<NativeModule> modules = new ArrayList<>();
 
-    modules.add(new MediaDownloaderModule(reactContext));
+    modules.add(MediaDownloaderModule.newInstance(reactContext));
 
     return modules;
   }
@@ -31,7 +32,6 @@ public class MediaSuitePackage implements ReactPackage {
 
   @Override
   public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
-//      new ReactMediaPlayerViewManager()
-    return Arrays.<ViewManager>asList();
+    return Arrays.<ViewManager>asList(new ReactMediaPlayerViewManager(reactContext));
   }
 }

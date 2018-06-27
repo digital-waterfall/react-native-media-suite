@@ -6,7 +6,9 @@ import ReactNative, {
     requireNativeComponent,
     UIManager,
     NativeModules,
-    findNodeHandle
+    findNodeHandle,
+    Platform,
+    StyleSheet
 } from 'react-native';
 
 class MediaPlayerView extends Component {
@@ -49,6 +51,15 @@ class MediaPlayerView extends Component {
             <View
                 style={this.props.style}
                 onLayout={this._onLayout.bind(this)}>
+                {this.renderPlayer()}
+
+            </View>
+        );
+    }
+
+    renderPlayer(){
+        if(Platform.OS === "ios"){
+            return(
                 <RCTMediaPlayerView
                     {...this.props}
                     ref={(RCTMediaPlayerView) => this.RCTMediaPlayerView = RCTMediaPlayerView}
@@ -60,11 +71,30 @@ class MediaPlayerView extends Component {
                     onPlayerBufferOK={this._onPlayerBufferOK.bind(this)}
                     onPlayerFinished={this._onPlayerFinished.bind(this)}
                     onPlayerBufferChange={this._onPlayerBufferChange.bind(this)}
-                    onPlaybackError={this._onPlaybackError.bind(this)}
-                />
-            </View>
-        );
+                    onPlaybackError={this._onPlaybackError.bind(this)}/>
+            );
+        } else {
+            return(
+                <RCTMediaPlayerView src={{uri: this.props.src, type: ".mpd"}}
+                                    ref={(RCTMediaPlayerView) => {
+                                        this.RCTMediaPlayerView = RCTMediaPlayerView
+                  }}
+                  onBuffer={console.log('onBuffer')}
+                  onEnd={console.log('onEnd')}
+                  onError={console.log('onError')}
+                                    repeat={true}
+                    rate={1}
+                                    seek={0}
+                                    paused={false}
+                  onFullscreenPlayerWillPresent={console.log('onFullscreenPlayerWillPresent')}
+                  onFullscreenPlayerDidPresent={console.log('onFullscreenPlayerDidPresent')}
+                  onFullscreenPlayerWillDismiss={console.log('onFullscreenPlayerWillDismiss')}
+                  onFullscreenPlayerDidDismiss={console.log('onFullscreenPlayerDidDismiss')}
+                  style={styles.backgroundVideo} />
+            );
+        }
     }
+
 
     _onLayout(e) {
         const {width, height} = e.nativeEvent.layout;
@@ -191,6 +221,26 @@ MediaPlayerView.propTypes = {
     loop: PropTypes.bool,
     muted: PropTypes.bool,
     ignoreSilentSwitch: PropTypes.bool,
+    repeat: PropTypes.bool,
+    rate: PropTypes.number,
+    seek: PropTypes.number,
+    renderToHardwareTextureAndroid: PropTypes.bool,
+    nativeID: PropTypes.string,
+    textTracks: PropTypes.array,
+    accessibilityComponentType: PropTypes.string,
+    onLayout: PropTypes.bool,
+    accessibilityLiveRegion: PropTypes.string,
+    disableFocus: PropTypes.bool,
+    importantForAccessibility: PropTypes.string,
+    testID: PropTypes.string,
+    accessibilityLabel: PropTypes.string,
+    volume: PropTypes.number,
+    fullscreen: PropTypes.bool,
+    playInBackground: PropTypes.bool,
+    paused: PropTypes.bool,
+    useTextureView: PropTypes.bool,
+    progressUpdateInterval: PropTypes.number,
+    selectedTextTrack: PropTypes.any,
 
     onPlayerPaused: PropTypes.func,
     onPlayerPlaying: PropTypes.func,
@@ -201,6 +251,16 @@ MediaPlayerView.propTypes = {
     onPlayerBufferChange: PropTypes.func,
     onPlaybackError: PropTypes.func
 };
+
+let styles = StyleSheet.create({
+    backgroundVideo: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
+    },
+});
 
 const RCTMediaPlayerView = requireNativeComponent('RCTMediaPlayerView', MediaPlayerView);
 

@@ -3,6 +3,8 @@ package za.co.digitalwaterfall.reactnativemediasuite.mediadownloader;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
@@ -11,12 +13,27 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
+import com.google.android.exoplayer2.offline.FilteringManifestParser;
 import com.google.android.exoplayer2.offline.ProgressiveDownloadAction;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.dash.DashMediaSource;
+import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
+import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
+import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
 import com.google.android.exoplayer2.source.dash.offline.DashDownloadAction;
+import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.hls.offline.HlsDownloadAction;
+import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
+import com.google.android.exoplayer2.source.hls.playlist.RenditionKey;
+import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
+import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.StreamKey;
 import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadAction;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -32,6 +49,7 @@ import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Util;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -60,6 +78,7 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     private DownloadManager downloadManager;
     private DownloadTracker downloadTracker;
     private SharedPreferences sharedPref;
+    private static MediaDownloaderModule instance;
 
     ReactApplicationContext ctx = null;
 
@@ -69,6 +88,13 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
         sharedPref = ctx.getSharedPreferences(TAG, Context.MODE_PRIVATE);
         userAgent = Util.getUserAgent(reactContext, "MediaDownloader");
         downloadManager = getDownloadManager();
+    }
+
+    public static MediaDownloaderModule newInstance(ReactApplicationContext reactContext){
+        if(instance == null){
+            instance = new MediaDownloaderModule(reactContext);
+        }
+        return instance;
     }
 
     public DownloadManager getDownloadManager() {
@@ -279,6 +305,51 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
             }
         }
         return null;
+    }
+
+    public MediaSource getDownloadedMediaSource(String uri){
+        Uri videoUri = Uri.parse(uri);
+        String ext = "mpd";
+        return buildMediaSource(videoUri, ext);
+    }
+
+    private List<?> getOfflineStreamKeys(Uri uri) {
+        return downloadTracker.getOfflineStreamKeys(uri );
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private MediaSource buildMediaSource(Uri uri, @Nullable String overrideExtension) {
+        @C.ContentType int type = Util.inferContentType(uri, overrideExtension);
+        switch (type) {
+            case C.TYPE_DASH:
+                return new DashMediaSource.Factory(
+                        new DefaultDashChunkSource.Factory(buildDataSourceFactory(null)),
+                        buildDataSourceFactory(null))
+                        .setManifestParser(
+                                new FilteringManifestParser<>(
+                                        new DashManifestParser(), (List<RepresentationKey>) getOfflineStreamKeys(uri)))
+                        .createMediaSource(uri);
+            case C.TYPE_SS:
+                return new SsMediaSource.Factory(
+                        new DefaultSsChunkSource.Factory(buildDataSourceFactory(null)),
+                        buildDataSourceFactory(null))
+                        .setManifestParser(
+                                new FilteringManifestParser<>(
+                                        new SsManifestParser(), (List<StreamKey>) getOfflineStreamKeys(uri)))
+                        .createMediaSource(uri);
+            case C.TYPE_HLS:
+                return new HlsMediaSource.Factory(buildDataSourceFactory(null))
+                        .setPlaylistParser(
+                                new FilteringManifestParser<>(
+                                        new HlsPlaylistParser(), (List<RenditionKey>) getOfflineStreamKeys(uri)))
+                        .createMediaSource(uri);
+            case C.TYPE_OTHER:
+                return new ExtractorMediaSource.Factory(buildDataSourceFactory(null)).createMediaSource(uri);
+            default: {
+                throw new IllegalStateException("Unsupported type: " + type);
+            }
+        }
     }
 
     @ReactMethod

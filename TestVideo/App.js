@@ -33,7 +33,7 @@ export default class App extends React.Component {
         return (
             <View style={styles.container}>
                 <TouchableOpacity onPress={() => {this.downloader.downloadStream(
-                    Platform.select({ios: 'https://d2h2jy22itvgms.cloudfront.net/hls/short_test.m3u8', android: 'https://d2h2jy22itvgms.cloudfront.net/dash/269149/trailer.mpd'}), '269149')}}>
+                    Platform.select({ios: 'https://d2h2jy22itvgms.cloudfront.net/hls/short_test.m3u8', android: 'https://d2h2jy22itvgms.cloudfront.net/dash/short_test.mpd'}), '269149')}}>
                     <Text>setupAssetDownload()</Text>
                 </TouchableOpacity>
                 <Text>{ this.state.progress}%</Text>
@@ -66,11 +66,11 @@ export default class App extends React.Component {
                         this.registerPLayer(ref)
                     }}
                     style={{width: this.state.width, height: 190, backgroundColor: 'black'}}
-                    autoplay={true}
+                    //autoplay={true}
                     // preload='auto'
-                    loop={true}
-                    muted={this.state.muted}
-                    src="https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
+                    //loop={true}
+                    //muted={this.state.muted}
+                    src={Platform.select({ios: 'https://d2h2jy22itvgms.cloudfront.net/hls/short_test.m3u8', android: 'https://d2h2jy22itvgms.cloudfront.net/dash/short_test.mpd'})}
                     // offline
                     onPlaybackError={() => console.log('lol')}
                     onPlayerProgress={data => console.log(data)}
