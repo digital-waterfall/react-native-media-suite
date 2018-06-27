@@ -89,11 +89,11 @@ The API is designed to mimic the html [`<video />`](https://developer.mozilla.or
 
 | key                  | value                                    | iOS  | Android |
 | -------------------- | ---------------------------------------- | ---- | ------- |
-| src                  | the URL of the video                     | OK   | WIP      |
+| src                  | the URL of the video                     | OK   | OK        |
 | offline             | the ID of the downloaded asset    | OK   | WIP    |
 | autoplay             | true to automatically begins to play. Default is false. | OK   | WIP      |
 | preload              | can be 'none', 'auto'. Default is 'none'. | OK   | WIP      |
-| loop                 | true to automatically seek back to the start upon reaching the end of the video. Default is 'false'. | OK   | WIP      |
+| loop                 | true to automatically seek back to the start upon reaching the end of the video. Default is 'false'. | OK   | OK      |
 | controls             | true to show controls to allow user to control video playback, including seeking, and pause/resume playback. Default is true. | OK   | WIP      |
 | poster               | an image URL indicating a poster frame to show until the user plays. | OK   | WIP      |
 | muted                | true to silence the audio. Default is false. | OK   | WIP      |
