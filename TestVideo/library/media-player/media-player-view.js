@@ -85,6 +85,7 @@ class MediaPlayerView extends Component {
                                     repeat={true}
                     rate={1}
                                     seek={0}
+                                    paused={false}
                   onFullscreenPlayerWillPresent={console.log('onFullscreenPlayerWillPresent')}
                   onFullscreenPlayerDidPresent={console.log('onFullscreenPlayerDidPresent')}
                   onFullscreenPlayerWillDismiss={console.log('onFullscreenPlayerWillDismiss')}

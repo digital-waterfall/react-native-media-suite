@@ -21,7 +21,7 @@ public class MediaSuitePackage implements ReactPackage {
   public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
     List<NativeModule> modules = new ArrayList<>();
 
-    modules.add(new MediaDownloaderModule(reactContext));
+    modules.add(MediaDownloaderModule.newInstance(reactContext));
 
     return modules;
   }

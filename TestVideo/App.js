@@ -33,7 +33,7 @@ export default class App extends React.Component {
         return (
             <View style={styles.container}>
                 <TouchableOpacity onPress={() => {this.downloader.downloadStream(
-                    Platform.select({ios: 'https://d2h2jy22itvgms.cloudfront.net/hls/short_test.m3u8', android: 'https://d2h2jy22itvgms.cloudfront.net/dash/269149/trailer.mpd'}), '269149')}}>
+                    Platform.select({ios: 'https://d2h2jy22itvgms.cloudfront.net/hls/short_test.m3u8', android: 'https://d2h2jy22itvgms.cloudfront.net/dash/short_test.mpd'}), '269149')}}>
                     <Text>setupAssetDownload()</Text>
                 </TouchableOpacity>
                 <Text>{ this.state.progress}%</Text>

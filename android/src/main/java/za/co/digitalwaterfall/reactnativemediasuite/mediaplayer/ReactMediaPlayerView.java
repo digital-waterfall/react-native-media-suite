@@ -62,6 +62,8 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.ArrayList;
 
+import za.co.digitalwaterfall.reactnativemediasuite.mediadownloader.MediaDownloaderModule;
+
 
 @SuppressLint("ViewConstructor")
 class ReactMediaPlayerView extends FrameLayout implements
@@ -247,8 +249,8 @@ class ReactMediaPlayerView extends FrameLayout implements
                 mediaSource = new MergingMediaSource(textSourceArray);
             }
 
-            //MediaDownloaderModule downloader = new MediaDownloaderModule(new ReactApplicationContext(themedReactContext));
-            //MediaSource mediaSource =  downloader.playContent(srcUri.toString());
+            MediaDownloaderModule downloader = MediaDownloaderModule.newInstance(reactContext);
+            mediaSource =  downloader.getDownloadedMediaSource(srcUri.toString());
 
             boolean haveResumePosition = resumeWindow != C.INDEX_UNSET;
             if (haveResumePosition) {
