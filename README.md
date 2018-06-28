@@ -52,7 +52,7 @@ import za.co.digitalwaterfall.reactnativemediasuite.MediaSuitePackage;
 protected List<ReactPackage> getPackages() {
     return Arrays.<ReactPackage>asList(
         new MainReactPackage(),
-            new MediaKitPackage()
+        new MediaKitPackage()
     );
 }
 ```
