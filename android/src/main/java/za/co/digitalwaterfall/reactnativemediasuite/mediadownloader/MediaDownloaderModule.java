@@ -383,10 +383,14 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
             DownloadAction downloadAction = downloadTracker.getDownloadAction(downloadID, videoUri, uri.substring(uri.lastIndexOf(".")));
             mapDownloadID(downloadID, uri);
             downloadManager.handleAction(downloadAction);
-        } else if (activeTaskState.state == DownloadManager.TaskState.STATE_STARTED) {
-            onDownloadErrorEvent(downloadID,"DOWNLOAD_IN_PROGRESS","The asset download is in progress");
+            downloadManager.startDownloads();
+        } else {
+            if(getDownloadID(uri) != null){
+                onDownloadErrorEvent(downloadID,"DUPLICATE_DOWNLOAD","The asset has been downloaded for another content item.");
+            } else if (activeTaskState.state == DownloadManager.TaskState.STATE_STARTED) {
+                onDownloadErrorEvent(downloadID, "DOWNLOAD_IN_PROGRESS", "The asset download is in progress");
+            }
         }
-        downloadManager.startDownloads();
     }
 
     @ReactMethod
