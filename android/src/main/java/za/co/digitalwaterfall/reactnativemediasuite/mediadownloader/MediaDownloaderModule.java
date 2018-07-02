@@ -3,7 +3,6 @@ package za.co.digitalwaterfall.reactnativemediasuite.mediadownloader;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -131,6 +130,12 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
         editor.commit();
     }
 
+    private void removeDownloadID(String uuid){
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.remove(uuid);
+        editor.commit();
+    }
+
     private String getUri(String uuid){
         return sharedPref.getString(uuid, null);
     }
@@ -220,14 +225,17 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
                                 }
                             }
                         } else if (taskState.state == DownloadManager.TaskState.STATE_STARTED) {
-                            if(taskState.action.isRemoveAction){
-                                if(downloadID != null) {
-                                    onDownloadCancelledEvent(downloadID);
-                                }
-                            } else if(taskState.downloadPercentage == -1) {
+                            if(!taskState.action.isRemoveAction && taskState.downloadPercentage == -1) {
                                 if(downloadID != null) {
                                     onDownloadStartedEvent(downloadID);
                                 }
+                            } else {
+                                Log.d(TAG, "Started remove action");
+                            }
+                        } else if (taskState.state == DownloadManager.TaskState.STATE_CANCELED){
+                            if(downloadID != null) {
+                                onDownloadCancelledEvent(downloadID);
+                                removeDownloadID(downloadID);
                             }
                         } else {
                             Log.d(TAG, "Unused state change");
@@ -360,7 +368,6 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void downloadStream(String uri, String downloadID){
-        mapDownloadID(downloadID, uri);
         final Uri videoUri = Uri.parse(uri);
 
         Boolean isDownloaded = downloadTracker.isDownloaded(videoUri);
@@ -374,10 +381,12 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
         DownloadManager.TaskState activeTaskState = getActiveTaskState(videoUri);
         if(activeTaskState == null){
             DownloadAction downloadAction = downloadTracker.getDownloadAction(downloadID, videoUri, uri.substring(uri.lastIndexOf(".")));
+            mapDownloadID(downloadID, uri);
             downloadManager.handleAction(downloadAction);
         } else if (activeTaskState.state == DownloadManager.TaskState.STATE_STARTED) {
             onDownloadErrorEvent(downloadID,"DOWNLOAD_IN_PROGRESS","The asset download is in progress");
         }
+        downloadManager.startDownloads();
     }
 
     @ReactMethod
