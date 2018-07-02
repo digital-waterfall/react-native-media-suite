@@ -370,13 +370,13 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     public void downloadStream(String uri, String downloadID){
         final Uri videoUri = Uri.parse(uri);
 
-        if(getDownloadID(uri) != null && downloadID != getDownloadID(uri)){
+        String mappedDownloadID = getDownloadID(uri);
+        if(mappedDownloadID != null && downloadID != mappedDownloadID){
             onDownloadErrorEvent(downloadID,"DUPLICATE_DOWNLOAD","Duplicate asset for the uri found.");
             return;
         }
 
         Boolean isDownloaded = downloadTracker.isDownloaded(videoUri);
-
         if(isDownloaded){
             onDownloadErrorEvent(downloadID,"ALREADY_DOWNLOADED","The asset is already downloaded");
             onDownloadProgressEvent(downloadID, 100);
@@ -391,6 +391,8 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
             downloadManager.startDownloads();
         } else if (activeTaskState.state == DownloadManager.TaskState.STATE_STARTED) {
             onDownloadErrorEvent(downloadID, "DOWNLOAD_IN_PROGRESS", "The asset download is in progress");
+        } else {
+            Log.d(TAG, "Download not started");
         }
     }
 
