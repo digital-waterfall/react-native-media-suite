@@ -9,12 +9,15 @@ export const downloadStates = Object.freeze({
 });
 
 export default class Download {
-    constructor(downloadID, remoteURL, state, bitrate) {
+    constructor(downloadID, remoteURL, state, bitRate, nativeDownloader) {
         this.downloadID = downloadID;
         this.remoteURL = remoteURL;
         this.state = state;
-        this.bitrate = bitRate || 0;
+        this.bitRate = bitRate || 0;
 
+        this.nativeDownloader = nativeDownloader;
+
+        this.start = this.start.bind(this);
         this.initialized = this.initialized.bind(this);
         this.started = this.started.bind(this);
         this.downloading = this.downloading.bind(this);
@@ -22,6 +25,19 @@ export default class Download {
         this.cancelled = this.cancelled.bind(this);
         this.paused = this.paused.bind(this);
         this.failed = this.failed.bind(this);
+    }
+
+    start() {
+        if (this.bitRate) {
+            this.nativeDownloader.downloadStreamWithBitRate(this.remoteURL, this.downloadID, this.bitRate)
+        } else {
+            this.nativeDownloader.downloadStream(this.remoteURL, this.downloadID);
+        }
+    }
+
+    delete() {
+        this.nativeDownloader.deleteDownloadedStream(this.downloadID);
+        updateManager();
     }
 
     initialized() {

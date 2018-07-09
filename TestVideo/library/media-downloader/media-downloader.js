@@ -1,7 +1,7 @@
-import {NativeModules, NativeEventEmitter} from 'react-native';
+import {NativeModules, NativeEventEmitter, AsyncStorage} from 'react-native';
 
 import Download, { downloadStates }from './download';
-
+AsyncStorage
 export default class DownloadManager {
 
     constructor(downloadEvents, eventListner) {

@@ -113,23 +113,50 @@ class MediaDownloader: RCTEventEmitter {
                 try FileManager.default.removeItem(atPath: assetURL.path)
                 
                 userDefaults.removeObject(forKey: downloadID)
+                return
             } catch {
                 self.sendEvent(withName: "onDownloadError", body: ["error" : "An error occured deleting the file: \(error)", "errorType" : "DELETE", "downloadID" : downloadID])
+                return
             }
         }
+        self.sendEvent(withName: "onDownloadError", body: ["error" : "Download not found.", "errorType" : "NOT_FOUND", "downloadID" : downloadID])
     }
     
     @objc func cancelDownload(_ downloadID: String) {
+        if (!isDownloading(downloadID: downloadID)) {
+            self.sendEvent(withName: "onDownloadError", body: ["error" : "Download not found.", "errorType" : "NOT_FOUND", "downloadID" : downloadID])
+            return
+        }
+        if (isDownloaded(downloadID: downloadID)) {
+            self.sendEvent(withName: "onDownloadError", body: ["error" : "Finished download cannot be canceled.", "errorType" : "CANCEL_FAILED", "downloadID" : downloadID])
+            return
+        }
         activeDownloadsMap[downloadID]?.cancel()
         print("(\(downloadID)) cancelled")
     }
     
     @objc func pauseDownload(_ downloadID: String) {
+        if (!isDownloading(downloadID: downloadID)) {
+            self.sendEvent(withName: "onDownloadError", body: ["error" : "Download not found.", "errorType" : "NOT_FOUND", "downloadID" : downloadID])
+            return
+        }
+        if (isDownloaded(downloadID: downloadID)) {
+            self.sendEvent(withName: "onDownloadError", body: ["error" : "Finished download cannot be paused.", "errorType" : "PAUSE_FAILED", "downloadID" : downloadID])
+            return
+        }
         activeDownloadsMap[downloadID]?.suspend()
         print("(\(downloadID)) paused")
     }
     
     @objc func resumeDownload(_ downloadID: String) {
+        if (!isDownloading(downloadID: downloadID)) {
+            self.sendEvent(withName: "onDownloadError", body: ["error" : "Download not found.", "errorType" : "NOT_FOUND", "downloadID" : downloadID])
+            return
+        }
+        if (isDownloaded(downloadID: downloadID)) {
+            self.sendEvent(withName: "onDownloadError", body: ["error" : "Finished download cannot be resumed.", "errorType" : "RESUME_FAILED", "downloadID" : downloadID])
+            return
+        }
         activeDownloadsMap[downloadID]?.resume()
         print("(\(downloadID)) resumed")
     }
