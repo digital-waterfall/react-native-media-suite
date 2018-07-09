@@ -217,7 +217,9 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
                     String downloadID = getDownloadID(taskState.action.uri.toString());
                     if (ctx.hasActiveCatalystInstance()) {
                         if (taskState.state == DownloadManager.TaskState.STATE_COMPLETED) {
-                            if(taskState.downloadPercentage == 100) {
+                            if(taskState.action.isRemoveAction){
+                                removeDownloadID(downloadID);
+                            } else if(taskState.downloadPercentage == 100) {
                                 if(downloadID != null){
                                     onDownloadProgressEvent(downloadID, 100);
                                     onDownloadFinishedEvent(downloadID, taskState.downloadedBytes);
