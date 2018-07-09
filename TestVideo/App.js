@@ -1,6 +1,6 @@
 import React from 'react';
 import {StyleSheet, Text, View, Dimensions, TouchableOpacity, Platform} from 'react-native';
-import  Video, { Downloader }  from './library/index';
+import  Video, { DownloadManager }  from './library/index';
 
 const {width, height} = Dimensions.get('window');
 
@@ -20,20 +20,22 @@ export default class App extends React.Component {
         this.onDownloadProgress = this.onDownloadProgress.bind(this);
         this.registerPLayer = this.registerPLayer.bind(this);
         this.showVideo = this.showVideo.bind(this);
-        this.downloader = new Downloader({
+        this.downloader = new DownloadManager({
             onDownloadProgress: this.onDownloadProgress,
             onDownloadError: (data) => console.log(data),
             onDownloadStarted: (data) => console.log(data),
             onDownloadFinished: (data) => console.log(data),
             onDownloadCanceled: (data) => console.log(data)
         });
+
+        this.downloader.restoreMediaDownloader();
     }
 
     render() {
         return (
             <View style={styles.container}>
                 <TouchableOpacity onPress={() => {this.downloader.downloadStream(
-                    Platform.select({ios: 'https://d2h2jy22itvgms.cloudfront.net/hls/short_test.m3u8', android: 'https://d2h2jy22itvgms.cloudfront.net/dash/269149/trailer.mpd'}), '269149')}}>
+                    Platform.select({ios: 'https://d2h2jy22itvgms.cloudfront.net/hls/269149/trailer.m3u8', android: 'https://d2h2jy22itvgms.cloudfront.net/dash/269149/trailer.mpd'}), '269149')}}>
                     <Text>setupAssetDownload()</Text>
                 </TouchableOpacity>
                 <Text>{ this.state.progress}%</Text>
