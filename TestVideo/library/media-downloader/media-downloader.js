@@ -1,22 +1,22 @@
-import {NativeModules, NativeEventEmitter, AsyncStorage} from 'react-native';
+import {NativeModules, NativeEventEmitter} from 'react-native';
+import _ from 'lodash';
 
-import Download, { downloadStates }from './download';
-AsyncStorage
-export default class DownloadManager {
+import Download, { downloadStates, eventListenerTypes }from './download';
 
-    constructor(downloadEvents, eventListner) {
-        if (DownloadManager.downloader) {
-            this.deleteDownloadedStream = this.deleteDownloadedStream.bind(this);
-            this.onDownloadProgress = this.onDownloadProgress.bind(this);
+class DownloadManager {
+
+    constructor() {
+        if (!DownloadManager.downloader) {
+            this.restoreMediaDownloader = this.restoreMediaDownloader.bind(this);
+            this.createNewDownload = this.createNewDownload.bind(this);
+            this.deleteDownloaded = this.deleteDownloaded.bind(this);
             this.onDownloadStarted = this.onDownloadStarted.bind(this);
+            this.onDownloadProgress = this.onDownloadProgress.bind(this);
             this.onDownloadFinished = this.onDownloadFinished.bind(this);
             this.onDownloadError = this.onDownloadError.bind(this);
             this.onDownloadCancelled = this.onDownloadCancelled.bind(this);
-            this.pauseDownload = this.pauseDownload.bind(this);
-            this.resumeDownload = this.resumeDownload.bind(this);
-            this.cancelDownload = this.cancelDownload.bind(this);
-            this.downloadStream = this.downloadStream.bind(this);
-            this.restoreMediaDownloader = this.restoreMediaDownloader.bind(this);
+            this.getDownload = this.getDownload.bind(this);
+            this.isDownloaded = this.isDownloaded.bind(this);
 
             this.downloads = [];
 
@@ -36,133 +36,77 @@ export default class DownloadManager {
     }
 
     restoreMediaDownloader() {
-        this.downloader.restoreMediaDownloader();
+        this.nativeDownloader.restoreMediaDownloader();
     }
 
-    startNewDownload(url, downloadID, bitRate) {
-        const download = this.downloads.find(download => download.downloadID === downloadID);
+    createNewDownload(url, downloadID, bitRate) {
+        let download = this.downloads.find(download => download.downloadID === downloadID);
 
         if (download) {
-            if (download.failed()) {
-                download.remoteURL = url;
-                download.state = downloadStates.initialized;
-                download.bitrate = bitRate;
-                this.downloadStream(url, downloadID, bitRate);
-                this.update(download);
-                return;
-            }
-            throw `Download already exists with uuid: ${uuid}`;
+            throw `Download already exists with ID: ${downloadID}`;
         }
 
-        const downloadsLength = this.downloads.push(new Download(downloadID, url, downloadStates.initialized, bitRate));
-        this.downloadStream(url, downloadID, bitRate);
-        this.update(this.downloads[downloadsLength-1]);
+        download = new Download(downloadID, url, downloadStates.initialized, bitRate, this.nativeDownloader);
+        this.downloads.push(download);
+        download.addEventListener(eventListenerTypes.deleted, () => this.deleteDownloaded(download.downloadID));
+        return download;
     }
 
-    downloadStream(url, downloadID, bitRate) {
-        if (bitRate) {
-            this.nativeDownloader.downloadStreamWithBitRate(url, downloadID, bitRate)
-        } else {
-            this.nativeDownloader.downloadStream(url, downloadID);
-        }
-    }
-
-    deleteDownloadedStream(downloadID) {
-        this.downloader.deleteDownloadedStream(downloadID);
-    }
-
-    pauseDownload(downloadID) {
-        let download = this.getDownload(downloadID);
-        if (!download) return;
-
-        this.nativeDownloader.pauseDownload(downloadID);
-        download.state = downloadStates.paused;
-        this.update(download);
-    }
-
-    resumeDownload(downloadID) {
-        let download = this.getDownload(downloadID);
-        if (!download) return;
-
-        this.nativeDownloader.resumeDownload(downloadID);
-        download.state = downloadStates.downloading;
-        this.update(download);
-    }
-
-    cancelDownload(downloadID) {
-        this.nativeDownloader.cancelDownload(downloadID);
+    deleteDownloaded(downloadID) {
+        _.remove(this.downloads, download => download.downloadID === downloadID);
     }
 
     onDownloadStarted(data) {
         let download = this.getDownload(data.downloadID);
         if (!download) return;
 
-        download.state = downloadStates.started;
-        this.update(download);
+        download.onDownloadStarted();
     }
 
     onDownloadProgress(data) {
         let download = this.getDownload(data.downloadID);
         if (!download) return;
 
-        download.state = downloadStates.downloading;
-        download.progress = data.percentComplete;
-        this.update(download);
+        download.onDownloadProgress(data.percentComplete);
     }
 
     onDownloadFinished(data) {
         let download = this.getDownload(data.downloadID);
         if (!download) return;
 
-        download.state = downloadStates.downloaded;
-        download.localURL = data.downloadLocation;
-        download.fileSize = data.size;
-        this.update(download);
+        download.onDownloadFinished(data.downloadLocation, data.size);
     }
 
     onDownloadError(data) {
         let download = this.getDownload(data.downloadID);
         if (!download) return;
 
-        download.state = downloadStates.failed;
-        download.errorType = data.errorType;
-        download.errorMessage = data.error;
+        download.onDownloadError(data.errorType, data.error);
         console.warn(data.error);
-        this.update(download);
     }
 
     onDownloadCancelled(data) {
         let download = this.getDownload(data.downloadID);
         if (!download) return;
 
-        _.remove(this.downloads, download => download.uuid === data.downloadID);
-        this.update();
+        download.onDownloadCancelled();
+        _.remove(this.downloads, download => download.downloadID === data.downloadID);
     }
 
-    update(download) {
-        if (download) {
-            this.eventListner(download);
-            return;
-        }
-
-        this.eventListner(this.downloads);
-
-    }
-
-    getDownload(uuid) {
-        const download = this.downloads.find(download => download.uuid === uuid);
+    getDownload(downloadID) {
+        const download = this.downloads.find(download => download.downloadID === downloadID);
         if (!download) {
             return null;
         }
         return download;
     }
 
-    isDownloaded(uuid) {
-        return !!this.downloads.find(download => download.uuid === uuid);
+    isDownloaded(downloadID) {
+        return !!this.downloads.find(download => download.downloadID === downloadID);
     }
 }
 
-const Downloader = new DownloadManager();
-Object.freeze(Downloader);
+const downloadManager = new DownloadManager();
+Object.freeze(downloadManager);
 
-export  default Downloader;
+export  default downloadManager;
