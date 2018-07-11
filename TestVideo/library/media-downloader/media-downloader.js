@@ -1,4 +1,4 @@
-import {NativeModules, NativeEventEmitter} from 'react-native';
+import {NativeModules, NativeEventEmitter, Platform } from 'react-native';
 import _ from 'lodash';
 
 import Download, { downloadStates, eventListenerTypes }from './download';
@@ -36,7 +36,9 @@ class DownloadManager {
     }
 
     restoreMediaDownloader() {
-        this.nativeDownloader.restoreMediaDownloader();
+        if (Platform.OS === 'ios') {
+            this.nativeDownloader.restoreMediaDownloader();
+        }
     }
 
     createNewDownload(url, downloadID, bitRate) {
