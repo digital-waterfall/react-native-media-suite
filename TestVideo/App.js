@@ -44,7 +44,7 @@ export default class App extends React.Component {
             ios: [
                 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8',
                 'http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8',
-                'http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8'
+                'http://184.72.239.149/vod/smil:BigBuckBunny.smil/playlist.m3u8'
             ],
             android: [
                 'https://bae.sgp1.digitaloceanspaces.com/videos/121/dash/590b546f0d4e3896f611cd51d718e32f.mpd',
