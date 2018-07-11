@@ -154,6 +154,11 @@ export default class App extends React.Component {
                 </View>
             );
         }
+        let newVideos = this.state.videos;
+        if (newVideos[index].player) {
+            newVideos[index].player = null;
+            this.setState({videos: newVideos});
+        }
         return null;
     }
 
