@@ -42,9 +42,10 @@ class DownloadManager {
     }
 
     restoreMediaDownloader() {
-        const downloads = storageService.getAllKeyValuePairs(this.tenant);
-        _.forEach(downloads, download => {
-            this.downloads.push(download);
+        storageService.getAllKeyValuePairs(this.tenant).then(downloads => {
+            _.forEach(downloads, download => {
+                this.downloads.push(download);
+            });
         });
 
         if (Platform.OS === 'ios') {

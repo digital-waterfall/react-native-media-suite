@@ -1,10 +1,10 @@
 import React from 'react';
-import {StyleSheet, Text, View, Dimensions, TouchableOpacity, Platform, Alert} from 'react-native';
+import {StyleSheet, Text, View, Dimensions, Platform, Alert} from 'react-native';
 import  Video, { DownloadManager, eventListenerTypes }  from './library/index';
 import { Tabs, Button, WhiteSpace } from 'antd-mobile-rn';
 import _ from 'lodash';
 
-const {width, height} = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
 export default class App extends React.Component {
     constructor(props) {
@@ -25,8 +25,10 @@ export default class App extends React.Component {
             videos: [_.cloneDeep(videoProps), _.cloneDeep(videoProps), _.cloneDeep(videoProps)]
         };
         _.forEach(DownloadManager.downloads, download => {
-            const index = download.downloadID.slice(-1);
-            this.state.videos[index].download = download;
+            if(_.has(download, 'downloadID')){
+                const index = download.downloadID.slice(-1);
+                this.state.videos[index].download = download;
+            }
         });
 
         this.registerPLayer = this.registerPLayer.bind(this);
