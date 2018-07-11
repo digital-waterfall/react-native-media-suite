@@ -24,7 +24,6 @@ export default class App extends React.Component {
             videos: [_.cloneDeep(videoProps), _.cloneDeep(videoProps), _.cloneDeep(videoProps)]
         };
 
-        this.onDownloadProgress = this.onDownloadProgress.bind(this);
         this.registerPLayer = this.registerPLayer.bind(this);
         this.showVideo = this.showVideo.bind(this);
         this.renderVideo = this.renderVideo.bind(this);
@@ -79,14 +78,14 @@ export default class App extends React.Component {
                 <Button type="ghost" size="small" disabled={!download} onClick={() => download.resume()}>Resume Download</Button>
                 <WhiteSpace size="sm" />
                 <Button type="ghost" size="small" disabled={!download} onClick={() => download.cancel()}>Cancel Download</Button>
-                { this.showVideo() }
+                { this.showVideo(index) }
             </View>
         );
     }
 
     download(url, index) {
         try {
-            const download = DownloadManager.createNewDownload('https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8', `Download${index}`);
+            const download = DownloadManager.createNewDownload(url, `Download${index}`);
             let newVideos = this.state.videos;
             newVideos[index].download = download;
             this.setState({videos: newVideos});
@@ -108,6 +107,12 @@ export default class App extends React.Component {
                 errorType,
                 errorMessage
             ));
+            download.addEventListener(eventListenerTypes.finished, () => {
+                this.updateProgress(100, index);
+                let newVideos = this.state.videos;
+                newVideos[index].download = DownloadManager.getDownload(download.downloadID);
+                this.setState({videos: newVideos});
+            });
         } catch(e) {
             Alert.alert('Download Error', e);
         }
@@ -120,52 +125,44 @@ export default class App extends React.Component {
         this.setState({videos: newVideos});
     }
 
-    showVideo() {
-        if (this.state.showPlayer) {
+    showVideo(index) {
+        if (_.get(this.state.videos[index], 'download.localURL', undefined)) {
+            const player = _.get(this.state.videos[index], 'player', null);
             return (
                 <View>
-                <Video
-                    ref={(ref) => {
-                        this.registerPLayer(ref)
-                    }}
-                    style={{width: this.state.width, height: 190, backgroundColor: 'black'}}
-                    autoplay={true}
-                    // preload='auto'
-                    loop={true}
-                    muted={this.state.muted}
-                    src="https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
-                    // offline
-                    onPlaybackError={() => console.log('lol')}
-                    onPlayerProgress={data => console.log(data)}
-                />
-                <TouchableOpacity onPress={() => this.player.play()}>
-                    <Text>play()</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => this.player.pause()}>
-                    <Text>pause()</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => this.player.seekTo(30000)}>
-                    <Text>forwardTo(30)</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => this.player.seekTo(20000)}>
-                    <Text>backwardTO(20)</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => this.player.stop()}>
-                    <Text>stop()</Text>
-                </TouchableOpacity>
+                    <WhiteSpace size="lg" />
+                    <Video
+                        ref={(ref) => {
+                            this.registerPLayer(ref, index)
+                        }}
+                        style={{width: 300, height: 170, backgroundColor: 'black'}}
+                        autoplay
+                        loop
+                        muted={false}
+                        src={this.state.videos[index].download.downloadID}
+                        offline
+                        onPlaybackError={() => console.log('lol')}
+                        onPlayerProgress={data => console.log(data)}
+                    />
+                    <View style={{width: 300, height: 30, flexDirection: 'row', justifyContent: 'space-evenly'}}>
+                        <Button type="primary" size="small" onClick={() => player.seekTo(20000)}>{'<'}</Button>
+                        <Button type="primary" size="small" onClick={() => player.play()}>Play</Button>
+                        <Button type="primary" size="small" onClick={() => player.stop()}>Stop</Button>
+                        <Button type="primary" size="small" onClick={() => player.pause()}>Pause</Button>
+                        <Button type="primary" size="small" onClick={() => player.seekTo(30000)}>{'>'}</Button>
+                    </View>
                 </View>
             );
         }
         return null;
     }
 
-    registerPLayer(ref) {
-        this.player = ref;
-    }
-
-    onDownloadProgress(data) {
-        console.log(data);
-        this.setState({progress:data.percentComplete});
+    registerPLayer(ref, index) {
+        let newVideos = this.state.videos;
+        if (!newVideos[index].player) {
+            newVideos[index].player = ref;
+            this.setState({videos: newVideos});
+        }
     }
 }
 
