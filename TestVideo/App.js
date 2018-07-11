@@ -20,9 +20,14 @@ export default class App extends React.Component {
             download: null
         };
 
+        DownloadManager.restoreMediaDownloader();
         this.state = {
             videos: [_.cloneDeep(videoProps), _.cloneDeep(videoProps), _.cloneDeep(videoProps)]
         };
+        _.forEach(DownloadManager.downloads, download => {
+            const index = download.downloadID.slice(-1);
+            this.state.videos[index].download = download;
+        });
 
         this.registerPLayer = this.registerPLayer.bind(this);
         this.showVideo = this.showVideo.bind(this);

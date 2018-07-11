@@ -30,7 +30,8 @@
   "homepage": "https://bitbucket.org/cellcdigital/cellc-digital-black-native-player#readme",
   "dependencies": {
     "lodash": "^4.17.10",
-    "prop-types": "15.6.1"
+    "prop-types": "15.6.1",
+    "rn-multi-tenant-async-storage": "0.0.2"
   },
   "peerDependencies": {
     "react": ">=16.3.1",

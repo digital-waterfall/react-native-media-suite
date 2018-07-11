@@ -1,12 +1,18 @@
 import {NativeModules, NativeEventEmitter, Platform } from 'react-native';
 import _ from 'lodash';
+import storageService from 'rn-multi-tenant-async-storage';
 
 import Download, { downloadStates, eventListenerTypes }from './download';
+
+const tenantKey = 'RNMediaSuite_DownloadManager';
 
 class DownloadManager {
 
     constructor() {
         if (!DownloadManager.downloader) {
+            storageService.addStorageTenant(tenantKey);
+            this.tenant = storageService.getStorageTenant(tenantKey);
+
             this.restoreMediaDownloader = this.restoreMediaDownloader.bind(this);
             this.createNewDownload = this.createNewDownload.bind(this);
             this.deleteDownloaded = this.deleteDownloaded.bind(this);
@@ -36,6 +42,11 @@ class DownloadManager {
     }
 
     restoreMediaDownloader() {
+        const downloads = storageService.getAllKeyValuePairs(this.tenant);
+        _.forEach(downloads, download => {
+            this.downloads.push(download);
+        });
+
         if (Platform.OS === 'ios') {
             this.nativeDownloader.restoreMediaDownloader();
         }
@@ -51,11 +62,13 @@ class DownloadManager {
         download = new Download(downloadID, url, downloadStates.initialized, bitRate, this.nativeDownloader);
         this.downloads.push(download);
         download.addEventListener(eventListenerTypes.deleted, () => this.deleteDownloaded(download.downloadID));
+        storageService.setItem(this.tenant, download.downloadID, download);
         return download;
     }
 
     deleteDownloaded(downloadID) {
         _.remove(this.downloads, download => download.downloadID === downloadID);
+        storageService.removeItem(this.tenant, downloadID);
     }
 
     onDownloadStarted(data) {
@@ -63,6 +76,7 @@ class DownloadManager {
         if (!download) return;
 
         download.onDownloadStarted();
+        storageService.setItem(this.tenant, download.downloadID, download);
     }
 
     onDownloadProgress(data) {
@@ -77,6 +91,7 @@ class DownloadManager {
         if (!download) return;
 
         download.onDownloadFinished(data.downloadLocation, data.size);
+        storageService.setItem(this.tenant, download.downloadID, download);
     }
 
     onDownloadError(data) {
@@ -85,6 +100,7 @@ class DownloadManager {
 
         download.onDownloadError(data.errorType, data.error);
         console.warn(data.error);
+        storageService.setItem(this.tenant, download.downloadID, download);
     }
 
     onDownloadCancelled(data) {
@@ -93,6 +109,7 @@ class DownloadManager {
 
         download.onDownloadCancelled();
         _.remove(this.downloads, download => download.downloadID === data.downloadID);
+        storageService.removeItem(this.tenant, data.downloadID);
     }
 
     getDownload(downloadID) {
