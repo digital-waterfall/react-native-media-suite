@@ -106,6 +106,11 @@ class MediaDownloader: RCTEventEmitter {
     @objc func deleteDownloadedStream(_ downloadID: String) {
         let userDefaults = UserDefaults.standard
         
+        if isDownloading(downloadID: downloadID) {
+            self.cancelDownload(downloadID)
+            return
+        }
+        
         if isDownloaded(downloadID: downloadID) {
             do {
                 let baseURL = URL(fileURLWithPath: NSHomeDirectory())
@@ -124,11 +129,11 @@ class MediaDownloader: RCTEventEmitter {
     
     @objc func cancelDownload(_ downloadID: String) {
         if (!isDownloading(downloadID: downloadID)) {
+            if (isDownloaded(downloadID: downloadID)) {
+                self.sendEvent(withName: "onDownloadError", body: ["error" : "Finished download cannot be canceled.", "errorType" : "CANCEL_FAILED", "downloadID" : downloadID])
+                return
+            }
             self.sendEvent(withName: "onDownloadError", body: ["error" : "Download not found.", "errorType" : "NOT_FOUND", "downloadID" : downloadID])
-            return
-        }
-        if (isDownloaded(downloadID: downloadID)) {
-            self.sendEvent(withName: "onDownloadError", body: ["error" : "Finished download cannot be canceled.", "errorType" : "CANCEL_FAILED", "downloadID" : downloadID])
             return
         }
         activeDownloadsMap[downloadID]?.cancel()
