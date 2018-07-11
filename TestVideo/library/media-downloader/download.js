@@ -35,6 +35,10 @@ export default class Download {
         this.cancelledListeners = [];
         this.deletedListeners = [];
 
+        this.startedTimeStamp = null;
+        this.finishedTimeStamp = null;
+        this.erroredTimeStamp = null;
+
         this.start = this.start.bind(this);
         this.pause = this.pause.bind(this);
         this.resume = this.resume.bind(this);
@@ -145,6 +149,7 @@ export default class Download {
         this.isDeleted();
 
         this.state = downloadStates.started;
+        this.startedTimeStamp = Date.now();
 
         _.forEach(this.startedListeners, listener => listener());
     }
@@ -164,6 +169,7 @@ export default class Download {
         this.state = downloadStates.downloaded;
         this.localURL = downloadLocation;
         this.fileSize = size;
+        this.finishedTimeStamp = Date.now();
 
         _.forEach(this.finishedListeners, listener => listener());
     }
@@ -174,6 +180,7 @@ export default class Download {
         this.state = downloadStates.failed;
         this.errorType = errorType;
         this.errorMessage = errorMessage;
+        this.erroredTimeStamp = Date.now();
 
         _.forEach(this.errorListeners, listener => listener(errorType, errorMessage));
     }
