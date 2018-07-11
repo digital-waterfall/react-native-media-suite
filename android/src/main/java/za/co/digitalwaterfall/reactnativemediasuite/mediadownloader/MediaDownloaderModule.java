@@ -3,20 +3,37 @@ package za.co.digitalwaterfall.reactnativemediasuite.mediadownloader;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
+import com.google.android.exoplayer2.offline.FilteringManifestParser;
 import com.google.android.exoplayer2.offline.ProgressiveDownloadAction;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.dash.DashMediaSource;
+import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
+import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
+import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
 import com.google.android.exoplayer2.source.dash.offline.DashDownloadAction;
+import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.hls.offline.HlsDownloadAction;
+import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
+import com.google.android.exoplayer2.source.hls.playlist.RenditionKey;
+import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
+import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.StreamKey;
 import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadAction;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -32,6 +49,7 @@ import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Util;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -60,6 +78,7 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     private DownloadManager downloadManager;
     private DownloadTracker downloadTracker;
     private SharedPreferences sharedPref;
+    private static MediaDownloaderModule instance;
 
     ReactApplicationContext ctx = null;
 
@@ -69,6 +88,13 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
         sharedPref = ctx.getSharedPreferences(TAG, Context.MODE_PRIVATE);
         userAgent = Util.getUserAgent(reactContext, "MediaDownloader");
         downloadManager = getDownloadManager();
+    }
+
+    public static MediaDownloaderModule newInstance(ReactApplicationContext reactContext){
+        if(instance == null){
+            instance = new MediaDownloaderModule(reactContext);
+        }
+        return instance;
     }
 
     public DownloadManager getDownloadManager() {
@@ -102,6 +128,12 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     private void mapDownloadID(String uuid, String videoUri){
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(uuid,videoUri);
+        editor.commit();
+    }
+
+    private void removeDownloadID(String uuid){
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.remove(uuid);
         editor.commit();
     }
 
@@ -185,7 +217,9 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
                     String downloadID = getDownloadID(taskState.action.uri.toString());
                     if (ctx.hasActiveCatalystInstance()) {
                         if (taskState.state == DownloadManager.TaskState.STATE_COMPLETED) {
-                            if(taskState.downloadPercentage == 100) {
+                            if(taskState.action.isRemoveAction){
+                                removeDownloadID(downloadID);
+                            } else if(taskState.downloadPercentage == 100) {
                                 if(downloadID != null){
                                     onDownloadProgressEvent(downloadID, 100);
                                     onDownloadFinishedEvent(downloadID, taskState.downloadedBytes);
@@ -194,14 +228,17 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
                                 }
                             }
                         } else if (taskState.state == DownloadManager.TaskState.STATE_STARTED) {
-                            if(taskState.action.isRemoveAction){
-                                if(downloadID != null) {
-                                    onDownloadCancelledEvent(downloadID);
-                                }
-                            } else if(taskState.downloadPercentage == -1) {
+                            if(!taskState.action.isRemoveAction && taskState.downloadPercentage == -1) {
                                 if(downloadID != null) {
                                     onDownloadStartedEvent(downloadID);
                                 }
+                            } else {
+                                Log.d(TAG, "Started remove action");
+                            }
+                        } else if (taskState.state == DownloadManager.TaskState.STATE_CANCELED){
+                            if(downloadID != null) {
+                                onDownloadCancelledEvent(downloadID);
+                                removeDownloadID(downloadID);
                             }
                         } else {
                             Log.d(TAG, "Unused state change");
@@ -281,6 +318,51 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
         return null;
     }
 
+    public MediaSource getDownloadedMediaSource(String uri){
+        Uri videoUri = Uri.parse(uri);
+        String ext = "mpd";
+        return buildMediaSource(videoUri, ext);
+    }
+
+    private List<?> getOfflineStreamKeys(Uri uri) {
+        return downloadTracker.getOfflineStreamKeys(uri );
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private MediaSource buildMediaSource(Uri uri, @Nullable String overrideExtension) {
+        @C.ContentType int type = Util.inferContentType(uri, overrideExtension);
+        switch (type) {
+            case C.TYPE_DASH:
+                return new DashMediaSource.Factory(
+                        new DefaultDashChunkSource.Factory(buildDataSourceFactory(null)),
+                        buildDataSourceFactory(null))
+                        .setManifestParser(
+                                new FilteringManifestParser<>(
+                                        new DashManifestParser(), (List<RepresentationKey>) getOfflineStreamKeys(uri)))
+                        .createMediaSource(uri);
+            case C.TYPE_SS:
+                return new SsMediaSource.Factory(
+                        new DefaultSsChunkSource.Factory(buildDataSourceFactory(null)),
+                        buildDataSourceFactory(null))
+                        .setManifestParser(
+                                new FilteringManifestParser<>(
+                                        new SsManifestParser(), (List<StreamKey>) getOfflineStreamKeys(uri)))
+                        .createMediaSource(uri);
+            case C.TYPE_HLS:
+                return new HlsMediaSource.Factory(buildDataSourceFactory(null))
+                        .setPlaylistParser(
+                                new FilteringManifestParser<>(
+                                        new HlsPlaylistParser(), (List<RenditionKey>) getOfflineStreamKeys(uri)))
+                        .createMediaSource(uri);
+            case C.TYPE_OTHER:
+                return new ExtractorMediaSource.Factory(buildDataSourceFactory(null)).createMediaSource(uri);
+            default: {
+                throw new IllegalStateException("Unsupported type: " + type);
+            }
+        }
+    }
+
     @ReactMethod
     public void downloadStreamWithBitRate(String videoUri, String downloadID, int bitRate){
         //TODO: Implement bitrate
@@ -289,11 +371,15 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void downloadStream(String uri, String downloadID){
-        mapDownloadID(downloadID, uri);
         final Uri videoUri = Uri.parse(uri);
 
-        Boolean isDownloaded = downloadTracker.isDownloaded(videoUri);
+        String mappedDownloadID = getDownloadID(uri);
+        if(mappedDownloadID != null && downloadID != mappedDownloadID){
+            onDownloadErrorEvent(downloadID,"DUPLICATE_DOWNLOAD","Duplicate asset for the uri found.");
+            return;
+        }
 
+        Boolean isDownloaded = downloadTracker.isDownloaded(videoUri);
         if(isDownloaded){
             onDownloadErrorEvent(downloadID,"ALREADY_DOWNLOADED","The asset is already downloaded");
             onDownloadProgressEvent(downloadID, 100);
@@ -303,15 +389,23 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
         DownloadManager.TaskState activeTaskState = getActiveTaskState(videoUri);
         if(activeTaskState == null){
             DownloadAction downloadAction = downloadTracker.getDownloadAction(downloadID, videoUri, uri.substring(uri.lastIndexOf(".")));
+            mapDownloadID(downloadID, uri);
             downloadManager.handleAction(downloadAction);
+            downloadManager.startDownloads();
         } else if (activeTaskState.state == DownloadManager.TaskState.STATE_STARTED) {
-            onDownloadErrorEvent(downloadID,"DOWNLOAD_IN_PROGRESS","The asset download is in progress");
+            onDownloadErrorEvent(downloadID, "DOWNLOAD_IN_PROGRESS", "The asset download is in progress");
+        } else {
+            Log.d(TAG, "Download not started");
         }
     }
 
     @ReactMethod
     public void pauseDownload(final String downloadID){
         String uri = getUri(downloadID);
+        if(uri == null){
+            onDownloadErrorEvent(downloadID,"NOT_FOUND","Download does not exist.");
+            return;
+        }
         Uri videoUri = Uri.parse(uri);
         DownloadManager.TaskState activeTaskState = getActiveTaskState(videoUri);
         if(activeTaskState != null && activeTaskState.state == DownloadManager.TaskState.STATE_STARTED) {
@@ -323,6 +417,10 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void resumeDownload(final String downloadID){
         String uri = getUri(downloadID);
+        if(uri == null){
+            onDownloadErrorEvent(downloadID,"NOT_FOUND","Download does not exist.");
+            return;
+        }
         Uri videoUri = Uri.parse(uri);
         DownloadManager.TaskState activeTaskState = getActiveTaskState(videoUri);
         if(activeTaskState != null && activeTaskState.state == DownloadManager.TaskState.STATE_QUEUED){
@@ -339,6 +437,10 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void deleteDownloadedStream(final String downloadID){
         String uri = getUri(downloadID);
+        if(uri == null){
+            onDownloadErrorEvent(downloadID,"NOT_FOUND","Download does not exist.");
+            return;
+        }
         Uri videoUri = Uri.parse(uri);
         String extension = uri.substring(uri.lastIndexOf("."));
         DownloadAction removeDownloadAction = downloadTracker.getRemoveDownloadAction(downloadID, videoUri, extension);
