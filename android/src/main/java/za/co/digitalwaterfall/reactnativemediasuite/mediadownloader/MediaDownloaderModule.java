@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -216,7 +217,9 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
                     String downloadID = getDownloadID(taskState.action.uri.toString());
                     if (ctx.hasActiveCatalystInstance()) {
                         if (taskState.state == DownloadManager.TaskState.STATE_COMPLETED) {
-                            if(taskState.downloadPercentage == 100) {
+                            if(taskState.action.isRemoveAction){
+                                removeDownloadID(downloadID);
+                            } else if(taskState.downloadPercentage == 100) {
                                 if(downloadID != null){
                                     onDownloadProgressEvent(downloadID, 100);
                                     onDownloadFinishedEvent(downloadID, taskState.downloadedBytes);
@@ -399,6 +402,10 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void pauseDownload(final String downloadID){
         String uri = getUri(downloadID);
+        if(uri == null){
+            onDownloadErrorEvent(downloadID,"NOT_FOUND","Download does not exist.");
+            return;
+        }
         Uri videoUri = Uri.parse(uri);
         DownloadManager.TaskState activeTaskState = getActiveTaskState(videoUri);
         if(activeTaskState != null && activeTaskState.state == DownloadManager.TaskState.STATE_STARTED) {
@@ -410,6 +417,10 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void resumeDownload(final String downloadID){
         String uri = getUri(downloadID);
+        if(uri == null){
+            onDownloadErrorEvent(downloadID,"NOT_FOUND","Download does not exist.");
+            return;
+        }
         Uri videoUri = Uri.parse(uri);
         DownloadManager.TaskState activeTaskState = getActiveTaskState(videoUri);
         if(activeTaskState != null && activeTaskState.state == DownloadManager.TaskState.STATE_QUEUED){
@@ -426,6 +437,10 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void deleteDownloadedStream(final String downloadID){
         String uri = getUri(downloadID);
+        if(uri == null){
+            onDownloadErrorEvent(downloadID,"NOT_FOUND","Download does not exist.");
+            return;
+        }
         Uri videoUri = Uri.parse(uri);
         String extension = uri.substring(uri.lastIndexOf("."));
         DownloadAction removeDownloadAction = downloadTracker.getRemoveDownloadAction(downloadID, videoUri, extension);
