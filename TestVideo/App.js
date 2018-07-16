@@ -1,6 +1,6 @@
 import React from 'react';
 import {StyleSheet, Text, View, Dimensions, Platform, Alert} from 'react-native';
-import  Video, { DownloadManager, eventListenerTypes }  from './library/index';
+import  Video, { DownloadManager, EVENT_LISTENER_TYPES }  from './library/index';
 import { Tabs, Button, WhiteSpace } from 'antd-mobile-rn';
 import _ from 'lodash';
 
@@ -97,24 +97,24 @@ export default class App extends React.Component {
             newVideos[index].download = download;
             this.setState({videos: newVideos});
             download.start();
-            download.addEventListener(eventListenerTypes.progress, (progress) => this.updateProgress(progress, index));
-            download.addEventListener(eventListenerTypes.cancelled, () => {
+            download.addEventListener(EVENT_LISTENER_TYPES.progress, (progress) => this.updateProgress(progress, index));
+            download.addEventListener(EVENT_LISTENER_TYPES.cancelled, () => {
                 this.updateProgress(0, index);
                 let newVideos = this.state.videos;
                 newVideos[index].download = null;
                 this.setState({videos: newVideos});
             });
-            download.addEventListener(eventListenerTypes.deleted, () => {
+            download.addEventListener(EVENT_LISTENER_TYPES.deleted, () => {
                 this.updateProgress(0, index);
                 let newVideos = this.state.videos;
                 newVideos[index].download = null;
                 this.setState({videos: newVideos});
             });
-            download.addEventListener(eventListenerTypes.error, (errorType, errorMessage) => Alert.alert(
+            download.addEventListener(EVENT_LISTENER_TYPES.error, (errorType, errorMessage) => Alert.alert(
                 errorType,
                 errorMessage
             ));
-            download.addEventListener(eventListenerTypes.finished, () => {
+            download.addEventListener(EVENT_LISTENER_TYPES.finished, () => {
                 this.updateProgress(100, index);
                 let newVideos = this.state.videos;
                 newVideos[index].download = DownloadManager.getDownload(download.downloadID);

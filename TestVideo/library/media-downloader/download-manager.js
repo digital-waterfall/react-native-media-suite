@@ -2,7 +2,7 @@ import {NativeModules, NativeEventEmitter, Platform } from 'react-native';
 import _ from 'lodash';
 import storageService from 'rn-multi-tenant-async-storage';
 
-import Download, { downloadStates, eventListenerTypes }from './download';
+import Download, { DOWNLOAD_STATES, EVENT_LISTENER_TYPES }from './download';
 
 const tenantKey = 'RNMediaSuite_DownloadManager';
 
@@ -23,6 +23,7 @@ class DownloadManager {
             this.onDownloadCancelled = this.onDownloadCancelled.bind(this);
             this.getDownload = this.getDownload.bind(this);
             this.isDownloaded = this.isDownloaded.bind(this);
+            this.persistDownload = this.persistDownload.bind(this);
 
             this.downloads = [];
 
@@ -60,9 +61,11 @@ class DownloadManager {
             throw `Download already exists with ID: ${downloadID}`;
         }
 
-        download = new Download(downloadID, url, downloadStates.initialized, bitRate, this.nativeDownloader);
+        download = new Download(downloadID, url, DOWNLOAD_STATES.initialized, bitRate, this.nativeDownloader);
         this.downloads.push(download);
-        download.addEventListener(eventListenerTypes.deleted, () => this.deleteDownloaded(download.downloadID));
+        download.addEventListener(type => {
+            if (type === EVENT_LISTENER_TYPES.deleted) this.deleteDownloaded(download.downloadID);
+        });
         storageService.setItem(this.tenant, download.downloadID, download);
         return download;
     }
@@ -77,7 +80,7 @@ class DownloadManager {
         if (!download) return;
 
         download.onDownloadStarted();
-        storageService.setItem(this.tenant, download.downloadID, download);
+        this.persistDownload(download);
     }
 
     onDownloadProgress(data) {
@@ -92,7 +95,7 @@ class DownloadManager {
         if (!download) return;
 
         download.onDownloadFinished(data.downloadLocation, data.size);
-        storageService.setItem(this.tenant, download.downloadID, download);
+        this.persistDownload(download);
     }
 
     onDownloadError(data) {
@@ -101,7 +104,7 @@ class DownloadManager {
 
         download.onDownloadError(data.errorType, data.error);
         console.warn(data.error);
-        storageService.setItem(this.tenant, download.downloadID, download);
+        this.persistDownload(download);
     }
 
     onDownloadCancelled(data) {
@@ -113,16 +116,42 @@ class DownloadManager {
         storageService.removeItem(this.tenant, data.downloadID);
     }
 
-    getDownload(downloadID) {
-        const download = this.downloads.find(download => download.downloadID === downloadID);
-        if (!download) {
+    getDownload(downloadIDs) {
+        const matchedDownloads = _.filter(this.downloads, download => {
+            if(_.isArray(downloadIDs)){
+                return _.indexOf(downloadIDs, download.downloadID) !== -1;
+            }
+            return download.downloadID === downloadIDs
+        });
+        if(_.isEmpty(matchedDownloads)){
             return null;
         }
-        return download;
+        if(_.size(matchedDownloads) === 1){
+            return matchedDownloads[0];
+        }
+        return matchedDownloads;
     }
 
     isDownloaded(downloadID) {
         return !!this.downloads.find(download => download.downloadID === downloadID);
+    }
+
+    persistDownload(download) {
+        storageService.setItem(this.tenant, download.downloadID, {
+            downloadID: download.downloadID,
+            remoteURL: download.remoteURL,
+            state: download.state,
+            bitRate: download.bitRate,
+            progress: download.progress,
+            localURL: download.load,
+            fileSize: download.fileSize,
+            errorType: download.errorType,
+            errorMessage: download.errorMessage,
+            startedTimeStamp: download.startedTimeStamp,
+            finishedTimeStamp: download.finishedTimeStamp,
+            erroredTimeStamp: download.erroredTimeStamp,
+            progressTimeStamp: download.progressTimeStamp
+        });
     }
 }
 
