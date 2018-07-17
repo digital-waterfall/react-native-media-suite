@@ -78,6 +78,7 @@ export default class Download {
     }
 
     resume() {
+        console.warn("RESUME");
         this.isDeleted();
 
         this.nativeDownloader.resumeDownload(this.downloadID);
@@ -85,12 +86,14 @@ export default class Download {
     }
 
     cancel() {
+        console.warn("CANCEL");
         this.isDeleted();
 
         this.nativeDownloader.cancelDownload(this.downloadID);
     }
 
     delete() {
+        console.warn("DELETED");
         this.isDeleted();
 
         this.nativeDownloader.deleteDownloadedStream(this.downloadID);
@@ -105,7 +108,7 @@ export default class Download {
     addEventListener(type, listener) {
         this.isDeleted();
 
-        this.eventListeners.push({type: type, listener});
+        this.eventListeners.push({type, listener});
     }
 
     removeEventListener(listener) {

@@ -44,15 +44,24 @@ class DownloadManager {
     }
 
     restoreMediaDownloader() {
-        storageService.getAllKeyValuePairs(this.tenant).then(downloads => {
-            _.forEach(downloads, download => {
-                this.downloads.push(download);
-            });
-        });
-
         if (Platform.OS === 'ios') {
             this.nativeDownloader.restoreMediaDownloader();
         }
+        return new Promise((resolve, reject) => {
+            storageService.getAllKeyValuePairs(this.tenant).then(downloads => {
+                let downloadIds = [];
+                _.forEach(downloads, download => {
+                    console.warn('Stored Download', download);
+                    const newDownload = new Download(download.downloadID, download.remoteURL, download.state, download.bitRate, this.nativeDownloader);
+                    this.downloads.push(newDownload);
+                    console.log('Downloads', this.downloads);
+                    downloadIds.push(download.downloadID);
+                });
+                resolve(downloadIds);
+            }, error => {
+                reject(error);
+            });
+        });
     }
 
     setMaxSimultaneousDownloads(maxSimultaneousDownloads) {
@@ -64,7 +73,7 @@ class DownloadManager {
         }
     }
 
-    createNewDownload(url, downloadID, bitRate) {
+    createNewDownload(url, downloadID, bitRate = 0) {
         let download = this.downloads.find(download => download.downloadID === downloadID);
 
         if (download) {
@@ -73,9 +82,7 @@ class DownloadManager {
 
         download = new Download(downloadID, url, DOWNLOAD_STATES.initialized, bitRate, this.nativeDownloader);
         this.downloads.push(download);
-        download.addEventListener(type => {
-            if (type === EVENT_LISTENER_TYPES.deleted) this.deleteDownloaded(download.downloadID);
-        });
+        // download.addEventListener(EVENT_LISTENER_TYPES.deleted, () => this.deleteDownloaded(download.downloadID));
         storageService.setItem(this.tenant, download.downloadID, download);
         return download;
     }

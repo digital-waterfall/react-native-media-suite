@@ -6,6 +6,13 @@ import _ from 'lodash';
 
 const {width} = Dimensions.get('window');
 
+const VIDEO_IDS = [
+    'download1',
+    'download2',
+    'download3'
+];
+
+
 export default class App extends React.Component {
     constructor(props) {
         super(props);
@@ -20,14 +27,12 @@ export default class App extends React.Component {
             download: null
         };
 
-        DownloadManager.restoreMediaDownloader();
         this.state = {
-            videos: [_.cloneDeep(videoProps), _.cloneDeep(videoProps), _.cloneDeep(videoProps)]
+            videos: _.map(VIDEO_IDS, (videoId) => ({videoId, video: _.cloneDeep(videoProps)}))
         };
         _.forEach(DownloadManager.downloads, download => {
             if(_.has(download, 'downloadID')){
-                const index = download.downloadID.slice(-1);
-                this.state.videos[index].download = download;
+                _.find( this.state.videos, ['videoId', download.downloadID]).download = download;
             }
         });
 
@@ -36,6 +41,14 @@ export default class App extends React.Component {
         this.renderVideo = this.renderVideo.bind(this);
         this.download = this.download.bind(this);
         this.updateProgress = this.updateProgress.bind(this);
+        this.addEventListeners = this.addEventListeners.bind(this);
+        this.addEventListener = this.addEventListener.bind(this);
+
+        DownloadManager.restoreMediaDownloader().then(downloadIds => {
+            if(!_.isEmpty(downloadIds)){
+                this.addEventListeners(downloadIds);
+            }
+        });
     }
 
     render() {
@@ -68,11 +81,11 @@ export default class App extends React.Component {
     }
 
     renderVideo(url, index) {
-        const progress = _.get(this.state.videos[index], 'progress', 0);
+        const progress = _.get(this.state.videos[index], 'download.progress', 0);
         const download = this.state.videos[index].download;
         return (
             <View style={styles.container} key={index}>
-                <Button type="primary" size="small" onClick={() => this.download(url, index)}>Download</Button>
+                <Button type="primary" size="small" onClick={() => this.download(url, VIDEO_IDS[index])}>Download</Button>
                 <WhiteSpace size="sm" />
                 <Text>{ Math.floor(progress) }%</Text>
                 <WhiteSpace size="sm" />
@@ -88,46 +101,64 @@ export default class App extends React.Component {
         );
     }
 
-    download(url, index) {
+    download(url, videoId) {
         try {
-            const download = DownloadManager.createNewDownload(url, `Download${index}`);
-            let newVideos = this.state.videos;
-            newVideos[index].download = download;
-            this.setState({videos: newVideos});
-            download.start();
-            download.addEventListener(EVENT_LISTENER_TYPES.progress, (progress) => this.updateProgress(progress, index));
-            download.addEventListener(EVENT_LISTENER_TYPES.cancelled, () => {
-                this.updateProgress(0, index);
-                let newVideos = this.state.videos;
-                newVideos[index].download = null;
+            const download = DownloadManager.createNewDownload(url, videoId);
+            console.warn('Created download', download);
+            if(_.has(download, 'downloadID')){
+                const newVideos = this.state.videos;
+                _.find(newVideos, ['videoId', download.downloadID]).download = download;
                 this.setState({videos: newVideos});
-            });
-            download.addEventListener(EVENT_LISTENER_TYPES.deleted, () => {
-                this.updateProgress(0, index);
-                let newVideos = this.state.videos;
-                newVideos[index].download = null;
-                this.setState({videos: newVideos});
-            });
-            download.addEventListener(EVENT_LISTENER_TYPES.error, (errorType, errorMessage) => Alert.alert(
-                errorType,
-                errorMessage
-            ));
-            download.addEventListener(EVENT_LISTENER_TYPES.finished, () => {
-                this.updateProgress(100, index);
-                let newVideos = this.state.videos;
-                newVideos[index].download = DownloadManager.getDownload(download.downloadID);
-                this.setState({videos: newVideos});
-            });
+                this.addEventListeners(videoId);
+                download.start();
+            }
+
         } catch(e) {
             Alert.alert('Download Error', e);
         }
 
     }
 
-    updateProgress(progress, index) {
-        let newVideos = this.state.videos;
-        newVideos[index].progress = progress;
-        this.setState({videos: newVideos});
+    addEventListeners(downloadIds){
+        const downloads = DownloadManager.getDownload(downloadIds);
+        if(_.isArray(downloads)){
+            _.map(downloads, download => {
+                this.addEventListener(download);
+            });
+        } else {
+            this.addEventListener(downloads);
+        }
+    }
+
+    addEventListener(download){
+        download.addEventListener(EVENT_LISTENER_TYPES.started, () => {
+            console.warn('Download started', download.state);
+        });
+        download.addEventListener(EVENT_LISTENER_TYPES.progress, (progress) => this.updateProgress(progress, download.downloadID));
+        download.addEventListener(EVENT_LISTENER_TYPES.cancelled, () => {
+            this.updateProgress(0, download.downloadID);
+            _.find( this.state.videos, ['videoId', download.downloadID]).download = download;
+            this.setState({videos: this.state.videos});
+        });
+        download.addEventListener(EVENT_LISTENER_TYPES.deleted, () => {
+            this.updateProgress(0, download.downloadID);
+            _.find( this.state.videos, ['videoId', download.downloadID]).download = null;
+            this.setState({videos: this.state.videos});
+        });
+        download.addEventListener(EVENT_LISTENER_TYPES.error, (errorType, errorMessage) => Alert.alert(
+            errorType,
+            errorMessage
+        ));
+        download.addEventListener(EVENT_LISTENER_TYPES.finished, () => {
+            this.updateProgress(100, download.downloadID);
+            _.find( this.state.videos, ['videoId', download.downloadID]).download = download;
+            this.setState({videos: this.state.videos});
+        });
+    }
+
+    updateProgress(progress, videoId) {
+        _.find( this.state.videos, ['videoId', videoId]).download.progress = progress;
+        this.setState({videos: this.state.videos});
     }
 
     showVideo(index) {
