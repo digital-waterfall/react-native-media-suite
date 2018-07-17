@@ -102,20 +102,19 @@ export default class Download {
         if (this.state === DOWNLOAD_STATES.deleted || !this.state) throw 'Download has been deleted.'
     }
 
-    addEventListener(listener) {
+    addEventListener(type, listener) {
         this.isDeleted();
 
-        this.eventListeners.push(listener);
+        this.eventListeners.push({type: type, listener});
     }
 
-    removeEventListener(listner) {
+    removeEventListener(listener) {
         this.isDeleted();
-
-        _.remove(this.eventListeners, eventListener => eventListener === listner);
+        _.remove(this.eventListeners, eventListener => eventListener === listener);
     }
 
     callEventListeners(type, data) {
-        _.forEach(this.eventListeners, listener => listener(type, data));
+        _.forEach(this.eventListeners, eventListener => {if(eventListener.type === type){return eventListener.listener(data)} });
     }
 
     destructor() {
