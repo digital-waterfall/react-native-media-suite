@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { Platform } from 'react-native';
 
 export const DOWNLOAD_STATES = Object.freeze({
     initialized: 'INITIALIZED',
@@ -20,11 +21,13 @@ export const EVENT_LISTENER_TYPES = Object.freeze({
 });
 
 export default class Download {
-    constructor(downloadID, remoteURL, state, bitRate, nativeDownloader, restoreDownloadFields) {
+    constructor(downloadID, remoteURL, state, bitRate, title, assetArtworkURL, nativeDownloader, restoreDownloadFields) {
         this.downloadID = downloadID.toString();
         this.remoteURL = remoteURL;
         this.state = state;
         this.bitRate = bitRate || 0;
+        this.title = title;
+        this.assetArtworkURL = assetArtworkURL;
 
         this.nativeDownloader = nativeDownloader;
 
@@ -84,10 +87,18 @@ export default class Download {
     start() {
         this.isDeleted('start');
 
-        if (this.bitRate) {
-            this.nativeDownloader.downloadStreamWithBitRate(this.remoteURL, this.downloadID, this.bitRate)
+        if (Platform.OS === 'ios') {
+            if (this.bitRate) {
+                this.nativeDownloader.downloadStreamWithBitRate(this.remoteURL, this.downloadID, this.title, this.assetArtworkURL, this.bitRate)
+            } else {
+                this.nativeDownloader.downloadStream(this.remoteURL, this.downloadID, this.title, this.assetArtworkURL);
+            }
         } else {
-            this.nativeDownloader.downloadStream(this.remoteURL, this.downloadID);
+            if (this.bitRate) {
+                this.nativeDownloader.downloadStreamWithBitRate(this.remoteURL, this.downloadID, this.bitRate)
+            } else {
+                this.nativeDownloader.downloadStream(this.remoteURL, this.downloadID);
+            }
         }
     }
 
@@ -144,6 +155,8 @@ export default class Download {
         this.remoteURL = undefined;
         this.state = DOWNLOAD_STATES.deleted;
         this.bitRate = undefined;
+        this.title = undefined;
+        this.assetArtworkURL = undefined;
         this.progress = undefined;
         this.localURL = undefined;
         this.fileSize = undefined;

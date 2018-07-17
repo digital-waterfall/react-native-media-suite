@@ -37,47 +37,51 @@ class MediaDownloader: RCTEventEmitter {
         }
     }
     
-    @objc func downloadStream(_ url: String, downloadID: String) {
-        downloadStreamHelper(url: url, downloadID: downloadID)
+    @objc func downloadStream(_ url: String, downloadID: String, title: String, assetArtworkURL: String) {
+        downloadStreamHelper(url: url, downloadID: downloadID, title: title, assetArtworkURL: assetArtworkURL)
     }
     
-    @objc func downloadStreamWithBitrate(_ url: String, downloadID: String, bitRate: NSNumber) {
-        downloadStreamHelper(url: url, downloadID: downloadID, bitRate: bitRate)
+    @objc func downloadStreamWithBitrate(_ url: String, downloadID: String, title: String, assetArtworkURL: String, bitRate: NSNumber) {
+        downloadStreamHelper(url: url, downloadID: downloadID, title: title, assetArtworkURL: assetArtworkURL, bitRate: bitRate)
     }
     
-    func downloadStreamHelper(url: String, downloadID: String, bitRate: NSNumber?=nil) {
+    func downloadStreamHelper(url: String, downloadID: String, title: String, assetArtworkURL: String, bitRate: NSNumber?=nil) {
+        if #available(iOS 10.0, *) {
         
-        self.prepareDownloader()
-        
-        if !(isDownloaded(downloadID: downloadID)) && !(isDownloading(downloadID: downloadID)) {
+            self.prepareDownloader()
+    
+            if !(isDownloaded(downloadID: downloadID)) && !(isDownloading(downloadID: downloadID)) {
             
-            let asset = AVURLAsset(url: URL(string:url)!)
+                let asset = AVURLAsset(url: URL(string:url)!)
             
-            if #available(iOS 10.0, *) {
+                var data: Data?=nil;
+                if (assetArtworkURL != "none") {
+                    let url = URL(string: assetArtworkURL)
+                    data = try? Data(contentsOf: url!)
+                }
                 
                 let downloadTask: AVAssetDownloadTask?
                 if let unwrappedBitRate = bitRate {
-                    downloadTask = downloadSession.makeAssetDownloadTask(asset: asset,
-                                                                         assetTitle: downloadID as String,
-                                                                         assetArtworkData: nil,
-                                                                         options: [AVAssetDownloadTaskMinimumRequiredMediaBitrateKey: unwrappedBitRate])
-                    
+                        downloadTask = downloadSession.makeAssetDownloadTask(asset: asset,
+                                                                             assetTitle: title as String,
+                                                                             assetArtworkData: data,
+                                                                             options: [AVAssetDownloadTaskMinimumRequiredMediaBitrateKey: unwrappedBitRate])
+                        
                 } else {
                     downloadTask = downloadSession.makeAssetDownloadTask(asset: asset,
-                                                                         assetTitle: downloadID as String,
-                                                                         assetArtworkData: nil)
+                                                                             assetTitle: title as String,
+                                                                             assetArtworkData: data)
                 }
                 
                 downloadTask?.taskDescription = downloadID
                 downloadTask?.resume()
                 activeDownloadsMap[downloadID] = downloadTask
-                
             } else {
-                self.sendEvent(withName: "onDownloadError", body:["error" : "Download not supported for iOS versions prior to iOS 10", "errorType" : "NOT_SUPPORTED", "downloadID" : downloadID])
+                self.sendEvent(withName: "onDownloadError", body: ["error" : "The asset is already downloaded", "errorType" : "ALREADY_DOWNLOADED", "downloadID" : downloadID])
                 return
             }
         } else {
-            self.sendEvent(withName: "onDownloadError", body: ["error" : "The asset is already downloaded", "errorType" : "ALREADY_DOWNLOADED", "downloadID" : downloadID])
+            self.sendEvent(withName: "onDownloadError", body:["error" : "Download not supported for iOS versions prior to iOS 10", "errorType" : "NOT_SUPPORTED", "downloadID" : downloadID])
             return
         }
     }

@@ -104,7 +104,7 @@ export default class App extends React.Component {
     download(url, videoId) {
         console.warn('Video Id', videoId);
         try {
-            const download = DownloadManager.createNewDownload(url, videoId);
+            const download = DownloadManager.createNewDownload(url, videoId, `Test Download ${videoId.slice(-1)}`, 'https://s1.dmcdn.net/czxuQ/x720-MzM.jpg');
             console.warn('Created download', download);
             if(_.has(download, 'downloadID')){
                 const newVideos = this.state.videos;

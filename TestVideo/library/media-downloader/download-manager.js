@@ -53,7 +53,7 @@ class DownloadManager {
                 let downloadIds = [];
                 _.forEach(downloads, download => {
                     console.warn('Stored Download', download);
-                    const newDownload = new Download(download[1].downloadID, download[1].remoteURL, download[1].state, download[1].bitRate, this.nativeDownloader, download[1]);
+                    const newDownload = new Download(download[1].downloadID, download[1].remoteURL, download[1].state, download[1].bitRate, download[1].title, download[1].assetArtworkURL, this.nativeDownloader, download[1]);
                     console.warn('newDownload ', newDownload);
                     this.downloads.push(newDownload);
                     console.log('Downloads', this.downloads);
@@ -75,13 +75,13 @@ class DownloadManager {
         }
     }
 
-    createNewDownload(url, downloadID, bitRate = 0) {
+    createNewDownload(url, downloadID, title, assetArtworkURL,  bitRate = 0) {
         let download = this.downloads.find(download => download.downloadID === downloadID);
 
         if (download) {
             throw `Download already exists with ID: ${downloadID}`;
         }
-        download = new Download(downloadID, url, DOWNLOAD_STATES.initialized, bitRate, this.nativeDownloader);
+        download = new Download(downloadID, url, DOWNLOAD_STATES.initialized, bitRate, title, assetArtworkURL, this.nativeDownloader);
         this.downloads.push(download);
         download.addEventListener(EVENT_LISTENER_TYPES.deleted, () => this.deleteDownloaded(download.downloadID));
         this.persistDownload(download);
@@ -161,6 +161,8 @@ class DownloadManager {
             remoteURL: download.remoteURL,
             state: download.state,
             bitRate: download.bitRate,
+            title: download.title,
+            assetArtworkURL: download.assetArtworkURL,
             progress: download.progress,
             localURL: download.localURL,
             fileSize: download.fileSize,
