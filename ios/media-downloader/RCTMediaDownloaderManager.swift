@@ -34,7 +34,6 @@ class MediaDownloader: RCTEventEmitter {
             downloadSession = AVAssetDownloadURLSession(configuration: backgroundConfiguration,
                                                         assetDownloadDelegate: self,
                                                         delegateQueue: OperationQueue.main)
-            downloadSession.delegateQueue.maxConcurrentOperationCount = 2;
         }
     }
     

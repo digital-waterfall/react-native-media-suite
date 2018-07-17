@@ -56,10 +56,12 @@ class DownloadManager {
     }
 
     setMaxSimultaneousDownloads(maxSimultaneousDownloads) {
-        if (typeof maxSimultaneousDownloads !== 'number' || (maxSimultaneousDownloads%1) !== 0) {
-            throw 'maxSimultaneousDownloads should be of type integer.'
+        if (Platform.OS === 'ios') {
+            if (typeof maxSimultaneousDownloads !== 'number' || (maxSimultaneousDownloads % 1) !== 0) {
+                throw 'maxSimultaneousDownloads should be of type integer.'
+            }
+            this.nativeDownloader.setMaxSimultaneousDownloads(maxSimultaneousDownloads);
         }
-        this.nativeDownloader.setMaxSimultaneousDownloads(maxSimultaneousDownloads);
     }
 
     createNewDownload(url, downloadID, bitRate) {
