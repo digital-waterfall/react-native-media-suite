@@ -60,9 +60,9 @@ export default class Download {
         this.paused = this.paused.bind(this);
         this.failed = this.failed.bind(this);
 
-        this.restoreDownload(restoreDownloadFields);
-        console.warn('Download: ', this);
-        console.warn('restoreDownloadFields: ', restoreDownloadFields);
+        if (restoreDownloadFields) {
+            this.restoreDownload(restoreDownloadFields);
+        }
     }
     
     restoreDownload(downloadFields) {
