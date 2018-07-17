@@ -31,7 +31,7 @@ export default class App extends React.Component {
             videos: _.map(VIDEO_IDS, (videoId) => ({videoId, video: _.cloneDeep(videoProps)}))
         };
 
-        this.registerPLayer = this.registerPLayer.bind(this);
+        this.registerPlayer = this.registerPlayer.bind(this);
         this.showVideo = this.showVideo.bind(this);
         this.renderVideo = this.renderVideo.bind(this);
         this.download = this.download.bind(this);
@@ -91,7 +91,7 @@ export default class App extends React.Component {
                 <Button type="ghost" size="small" disabled={!download} onClick={() => download.resume()}>Resume Download</Button>
                 <WhiteSpace size="sm" />
                 <Button type="ghost" size="small" disabled={!download} onClick={() => download.cancel()}>Cancel Download</Button>
-                { this.showVideo(index) }
+                { this.showVideo(VIDEO_IDS[index]) }
             </View>
         );
     }
@@ -121,11 +121,13 @@ export default class App extends React.Component {
             _.map(downloads, download => {
                 this.addEventListener(download);
                 _.find( this.state.videos, ['videoId', download.downloadID]).download = download;
+                this.setState({videos: this.state.videos});
             });
         } else if (downloads) {
             const download = downloads;
             this.addEventListener(download);
             _.find( this.state.videos, ['videoId', download.downloadID]).download = download;
+            this.setState({videos: this.state.videos});
         }
     }
 
@@ -160,21 +162,22 @@ export default class App extends React.Component {
         this.setState({videos: this.state.videos});
     }
 
-    showVideo(index) {
-        if (_.get(this.state.videos[index], 'download.localURL', undefined)) {
-            const player = _.get(this.state.videos[index], 'player', null);
+    showVideo(videoId) {
+        const video = _.find( this.state.videos, ['videoId', videoId]);
+        if (_.get(video, 'download.localURL', undefined)) {
+            const player = _.get(video, 'player', null);
             return (
                 <View>
                     <WhiteSpace size="lg" />
                     <Video
                         ref={(ref) => {
-                            this.registerPLayer(ref, index)
+                            this.registerPlayer(ref, videoId)
                         }}
                         style={{width: 300, height: 170, backgroundColor: 'black'}}
                         autoplay
                         loop
                         muted={false}
-                        src={this.state.videos[index].download.downloadID}
+                        src={video.download.downloadID}
                         offline
                         onPlaybackError={() => console.log('lol')}
                         onPlayerProgress={data => console.log(data)}
@@ -189,19 +192,18 @@ export default class App extends React.Component {
                 </View>
             );
         }
-        let newVideos = this.state.videos;
-        if (newVideos[index].player) {
-            newVideos[index].player = null;
-            this.setState({videos: newVideos});
+        if (video.player) {
+            video.player = null;
+            this.setState({videos: this.state.videos});
         }
         return null;
     }
 
-    registerPLayer(ref, index) {
-        let newVideos = this.state.videos;
-        if (!newVideos[index].player) {
-            newVideos[index].player = ref;
-            this.setState({videos: newVideos});
+    registerPlayer(ref, videoId) {
+        const video = _.find( this.state.videos, ['videoId', videoId]);
+        if (!video.player) {
+            video.player = ref;
+            this.setState({videos: this.state.videos});
         }
     }
 }
