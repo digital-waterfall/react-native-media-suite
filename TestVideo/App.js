@@ -30,23 +30,18 @@ export default class App extends React.Component {
         this.state = {
             videos: _.map(VIDEO_IDS, (videoId) => ({videoId, video: _.cloneDeep(videoProps)}))
         };
-        _.forEach(DownloadManager.downloads, download => {
-            if(_.has(download, 'downloadID')){
-                _.find( this.state.videos, ['videoId', download.downloadID]).download = download;
-            }
-        });
 
         this.registerPLayer = this.registerPLayer.bind(this);
         this.showVideo = this.showVideo.bind(this);
         this.renderVideo = this.renderVideo.bind(this);
         this.download = this.download.bind(this);
         this.updateProgress = this.updateProgress.bind(this);
-        this.addEventListeners = this.addEventListeners.bind(this);
+        this.restoreDownloads = this.restoreDownloads.bind(this);
         this.addEventListener = this.addEventListener.bind(this);
 
         DownloadManager.restoreMediaDownloader().then(downloadIds => {
             if(!_.isEmpty(downloadIds)){
-                this.addEventListeners(downloadIds);
+                this.restoreDownloads(downloadIds);
             }
         });
     }
@@ -102,6 +97,7 @@ export default class App extends React.Component {
     }
 
     download(url, videoId) {
+        console.warn('Video Id', videoId);
         try {
             const download = DownloadManager.createNewDownload(url, videoId);
             console.warn('Created download', download);
@@ -109,7 +105,7 @@ export default class App extends React.Component {
                 const newVideos = this.state.videos;
                 _.find(newVideos, ['videoId', download.downloadID]).download = download;
                 this.setState({videos: newVideos});
-                this.addEventListeners(videoId);
+                this.addEventListener(download);
                 download.start();
             }
 
@@ -119,14 +115,17 @@ export default class App extends React.Component {
 
     }
 
-    addEventListeners(downloadIds){
+    restoreDownloads(downloadIds){
         const downloads = DownloadManager.getDownload(downloadIds);
         if(_.isArray(downloads)){
             _.map(downloads, download => {
                 this.addEventListener(download);
+                _.find( this.state.videos, ['videoId', download.downloadID]).download = download;
             });
-        } else {
-            this.addEventListener(downloads);
+        } else if (downloads) {
+            const download = downloads;
+            this.addEventListener(download);
+            _.find( this.state.videos, ['videoId', download.downloadID]).download = download;
         }
     }
 

@@ -79,7 +79,6 @@ class DownloadManager {
         if (download) {
             throw `Download already exists with ID: ${downloadID}`;
         }
-
         download = new Download(downloadID, url, DOWNLOAD_STATES.initialized, bitRate, this.nativeDownloader);
         this.downloads.push(download);
         // download.addEventListener(EVENT_LISTENER_TYPES.deleted, () => this.deleteDownloaded(download.downloadID));

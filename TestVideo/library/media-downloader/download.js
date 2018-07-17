@@ -21,7 +21,7 @@ export const EVENT_LISTENER_TYPES = Object.freeze({
 
 export default class Download {
     constructor(downloadID, remoteURL, state, bitRate, nativeDownloader) {
-        this.downloadID = downloadID;
+        this.downloadID = downloadID.toString();
         this.remoteURL = remoteURL;
         this.state = state;
         this.bitRate = bitRate || 0;
