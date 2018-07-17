@@ -14,6 +14,7 @@ class DownloadManager {
             this.tenant = storageService.getStorageTenant(tenantKey);
 
             this.restoreMediaDownloader = this.restoreMediaDownloader.bind(this);
+            this.setMaxSimultaneousDownloads = this.setMaxSimultaneousDownloads.bind(this);
             this.createNewDownload = this.createNewDownload.bind(this);
             this.deleteDownloaded = this.deleteDownloaded.bind(this);
             this.onDownloadStarted = this.onDownloadStarted.bind(this);
@@ -52,6 +53,13 @@ class DownloadManager {
         if (Platform.OS === 'ios') {
             this.nativeDownloader.restoreMediaDownloader();
         }
+    }
+
+    setMaxSimultaneousDownloads(maxSimultaneousDownloads) {
+        if (typeof maxSimultaneousDownloads !== 'number' || (maxSimultaneousDownloads%1) !== 0) {
+            throw 'maxSimultaneousDownloads should be of type integer.'
+        }
+        this.nativeDownloader.setMaxSimultaneousDownloads(maxSimultaneousDownloads);
     }
 
     createNewDownload(url, downloadID, bitRate) {

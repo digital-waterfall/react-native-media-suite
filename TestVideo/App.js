@@ -36,8 +36,6 @@ export default class App extends React.Component {
         this.renderVideo = this.renderVideo.bind(this);
         this.download = this.download.bind(this);
         this.updateProgress = this.updateProgress.bind(this);
-
-        DownloadManager.restoreMediaDownloader();
     }
 
     render() {

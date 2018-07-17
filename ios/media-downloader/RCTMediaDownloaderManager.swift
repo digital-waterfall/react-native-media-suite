@@ -30,10 +30,11 @@ class MediaDownloader: RCTEventEmitter {
     
     func prepareDownloader() {
         if (downloadSession == nil) {
-            let backgroundConfiguration = URLSessionConfiguration.background(withIdentifier: "react-native-media-kit-downloader")
+            let backgroundConfiguration = URLSessionConfiguration.background(withIdentifier: "react-native-media-suite-downloader")
             downloadSession = AVAssetDownloadURLSession(configuration: backgroundConfiguration,
                                                         assetDownloadDelegate: self,
                                                         delegateQueue: OperationQueue.main)
+            downloadSession.delegateQueue.maxConcurrentOperationCount = 2;
         }
     }
     
@@ -164,6 +165,10 @@ class MediaDownloader: RCTEventEmitter {
         }
         activeDownloadsMap[downloadID]?.resume()
         print("(\(downloadID)) resumed")
+    }
+    
+    @objc func setMaxSimultaneousDownloads(_ maxSimultaneousDownloads: NSInteger) {
+        downloadSession.delegateQueue.maxConcurrentOperationCount = maxSimultaneousDownloads;
     }
     
 }
