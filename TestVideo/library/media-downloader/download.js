@@ -20,7 +20,7 @@ export const EVENT_LISTENER_TYPES = Object.freeze({
 });
 
 export default class Download {
-    constructor(downloadID, remoteURL, state, bitRate, nativeDownloader) {
+    constructor(downloadID, remoteURL, state, bitRate, nativeDownloader, restoreDownloadFields) {
         this.downloadID = downloadID.toString();
         this.remoteURL = remoteURL;
         this.state = state;
@@ -35,6 +35,7 @@ export default class Download {
         this.erroredTimeStamp = null;
         this.progressTimeStamp = null;
 
+        this.restoreDownload = this.restoreDownload.bind(this);
         this.start = this.start.bind(this);
         this.pause = this.pause.bind(this);
         this.resume = this.resume.bind(this);
@@ -58,6 +59,26 @@ export default class Download {
         this.cancelled = this.cancelled.bind(this);
         this.paused = this.paused.bind(this);
         this.failed = this.failed.bind(this);
+
+        this.restoreDownload(restoreDownloadFields);
+        console.warn('Download: ', this);
+        console.warn('restoreDownloadFields: ', restoreDownloadFields);
+    }
+    
+    restoreDownload(downloadFields) {
+        this.downloadID = downloadFields.downloadID;
+            this.remoteURL = downloadFields.remoteURL;
+            this.state = downloadFields.state;
+            this.bitRate = downloadFields.bitRate;
+            this.progress = downloadFields.progress;
+            this.localURL = downloadFields.localURL;
+            this.fileSize = downloadFields.fileSize;
+            this.errorType = downloadFields.errorType;
+            this.errorMessage = downloadFields.errorMessage;
+            this.startedTimeStamp = downloadFields.startedTimeStamp;
+            this.finishedTimeStamp = downloadFields.finishedTimeStamp;
+            this.erroredTimeStamp = downloadFields.erroredTimeStamp;
+            this.progressTimeStamp = downloadFields.progressTimeStamp;
     }
 
     start() {
@@ -71,48 +92,46 @@ export default class Download {
     }
 
     pause() {
-        this.isDeleted();
+        this.isDeleted('pause');
 
         this.nativeDownloader.pauseDownload(this.downloadID);
         this.state = DOWNLOAD_STATES.paused;
     }
 
     resume() {
-        console.warn("RESUME");
-        this.isDeleted();
+        this.isDeleted('resume');
 
         this.nativeDownloader.resumeDownload(this.downloadID);
         this.state = DOWNLOAD_STATES.downloading;
     }
 
     cancel() {
-        console.warn("CANCEL");
-        this.isDeleted();
+        this.isDeleted('cancel');
 
         this.nativeDownloader.cancelDownload(this.downloadID);
     }
 
     delete() {
-        console.warn("DELETED");
-        this.isDeleted();
+        this.isDeleted('deleted');
 
         this.nativeDownloader.deleteDownloadedStream(this.downloadID);
         this.callEventListeners(EVENT_LISTENER_TYPES.deleted);
         this.destructor();
     }
 
-    isDeleted() {
+    isDeleted(type) {
+        console.warn('isDeleted called by:', type);
         if (this.state === DOWNLOAD_STATES.deleted || !this.state) throw 'Download has been deleted.'
     }
 
     addEventListener(type, listener) {
-        this.isDeleted();
+        this.isDeleted('addEventListener');
 
         this.eventListeners.push({type, listener});
     }
 
     removeEventListener(listener) {
-        this.isDeleted();
+        this.isDeleted('removeEventListener');
         _.remove(this.eventListeners, eventListener => eventListener === listener);
     }
 
@@ -135,7 +154,7 @@ export default class Download {
     }
 
     onDownloadStarted() {
-        this.isDeleted();
+        this.isDeleted('onDownloadStarted');
 
         this.state = DOWNLOAD_STATES.started;
         this.startedTimeStamp = Date.now();

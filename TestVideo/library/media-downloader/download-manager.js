@@ -47,12 +47,14 @@ class DownloadManager {
         if (Platform.OS === 'ios') {
             this.nativeDownloader.restoreMediaDownloader();
         }
+        console.warn('Doenloads', this.downloads);
         return new Promise((resolve, reject) => {
             storageService.getAllKeyValuePairs(this.tenant).then(downloads => {
                 let downloadIds = [];
                 _.forEach(downloads, download => {
                     console.warn('Stored Download', download);
-                    const newDownload = new Download(download[1].downloadID, download[1].remoteURL, download[1].state, download[1].bitRate, this.nativeDownloader);
+                    const newDownload = new Download(download[1].downloadID, download[1].remoteURL, download[1].state, download[1].bitRate, this.nativeDownloader, download[1]);
+                    console.warn('newDownload ', newDownload);
                     this.downloads.push(newDownload);
                     console.log('Downloads', this.downloads);
                     downloadIds.push(download[1].downloadID);
@@ -133,6 +135,7 @@ class DownloadManager {
     }
 
     getDownload(downloadIDs) {
+        console.warn('getDownloads: ', this.downloads);
         const matchedDownloads = _.filter(this.downloads, download => {
             if(_.isArray(downloadIDs)){
                 return _.indexOf(downloadIDs, download.downloadID) !== -1;
@@ -159,7 +162,7 @@ class DownloadManager {
             state: download.state,
             bitRate: download.bitRate,
             progress: download.progress,
-            localURL: download.load,
+            localURL: download.localURL,
             fileSize: download.fileSize,
             errorType: download.errorType,
             errorMessage: download.errorMessage,

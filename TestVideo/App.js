@@ -76,8 +76,9 @@ export default class App extends React.Component {
     }
 
     renderVideo(url, index) {
-        const progress = _.get(this.state.videos[index], 'download.progress', 0);
-        const download = this.state.videos[index].download;
+        console.warn('Videos', this.state.videos);
+        const progress = _.get(this.state.videos[index], 'video.download.progress', 0);
+        const download = this.state.videos[index].video.download;
         return (
             <View style={styles.container} key={index}>
                 <Button type="primary" size="small" onClick={() => this.download(url, VIDEO_IDS[index])}>Download</Button>
@@ -103,7 +104,7 @@ export default class App extends React.Component {
             console.warn('Created download', download);
             if(_.has(download, 'downloadID')){
                 const newVideos = this.state.videos;
-                _.find(newVideos, ['videoId', download.downloadID]).download = download;
+                _.find(newVideos, ['videoId', download.downloadID]).video.download = download;
                 this.setState({videos: newVideos});
                 this.addEventListener(download);
                 download.start();
@@ -120,13 +121,13 @@ export default class App extends React.Component {
         if(_.isArray(downloads)){
             _.map(downloads, download => {
                 this.addEventListener(download);
-                _.find( this.state.videos, ['videoId', download.downloadID]).download = download;
+                _.find( this.state.videos, ['videoId', download.downloadID]).video.download = download;
                 this.setState({videos: this.state.videos});
             });
         } else if (downloads) {
             const download = downloads;
             this.addEventListener(download);
-            _.find( this.state.videos, ['videoId', download.downloadID]).download = download;
+            _.find( this.state.videos, ['videoId', download.downloadID]).video.download = download;
             this.setState({videos: this.state.videos});
         }
     }
@@ -138,12 +139,12 @@ export default class App extends React.Component {
         download.addEventListener(EVENT_LISTENER_TYPES.progress, (progress) => this.updateProgress(progress, download.downloadID));
         download.addEventListener(EVENT_LISTENER_TYPES.cancelled, () => {
             this.updateProgress(0, download.downloadID);
-            _.find( this.state.videos, ['videoId', download.downloadID]).download = download;
+            _.find( this.state.videos, ['videoId', download.downloadID]).video.download = download;
             this.setState({videos: this.state.videos});
         });
         download.addEventListener(EVENT_LISTENER_TYPES.deleted, () => {
             this.updateProgress(0, download.downloadID);
-            _.find( this.state.videos, ['videoId', download.downloadID]).download = null;
+            _.find( this.state.videos, ['videoId', download.downloadID]).video.download = null;
             this.setState({videos: this.state.videos});
         });
         download.addEventListener(EVENT_LISTENER_TYPES.error, (errorType, errorMessage) => Alert.alert(
@@ -152,18 +153,19 @@ export default class App extends React.Component {
         ));
         download.addEventListener(EVENT_LISTENER_TYPES.finished, () => {
             this.updateProgress(100, download.downloadID);
-            _.find( this.state.videos, ['videoId', download.downloadID]).download = download;
+            _.find( this.state.videos, ['videoId', download.downloadID]).video.download = download;
             this.setState({videos: this.state.videos});
         });
     }
 
     updateProgress(progress, videoId) {
-        _.find( this.state.videos, ['videoId', videoId]).download.progress = progress;
+        _.find( this.state.videos, ['videoId', videoId]).video.download.progress = progress;
         this.setState({videos: this.state.videos});
     }
 
     showVideo(videoId) {
-        const video = _.find( this.state.videos, ['videoId', videoId]);
+        const video = _.find( this.state.videos, ['videoId', videoId]).video;
+        console.warn('showVideo: ', video);
         if (_.get(video, 'download.localURL', undefined)) {
             const player = _.get(video, 'player', null);
             return (
@@ -200,7 +202,7 @@ export default class App extends React.Component {
     }
 
     registerPlayer(ref, videoId) {
-        const video = _.find( this.state.videos, ['videoId', videoId]);
+        const video = _.find( this.state.videos, ['videoId', videoId]).video;
         if (!video.player) {
             video.player = ref;
             this.setState({videos: this.state.videos});
