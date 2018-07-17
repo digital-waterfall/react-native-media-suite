@@ -61,7 +61,7 @@ export default class Download {
     }
 
     start() {
-        this.isDeleted();
+        this.isDeleted('start');
 
         if (this.bitRate) {
             this.nativeDownloader.downloadStreamWithBitRate(this.remoteURL, this.downloadID, this.bitRate)

@@ -52,10 +52,10 @@ class DownloadManager {
                 let downloadIds = [];
                 _.forEach(downloads, download => {
                     console.warn('Stored Download', download);
-                    const newDownload = new Download(download.downloadID, download.remoteURL, download.state, download.bitRate, this.nativeDownloader);
+                    const newDownload = new Download(download[1].downloadID, download[1].remoteURL, download[1].state, download[1].bitRate, this.nativeDownloader);
                     this.downloads.push(newDownload);
                     console.log('Downloads', this.downloads);
-                    downloadIds.push(download.downloadID);
+                    downloadIds.push(download[1].downloadID);
                 });
                 resolve(downloadIds);
             }, error => {
@@ -83,7 +83,7 @@ class DownloadManager {
         download = new Download(downloadID, url, DOWNLOAD_STATES.initialized, bitRate, this.nativeDownloader);
         this.downloads.push(download);
         // download.addEventListener(EVENT_LISTENER_TYPES.deleted, () => this.deleteDownloaded(download.downloadID));
-        storageService.setItem(this.tenant, download.downloadID, download);
+        this.persistDownload(download);
         return download;
     }
 
