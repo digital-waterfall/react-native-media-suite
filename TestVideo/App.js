@@ -1,6 +1,6 @@
 import React from 'react';
 import {StyleSheet, Text, View, Dimensions, Platform, Alert} from 'react-native';
-import  Video, { DownloadManager, EVENT_LISTENER_TYPES }  from './library/index';
+import Video, {DOWNLOAD_STATES, DownloadManager, EVENT_LISTENER_TYPES} from './library/index';
 import { Tabs, Button, WhiteSpace } from 'antd-mobile-rn';
 import _ from 'lodash';
 
@@ -24,7 +24,8 @@ export default class App extends React.Component {
             showPlayer: false,
             progress: 0,
             play: false,
-            download: null
+            download: null,
+            player: null
         };
 
         let videos = [];
@@ -95,7 +96,7 @@ export default class App extends React.Component {
                 <Button type="ghost" size="small" disabled={!download} onClick={() => download.resume()}>Resume Download</Button>
                 <WhiteSpace size="sm" />
                 <Button type="ghost" size="small" disabled={!download} onClick={() => download.cancel()}>Cancel Download</Button>
-                { this.showVideo(VIDEO_IDS[index]) }
+                {/*{ this.showVideo(VIDEO_IDS[index]) }*/}
             </View>
         );
     }
@@ -169,7 +170,7 @@ export default class App extends React.Component {
     showVideo(videoId) {
         const video = _.find( this.state.videos, ['videoId', videoId]);
         console.warn('showVideo: ', video);
-        if (_.get(video, 'download.localURL', undefined)) {
+        if (video.download.state === DOWNLOAD_STATES.downloaded) {
             const player = _.get(video, 'player', null);
             return (
                 <View>
@@ -197,7 +198,7 @@ export default class App extends React.Component {
                 </View>
             );
         }
-        if (video.player) {
+        if (_.has(video, 'player')) {
             video.player = null;
             this.setState({videos: this.state.videos});
         }
@@ -206,7 +207,7 @@ export default class App extends React.Component {
 
     registerPlayer(ref, videoId) {
         const video = _.find( this.state.videos, ['videoId', videoId]);
-        if (!video.player) {
+        if (!_.has(video, 'player')) {
             video.player = ref;
             this.setState({videos: this.state.videos});
         }

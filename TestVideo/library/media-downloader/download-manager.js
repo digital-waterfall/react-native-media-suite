@@ -83,7 +83,7 @@ class DownloadManager {
         }
         download = new Download(downloadID, url, DOWNLOAD_STATES.initialized, bitRate, this.nativeDownloader);
         this.downloads.push(download);
-        // download.addEventListener(EVENT_LISTENER_TYPES.deleted, () => this.deleteDownloaded(download.downloadID));
+        download.addEventListener(EVENT_LISTENER_TYPES.deleted, () => this.deleteDownloaded(download.downloadID));
         this.persistDownload(download);
         return download;
     }
