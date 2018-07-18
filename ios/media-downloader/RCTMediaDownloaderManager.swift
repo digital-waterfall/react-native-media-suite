@@ -93,10 +93,11 @@ class MediaDownloader: RCTEventEmitter {
     func isDownloaded(downloadID: String) -> Bool {
         if UserDefaults.standard.object(forKey: downloadID) != nil {
             let baseURL = URL(fileURLWithPath: NSHomeDirectory())
-            let assetURL = baseURL.appendingPathComponent((UserDefaults.standard.url(forKey: downloadID)?.relativeString)!)
+            let assetURL = baseURL.appendingPathComponent((UserDefaults.standard.url(forKey: downloadID)?.path)!)
             if FileManager.default.fileExists(atPath: assetURL.path) {
                 return true
             }
+            UserDefaults.standard.removeObject(forKey: downloadID)
             return false
         }
         return false
