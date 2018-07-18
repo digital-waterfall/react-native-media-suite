@@ -85,7 +85,7 @@ export default class Download {
     }
 
     start() {
-        this.isDeleted('start');
+        this.isDeleted();
 
         if (Platform.OS === 'ios') {
             if (this.bitRate) {
@@ -103,46 +103,45 @@ export default class Download {
     }
 
     pause() {
-        this.isDeleted('pause');
+        this.isDeleted();
 
         this.nativeDownloader.pauseDownload(this.downloadID);
         this.state = DOWNLOAD_STATES.paused;
     }
 
     resume() {
-        this.isDeleted('resume');
+        this.isDeleted();
 
         this.nativeDownloader.resumeDownload(this.downloadID);
         this.state = DOWNLOAD_STATES.downloading;
     }
 
     cancel() {
-        this.isDeleted('cancel');
+        this.isDeleted();
 
         this.nativeDownloader.cancelDownload(this.downloadID);
     }
 
     delete() {
-        this.isDeleted('deleted');
+        this.isDeleted();
 
         this.nativeDownloader.deleteDownloadedStream(this.downloadID);
         this.callEventListeners(EVENT_LISTENER_TYPES.deleted);
         this.destructor();
     }
 
-    isDeleted(type) {
-        console.warn('isDeleted called by:', type);
+    isDeleted() {
         if (this.state === DOWNLOAD_STATES.deleted || !this.state) throw 'Download has been deleted.'
     }
 
     addEventListener(type, listener) {
-        this.isDeleted('addEventListener');
+        this.isDeleted();
 
         this.eventListeners.push({type, listener});
     }
 
     removeEventListener(listener) {
-        this.isDeleted('removeEventListener');
+        this.isDeleted();
         _.remove(this.eventListeners, eventListener => eventListener === listener);
     }
 
@@ -167,7 +166,7 @@ export default class Download {
     }
 
     onDownloadStarted() {
-        this.isDeleted('onDownloadStarted');
+        this.isDeleted();
 
         this.state = DOWNLOAD_STATES.started;
         this.startedTimeStamp = Date.now();

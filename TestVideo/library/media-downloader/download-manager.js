@@ -54,6 +54,7 @@ class DownloadManager {
                 _.forEach(downloads, download => {
                     console.warn('Stored Download', download);
                     const newDownload = new Download(download[1].downloadID, download[1].remoteURL, download[1].state, download[1].bitRate, download[1].title, download[1].assetArtworkURL, this.nativeDownloader, download[1]);
+                    newDownload.addEventListener(EVENT_LISTENER_TYPES.deleted, () => this.deleteDownloaded(newDownload.downloadID));
                     console.warn('newDownload ', newDownload);
                     this.downloads.push(newDownload);
                     console.log('Downloads', this.downloads);
@@ -83,13 +84,14 @@ class DownloadManager {
         }
         download = new Download(downloadID, url, DOWNLOAD_STATES.initialized, bitRate, title, assetArtworkURL, this.nativeDownloader);
         this.downloads.push(download);
-        download.addEventListener(EVENT_LISTENER_TYPES.deleted, () => this.deleteDownloaded(download.downloadID));
+        download.addEventListener(EVENT_LISTENER_TYPES.deleted, (data) => this.deleteDownloaded(data));
         this.persistDownload(download);
         return download;
     }
 
     deleteDownloaded(downloadID) {
         _.remove(this.downloads, download => download.downloadID === downloadID);
+        console.warn('Deleted: ', downloadID);
         storageService.removeItem(this.tenant, downloadID);
     }
 
