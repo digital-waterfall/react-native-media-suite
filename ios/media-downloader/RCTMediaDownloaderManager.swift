@@ -118,13 +118,13 @@ class MediaDownloader: RCTEventEmitter {
         if isDownloaded(downloadID: downloadID) {
             do {
                 let baseURL = URL(fileURLWithPath: NSHomeDirectory())
-                let assetURL = baseURL.appendingPathComponent((UserDefaults.standard.url(forKey: downloadID)?.relativeString)!)
+                let assetURL = baseURL.appendingPathComponent((UserDefaults.standard.url(forKey: downloadID)?.path)!)
                 try FileManager.default.removeItem(atPath: assetURL.path)
                 
                 userDefaults.removeObject(forKey: downloadID)
                 return
             } catch {
-                self.sendEvent(withName: "onDownloadError", body: ["error" : "An error occured deleting the file: \(error)", "errorType" : "DELETE", "downloadID" : downloadID])
+                self.sendEvent(withName: "onDownloadError", body: ["error" : "An error occured deleting the file: \(error)", "errorType" : "DELETE_FAILED", "downloadID" : downloadID])
                 return
             }
         }
