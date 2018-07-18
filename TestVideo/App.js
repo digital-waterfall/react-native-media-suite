@@ -90,7 +90,6 @@ export default class App extends React.Component {
     }
 
     renderVideo(url, index) {
-        console.warn('Videos', this.state.videos);
         const progress = _.get(this.state.videos[index], 'download.progress', 0);
         const download = this.state.videos[index].download;
         return (
@@ -111,10 +110,8 @@ export default class App extends React.Component {
     }
 
     download(url, videoId) {
-        console.warn('Video Id', videoId);
         try {
             const download = DownloadManager.createNewDownload(url, videoId, `Test Download ${videoId.slice(-1)}`, 'https://s1.dmcdn.net/czxuQ/x720-MzM.jpg');
-            console.warn('Created download', download);
             if(_.has(download, 'downloadID')){
                 const newVideos = this.state.videos;
                 _.find(newVideos, ['videoId', download.downloadID]).download = download;
@@ -147,7 +144,7 @@ export default class App extends React.Component {
 
     addEventListener(download){
         download.addEventListener(EVENT_LISTENER_TYPES.started, () => {
-            console.warn('Download started', download.state);
+            console.log('Download started', download.state);
         });
         download.addEventListener(EVENT_LISTENER_TYPES.progress, (progress) => this.updateProgress(progress, download.downloadID));
         download.addEventListener(EVENT_LISTENER_TYPES.cancelled, () => {
