@@ -183,7 +183,7 @@ export default class App extends React.Component {
         download.addEventListener(EVENT_LISTENER_TYPES.progress, (progress) => this.updateProgress(progress, download.downloadID));
         download.addEventListener(EVENT_LISTENER_TYPES.cancelled, () => {
             this.updateProgress(0, download.downloadID);
-            _.find( this.state.videos, ['videoId', download.downloadID]).download = download;
+            _.find( this.state.videos, ['videoId', download.downloadID]).download = null;
             this.setState({videos: this.state.videos});
         });
         download.addEventListener(EVENT_LISTENER_TYPES.deleted, () => {

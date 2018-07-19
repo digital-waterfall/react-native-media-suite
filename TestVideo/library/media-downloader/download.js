@@ -121,6 +121,8 @@ export default class Download {
         this.isDeleted();
 
         this.nativeDownloader.cancelDownload(this.downloadID);
+        this.callEventListeners(EVENT_LISTENER_TYPES.cancelled);
+        this.destructor();
     }
 
     delete() {
