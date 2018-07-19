@@ -160,7 +160,7 @@ downloader.cancelDownload('someDownloadId');
 | `resumeDownload`         | downloadID: `string`                                                                            | :white_check_mark:  | :white_check_mark:      |
 | `cancelDownload`         | downloadID: `string`                                                                            | :white_check_mark:  | :white_check_mark:      |
 
-For details about the usage of above APIs, check [`library/media-downloader/media-downloader.js`](library/media-downloader/media-downloader.js).
+For details about the usage of above APIs, check [`library/media-downloader/download-manager.js`](library/media-downloader/media-downloader.js).
 
 ## TODO
 

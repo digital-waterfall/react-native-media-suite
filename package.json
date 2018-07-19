@@ -1,6 +1,6 @@
 {
   "name": "react-native-media-suite",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "A native media player with download capabilities. It was forked from react-native-media-kit.",
   "main": "library/index.js",
   "scripts": {
@@ -29,7 +29,9 @@
   "license": "MIT",
   "homepage": "https://bitbucket.org/cellcdigital/cellc-digital-black-native-player#readme",
   "dependencies": {
-    "prop-types": "15.6.1"
+    "lodash": "^4.17.10",
+    "prop-types": "15.6.1",
+    "rn-multi-tenant-async-storage": "0.0.3"
   },
   "peerDependencies": {
     "react": ">=16.3.1",

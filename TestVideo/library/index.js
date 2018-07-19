@@ -1,7 +1,8 @@
 'use strict';
 
 import MediaPlayerView from './media-player/media-player-view';
-import Downloader from './media-downloader/media-downloader';
+import DownloadManager from './media-downloader/download-manager';
+import Download, { DOWNLOAD_STATES, EVENT_LISTENER_TYPES} from './media-downloader/download';
 
 export default MediaPlayerView;
-export { Downloader };
+export { DownloadManager, Download, DOWNLOAD_STATES, EVENT_LISTENER_TYPES };
