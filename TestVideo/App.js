@@ -71,7 +71,6 @@ export default class App extends React.Component {
                 'https://bitmovin-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd'
             ]
         });
-
         return (
             <View style={{ flex: 1, marginTop: 20}}>
                 <Tabs tabs={tabs} initialPage={0} onChange={(tab, index) => {

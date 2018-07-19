@@ -79,10 +79,11 @@ class MediaPlayerView extends Component {
             );
         } else {
             const remoteUrl = DownloadManager.getDownload(this.props.src).remoteURL;
+            const extension = `.${remoteUrl.split('.').pop()}`;
             const {repeat, rate, seek, paused } = this.state;
             return(
                 <RCTMediaPlayerView
-                    src={{uri: remoteUrl, type: ".mpd"}}
+                    src={{uri: remoteUrl, type: extension}}
                     ref={(RCTMediaPlayerView) => {
                         this.RCTMediaPlayerView = RCTMediaPlayerView
                     }}
@@ -97,7 +98,7 @@ class MediaPlayerView extends Component {
                     onFullscreenPlayerDidPresent={console.log('onFullscreenPlayerDidPresent')}
                     onFullscreenPlayerWillDismiss={console.log('onFullscreenPlayerWillDismiss')}
                     onFullscreenPlayerDidDismiss={console.log('onFullscreenPlayerDidDismiss')}
-                    style={styles.backgroundVideo} />
+                    style={[styles.backgroundVideo, this.props.style]} />
             );
         }
     }
