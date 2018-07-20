@@ -12,7 +12,6 @@ const VIDEO_IDS = [
     'download3'
 ];
 
-
 export default class App extends React.Component {
     constructor(props) {
         super(props);
@@ -72,7 +71,6 @@ export default class App extends React.Component {
                 'https://bitmovin-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd'
             ]
         });
-
         return (
             <View style={{ flex: 1, marginTop: 20}}>
                 <Tabs tabs={tabs} initialPage={0} onChange={(tab, index) => {
@@ -85,8 +83,38 @@ export default class App extends React.Component {
         );
     }
 
-    setActive(index) {
-        this.setState({activeIndex: index});
+    registerPlayer(ref) {
+        this.player = ref;
+    }
+
+    showVideo() {
+        const activeIndex = this.state.activeIndex;
+        const download = this.state.videos[activeIndex].download;
+        if (download && download.state === DOWNLOAD_STATES.downloaded) {
+            return (
+                <View>
+                    <WhiteSpace size="lg" />
+                    <Video
+                        ref={(ref) => this.registerPlayer(ref)}
+                        style={{width: 300, height: 170, backgroundColor: 'black'}}
+                        autoplay
+                        loop
+                        muted={false}
+                        src={download.downloadID}
+                        offline
+                        onPlaybackError={(error) => console.warn(error)}
+                        onPlayerProgress={data => console.log(data)}
+                    />
+                    <View style={{width: 300, height: 30, flexDirection: 'row', justifyContent: 'space-evenly'}}>
+                        <Button type="primary" size="small" onClick={() => this.player.seekTo(20000)}>{'<'}</Button>
+                        <Button type="primary" size="small" onClick={() => this.player.play()}>Play</Button>
+                        <Button type="primary" size="small" onClick={() => this.player.stop()}>Stop</Button>
+                        <Button type="primary" size="small" onClick={() => this.player.pause()}>Pause</Button>
+                        <Button type="primary" size="small" onClick={() => this.player.seekTo(30000)}>{'>'}</Button>
+                    </View>
+                </View>
+            );
+        }
     }
 
     renderVideo(url, index) {
@@ -126,6 +154,11 @@ export default class App extends React.Component {
 
     }
 
+    updateProgress(progress, videoId) {
+        _.find( this.state.videos, ['videoId', videoId]).download.progress = progress;
+        this.setState({videos: this.state.videos});
+    }
+
     restoreDownloads(downloadIds){
         const downloads = DownloadManager.getDownload(downloadIds);
         if(_.isArray(downloads)){
@@ -149,7 +182,7 @@ export default class App extends React.Component {
         download.addEventListener(EVENT_LISTENER_TYPES.progress, (progress) => this.updateProgress(progress, download.downloadID));
         download.addEventListener(EVENT_LISTENER_TYPES.cancelled, () => {
             this.updateProgress(0, download.downloadID);
-            _.find( this.state.videos, ['videoId', download.downloadID]).download = download;
+            _.find( this.state.videos, ['videoId', download.downloadID]).download = null;
             this.setState({videos: this.state.videos});
         });
         download.addEventListener(EVENT_LISTENER_TYPES.deleted, () => {
@@ -168,44 +201,10 @@ export default class App extends React.Component {
         });
     }
 
-    updateProgress(progress, videoId) {
-        _.find( this.state.videos, ['videoId', videoId]).download.progress = progress;
-        this.setState({videos: this.state.videos});
+    setActive(index) {
+        this.setState({activeIndex: index});
     }
 
-    showVideo() {
-        const activeIndex = this.state.activeIndex;
-        const download = this.state.videos[activeIndex].download;
-        if (download && download.state === DOWNLOAD_STATES.downloaded) {
-            return (
-                <View>
-                    <WhiteSpace size="lg" />
-                    <Video
-                        ref={(ref) => this.registerPlayer(ref)}
-                        style={{width: 300, height: 170, backgroundColor: 'black'}}
-                        autoplay
-                        loop
-                        muted={false}
-                        src={download.downloadID}
-                        offline
-                        onPlaybackError={(error) => console.warn(error)}
-                        onPlayerProgress={data => console.log(data)}
-                    />
-                    <View style={{width: 300, height: 30, flexDirection: 'row', justifyContent: 'space-evenly'}}>
-                        <Button type="primary" size="small" onClick={() => this.player.seekTo(20000)}>{'<'}</Button>
-                        <Button type="primary" size="small" onClick={() => this.player.play()}>Play</Button>
-                        <Button type="primary" size="small" onClick={() => this.player.stop()}>Stop</Button>
-                        <Button type="primary" size="small" onClick={() => this.player.pause()}>Pause</Button>
-                        <Button type="primary" size="small" onClick={() => this.player.seekTo(30000)}>{'>'}</Button>
-                    </View>
-                </View>
-            );
-        }
-    }
-
-    registerPlayer(ref) {
-        this.player = ref;
-    }
 }
 
 const styles = StyleSheet.create({
