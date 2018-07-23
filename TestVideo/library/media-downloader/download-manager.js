@@ -22,11 +22,17 @@ class DownloadManager {
             this.onDownloadFinished = this.onDownloadFinished.bind(this);
             this.onDownloadError = this.onDownloadError.bind(this);
             this.onDownloadCancelled = this.onDownloadCancelled.bind(this);
+
+            this.addUpdateListener = this.addUpdateListener.bind(this);
+            this.callUpdateListeners = this.callUpdateListeners.bind(this);
+            this.removeUpdateListener = this.removeUpdateListener.bind(this);
+
             this.getDownload = this.getDownload.bind(this);
             this.isDownloaded = this.isDownloaded.bind(this);
             this.persistDownload = this.persistDownload.bind(this);
 
             this.downloads = [];
+            this.updateListeners = [];
 
             this.nativeDownloader = NativeModules.MediaDownloader;
             const downloaderEvent = new NativeEventEmitter(NativeModules.MediaDownloader);
@@ -130,6 +136,34 @@ class DownloadManager {
         download.onDownloadCancelled();
         _.remove(this.downloads, download => download.downloadID === data.downloadID);
         storageService.removeItem(this.tenant, data.downloadID);
+    }
+
+    addUpdateListener(listener, options) {
+        if (!options.downloadIDs) {
+            this.updateListeners.push({downloadIDs: null, listener: listener});
+        } else {
+            this.updateListeners.push({downloadIDs: options.downloadIDs, listener});
+        }
+        if (options.updateImmediately) this.callUpdateListeners();
+    }
+
+    callUpdateListeners(downloadID) {
+        // TODO: Call listeners that are listening to all downloads
+        _.forEach(this.updateListeners, listenerObject => {
+            if (_.isArray(listenerObject.downloadIDs)) {
+                if (_.includes([listenerObject.downloadIDs], downloadID)) {
+                    const downloads = [];
+                    _.forEach(listenerObject.downloadIDs, downloadID => downloads.push({downloadID :this.getDownload(downloadID)}));
+                    listenerObject.listener(downloads);
+                }
+            } else {
+                if (listenerObject.downloadIDs === downloadID) listenerObject.listener(this.getDownload(downloadID));
+            }
+        });
+    }
+
+    removeUpdateListener(listener) {
+        _.remove(this.updateListeners, listenerObject => listenerObject.listener === listener);
     }
 
     getDownload(downloadIDs) {
