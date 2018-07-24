@@ -53,7 +53,6 @@ export default class Download {
         this.onDownloadStarted = this.onDownloadStarted.bind(this);
         this.onDownloadProgress = this.onDownloadProgress.bind(this);
         this.onDownloadFinished = this.onDownloadFinished.bind(this);
-        this.onDownloadError = this.onDownloadError.bind(this);
         this.onDownloadCancelled = this.onDownloadCancelled.bind(this);
 
         this.initialized = this.initialized.bind(this);
@@ -71,18 +70,18 @@ export default class Download {
     
     restoreDownload(downloadFields) {
         this.downloadID = downloadFields.downloadID;
-        this.remoteURL = downloadFields.remoteURL;
-        this.state = downloadFields.state;
-        this.bitRate = downloadFields.bitRate;
-        this.progress = downloadFields.progress;
-        this.localURL = downloadFields.localURL;
-        this.fileSize = downloadFields.fileSize;
-        this.errorType = downloadFields.errorType;
-        this.errorMessage = downloadFields.errorMessage;
-        this.startedTimeStamp = downloadFields.startedTimeStamp;
-        this.finishedTimeStamp = downloadFields.finishedTimeStamp;
-        this.erroredTimeStamp = downloadFields.erroredTimeStamp;
-        this.progressTimeStamp = downloadFields.progressTimeStamp;
+            this.remoteURL = downloadFields.remoteURL;
+            this.state = downloadFields.state;
+            this.bitRate = downloadFields.bitRate;
+            this.progress = downloadFields.progress;
+            this.localURL = downloadFields.localURL;
+            this.fileSize = downloadFields.fileSize;
+            this.errorType = downloadFields.errorType;
+            this.errorMessage = downloadFields.errorMessage;
+            this.startedTimeStamp = downloadFields.startedTimeStamp;
+            this.finishedTimeStamp = downloadFields.finishedTimeStamp;
+            this.erroredTimeStamp = downloadFields.erroredTimeStamp;
+            this.progressTimeStamp = downloadFields.progressTimeStamp;
     }
 
     start() {
@@ -121,8 +120,6 @@ export default class Download {
         this.isDeleted();
 
         this.nativeDownloader.cancelDownload(this.downloadID);
-        this.callEventListeners(EVENT_LISTENER_TYPES.cancelled);
-        this.destructor();
     }
 
     delete() {
@@ -135,6 +132,21 @@ export default class Download {
 
     isDeleted() {
         if (this.state === DOWNLOAD_STATES.deleted || !this.state) throw 'Download has been deleted.'
+    }
+
+    addEventListener(type, listener) {
+        this.isDeleted();
+
+        this.eventListeners.push({type, listener});
+    }
+
+    removeEventListener(listener) {
+        this.isDeleted();
+        _.remove(this.eventListeners, eventListener => eventListener === listener);
+    }
+
+    callEventListeners(type, data) {
+        _.forEach(this.eventListeners, eventListener => {if(eventListener.type === type){return eventListener.listener(data)} });
     }
 
     destructor() {
@@ -151,21 +163,6 @@ export default class Download {
         this.errorMessage = undefined;
 
         this.nativeDownloader = undefined;
-    }
-
-    addEventListener(type, listener) {
-        this.isDeleted();
-
-        this.eventListeners.push({type, listener});
-    }
-
-    removeEventListener(listener) {
-        this.isDeleted();
-        _.remove(this.eventListeners, eventListener => eventListener === listener);
-    }
-
-    callEventListeners(type, data) {
-        _.forEach(this.eventListeners, eventListener => {if(eventListener.type === type){return eventListener.listener(data)} });
     }
 
     onDownloadStarted() {

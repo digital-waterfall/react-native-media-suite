@@ -156,7 +156,7 @@ class DownloadManager {
     callUpdateListeners(downloadID) {
         _.forEach(this.updateListeners, listenerObject => {
             if (_.isArray(listenerObject.downloadIDs)) {
-                if (_.includes([listenerObject.downloadIDs], downloadID)) {
+                if (_.includes(listenerObject.downloadIDs, downloadID)) {
                     listenerObject.listener(this.getDownload(listenerObject.downloadIDs, true));
                 }
             } else if (listenerObject.downloadIDs) {
