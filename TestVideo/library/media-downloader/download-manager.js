@@ -82,7 +82,7 @@ class DownloadManager {
     createNewDownload(url, downloadID, title, assetArtworkURL,  bitRate = 0) {
         let download = this.downloads.find(download => download.downloadID === downloadID);
 
-        if (download) {
+        if (download && !download.failed()) {
             throw `Download already exists with ID: ${downloadID}`;
         }
         download = new Download(downloadID, url, DOWNLOAD_STATES.initialized, bitRate, title, assetArtworkURL, this.nativeDownloader);
