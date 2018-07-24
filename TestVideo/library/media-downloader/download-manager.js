@@ -87,8 +87,11 @@ class DownloadManager {
         }
         download = new Download(downloadID, url, DOWNLOAD_STATES.initialized, bitRate, title, assetArtworkURL, this.nativeDownloader);
         this.downloads.push(download);
-        download.addEventListener(EVENT_LISTENER_TYPES.deleted, (data) => this.deleteDownloaded(data));
+        download.addEventListener(EVENT_LISTENER_TYPES.deleted, this.deleteDownloaded);
+        download.addEventListener(EVENT_LISTENER_TYPES.paused, this.callUpdateListeners);
+        download.addEventListener(EVENT_LISTENER_TYPES.resumed, this.callUpdateListeners);
         this.persistDownload(download);
+        this.callUpdateListeners(downloadID);
         return download;
     }
 

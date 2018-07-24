@@ -17,7 +17,9 @@ export const EVENT_LISTENER_TYPES = Object.freeze({
     finished: 'FINISHED',
     error: 'ERROR',
     cancelled: 'CANCELLED',
-    deleted: 'DELETED'
+    deleted: 'DELETED',
+    paused: 'PAUSED',
+    resumed: 'RESUMED'
 });
 
 export default class Download {
@@ -107,6 +109,7 @@ export default class Download {
 
         this.nativeDownloader.pauseDownload(this.downloadID);
         this.state = DOWNLOAD_STATES.paused;
+        this.callEventListeners(EVENT_LISTENER_TYPES.paused, this.downloadID);
     }
 
     resume() {
@@ -114,6 +117,7 @@ export default class Download {
 
         this.nativeDownloader.resumeDownload(this.downloadID);
         this.state = DOWNLOAD_STATES.downloading;
+        this.callEventListeners(EVENT_LISTENER_TYPES.resumed, this.downloadID);
     }
 
     cancel() {
