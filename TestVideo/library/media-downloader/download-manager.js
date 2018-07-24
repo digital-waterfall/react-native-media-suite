@@ -103,6 +103,7 @@ class DownloadManager {
 
         download.onDownloadStarted();
         this.persistDownload(download);
+        this.callUpdateListeners(data.downloadID);
     }
 
     onDownloadProgress(data) {
@@ -110,6 +111,7 @@ class DownloadManager {
         if (!download) return;
 
         download.onDownloadProgress(data.percentComplete);
+        this.callUpdateListeners(data.downloadID);
     }
 
     onDownloadFinished(data) {
@@ -118,6 +120,7 @@ class DownloadManager {
 
         download.onDownloadFinished(data.downloadLocation, data.size);
         this.persistDownload(download);
+        this.callUpdateListeners(data.downloadID);
     }
 
     onDownloadError(data) {
@@ -127,6 +130,7 @@ class DownloadManager {
         download.onDownloadError(data.errorType, data.error);
         console.warn(data.error);
         this.persistDownload(download);
+        this.callUpdateListeners(data.downloadID);
     }
 
     onDownloadCancelled(data) {
@@ -136,6 +140,7 @@ class DownloadManager {
         download.onDownloadCancelled();
         _.remove(this.downloads, download => download.downloadID === data.downloadID);
         storageService.removeItem(this.tenant, data.downloadID);
+        this.callUpdateListeners(data.downloadID);
     }
 
     addUpdateListener(listener, options) {
