@@ -22,11 +22,17 @@ class DownloadManager {
             this.onDownloadFinished = this.onDownloadFinished.bind(this);
             this.onDownloadError = this.onDownloadError.bind(this);
             this.onDownloadCancelled = this.onDownloadCancelled.bind(this);
+
+            this.addUpdateListener = this.addUpdateListener.bind(this);
+            this.callUpdateListeners = this.callUpdateListeners.bind(this);
+            this.removeUpdateListener = this.removeUpdateListener.bind(this);
+
             this.getDownload = this.getDownload.bind(this);
             this.isDownloaded = this.isDownloaded.bind(this);
             this.persistDownload = this.persistDownload.bind(this);
 
             this.downloads = [];
+            this.updateListeners = [];
 
             this.nativeDownloader = NativeModules.MediaDownloader;
             const downloaderEvent = new NativeEventEmitter(NativeModules.MediaDownloader);
@@ -132,7 +138,35 @@ class DownloadManager {
         storageService.removeItem(this.tenant, data.downloadID);
     }
 
-    getDownload(downloadIDs) {
+    addUpdateListener(listener, options) {
+        if (!options.downloadIDs) {
+            this.updateListeners.push({downloadIDs: null, listener: listener});
+            listener(this.getDownload(_.map(this.downloads, 'downloadID'), true));
+        } else {
+            this.updateListeners.push({downloadIDs: options.downloadIDs, listener});
+            if (options.updateImmediately) this.callUpdateListeners(options.downloadIDs[0]);
+        }
+    }
+
+    callUpdateListeners(downloadID) {
+        _.forEach(this.updateListeners, listenerObject => {
+            if (_.isArray(listenerObject.downloadIDs)) {
+                if (_.includes([listenerObject.downloadIDs], downloadID)) {
+                    listenerObject.listener(this.getDownload(listenerObject.downloadIDs, true));
+                }
+            } else if (listenerObject.downloadIDs) {
+                if (listenerObject.downloadIDs === downloadID) listenerObject.listener(this.getDownload(downloadID));
+            } else {
+                this.getDownload(_.map(this.downloads, 'downloadID'), true);
+            }
+        });
+    }
+
+    removeUpdateListener(listener) {
+        _.remove(this.updateListeners, listenerObject => listenerObject.listener === listener);
+    }
+
+    getDownload(downloadIDs, returnWithLabels) {
         const matchedDownloads = _.filter(this.downloads, download => {
             if(_.isArray(downloadIDs)){
                 return _.indexOf(downloadIDs, download.downloadID) !== -1;
@@ -144,6 +178,15 @@ class DownloadManager {
         }
         if(_.size(matchedDownloads) === 1){
             return matchedDownloads[0];
+        }
+        if (returnWithLabels) {
+            const matchedDownloadsWithLabels = [];
+            let label;
+            _.forEach(matchedDownloads, matchedDownload => {
+                label = matchedDownload.downloadID;
+                matchedDownloadsWithLabels.push({ label: matchedDownload})
+            });
+            return matchedDownloadsWithLabels;
         }
         return matchedDownloads;
     }
