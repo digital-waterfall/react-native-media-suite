@@ -141,20 +141,18 @@ class DownloadManager {
     addUpdateListener(listener, options) {
         if (!options.downloadIDs) {
             this.updateListeners.push({downloadIDs: null, listener: listener});
+            listener(this.getDownload(_.map(this.downloads, 'downloadID'), true));
         } else {
             this.updateListeners.push({downloadIDs: options.downloadIDs, listener});
+            if (options.updateImmediately) this.callUpdateListeners(options.downloadIDs[0]);
         }
-        if (options.updateImmediately) this.callUpdateListeners();
     }
 
     callUpdateListeners(downloadID) {
-        // TODO: Call listeners that are listening to all downloads
         _.forEach(this.updateListeners, listenerObject => {
             if (_.isArray(listenerObject.downloadIDs)) {
                 if (_.includes([listenerObject.downloadIDs], downloadID)) {
-                    const downloads = [];
-                    _.forEach(listenerObject.downloadIDs, downloadID => downloads.push({downloadID :this.getDownload(downloadID)}));
-                    listenerObject.listener(downloads);
+                    listenerObject.listener(this.getDownload(listenerObject.downloadIDs, true));
                 }
             } else {
                 if (listenerObject.downloadIDs === downloadID) listenerObject.listener(this.getDownload(downloadID));
@@ -166,7 +164,7 @@ class DownloadManager {
         _.remove(this.updateListeners, listenerObject => listenerObject.listener === listener);
     }
 
-    getDownload(downloadIDs) {
+    getDownload(downloadIDs, returnWithLabels) {
         const matchedDownloads = _.filter(this.downloads, download => {
             if(_.isArray(downloadIDs)){
                 return _.indexOf(downloadIDs, download.downloadID) !== -1;
@@ -178,6 +176,15 @@ class DownloadManager {
         }
         if(_.size(matchedDownloads) === 1){
             return matchedDownloads[0];
+        }
+        if (returnWithLabels) {
+            const matchedDownloadsWithLabels = [];
+            let label;
+            _.forEach(matchedDownloads, matchedDownload => {
+                label = matchedDownload.downloadID;
+                matchedDownloadsWithLabels.push({ label: matchedDownload})
+            });
+            return matchedDownloadsWithLabels;
         }
         return matchedDownloads;
     }
