@@ -201,7 +201,9 @@ export default class Download {
     onDownloadError(errorType, errorMessage) {
         this.isDeleted();
 
-        this.state = DOWNLOAD_STATES.failed;
+        if (errorType !== 'ALREADY_DOWNLOADED') {
+            this.state = DOWNLOAD_STATES.failed;
+        }
         this.errorType = errorType;
         this.errorMessage = errorMessage;
         this.erroredTimeStamp = Date.now();
