@@ -165,7 +165,7 @@ class DownloadManager {
             } else if (listenerObject.downloadIDs) {
                 if (listenerObject.downloadIDs === downloadID) listenerObject.listener(this.getDownload(downloadID));
             } else {
-                this.getDownload(_.map(this.downloads, 'downloadID'), true);
+                listenerObject.listener(this.getDownload(_.map(this.downloads, 'downloadID'), true));
             }
         });
     }
