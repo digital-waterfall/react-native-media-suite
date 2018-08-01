@@ -188,11 +188,9 @@ class DownloadManager {
             return matchedDownloads[0];
         }
         if (returnWithLabels) {
-            const matchedDownloadsWithLabels = [];
-            let label;
+            const matchedDownloadsWithLabels = {};
             _.forEach(matchedDownloads, matchedDownload => {
-                label = matchedDownload.downloadID;
-                matchedDownloadsWithLabels.push({ label: matchedDownload})
+                matchedDownloadsWithLabels[matchedDownload.downloadID] = matchedDownload;
             });
             return matchedDownloadsWithLabels;
         }
