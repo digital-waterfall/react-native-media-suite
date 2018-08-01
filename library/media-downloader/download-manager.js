@@ -184,15 +184,15 @@ class DownloadManager {
         if(_.isEmpty(matchedDownloads)){
             return null;
         }
-        if(_.size(matchedDownloads) === 1){
-            return matchedDownloads[0];
-        }
         if (returnWithLabels) {
             const matchedDownloadsWithLabels = {};
             _.forEach(matchedDownloads, matchedDownload => {
                 matchedDownloadsWithLabels[matchedDownload.downloadID] = matchedDownload;
             });
             return matchedDownloadsWithLabels;
+        }
+        if(_.size(matchedDownloads) === 1){
+            return matchedDownloads[0];
         }
         return matchedDownloads;
     }
