@@ -96,6 +96,7 @@ class DownloadManager {
     }
 
     deleteDownloaded(downloadID) {
+        this.callUpdateListeners(downloadID);
         _.remove(this.downloads, download => download.downloadID === downloadID);
         storageService.removeItem(this.tenant, downloadID);
     }
