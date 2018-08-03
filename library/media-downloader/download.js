@@ -131,7 +131,7 @@ export default class Download {
 
         this.nativeDownloader.deleteDownloadedStream(this.downloadID);
         this.state = DOWNLOAD_STATES.deleted;
-        this.callEventListeners(EVENT_LISTENER_TYPES.deleted);
+        this.callEventListeners(EVENT_LISTENER_TYPES.deleted, this.downloadID);
         this.destructor();
     }
 
