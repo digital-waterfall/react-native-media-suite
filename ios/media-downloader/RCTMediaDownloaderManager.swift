@@ -52,7 +52,12 @@ class MediaDownloader: RCTEventEmitter {
     
             if !(isDownloaded(downloadID: downloadID)) && !(isDownloading(downloadID: downloadID)) {
             
-                let asset = AVURLAsset(url: URL(string:url)!)
+                guard let assetURL = URL(string: url) else {
+                    self.sendEvent(withName: "onDownloadError", body: ["error" : "The URL cannot be null", "errorType" : "NO_URL", "downloadID" : downloadID])
+                    return
+                }
+                
+                let asset = AVURLAsset(url: assetURL)
             
                 var data: Data?=nil;
                 if (assetArtworkURL != "none") {
