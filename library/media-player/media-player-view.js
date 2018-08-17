@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
+import {DownloadManager} from '../index';
 
 import ReactNative, {
     View,
@@ -31,9 +32,12 @@ class MediaPlayerView extends Component {
             playing: false,
             current: 0,
             total: 0,
-
             width: 0,
-            height: 0
+            height: 0,
+            paused:props.paused,
+            seek:props.seek,
+            repeat:props.repeat,
+            rate:props.rate
 
         };
     }
@@ -74,18 +78,21 @@ class MediaPlayerView extends Component {
                     onPlaybackError={this._onPlaybackError.bind(this)}/>
             );
         } else {
+            const  remoteUrl = DownloadManager.getDownload(this.props.src).remoteURL;
+            const extension = `.${remoteUrl.split('.').pop()}`;
+            const {repeat,rate,paused,seek} = this.state;
             return(
-                <RCTMediaPlayerView src={{uri: this.props.src, type: ".mpd"}}
+                <RCTMediaPlayerView src={{uri: remoteUrl, type: extension}}
                                     ref={(RCTMediaPlayerView) => {
                                         this.RCTMediaPlayerView = RCTMediaPlayerView
                   }}
                   onBuffer={console.log('onBuffer')}
                   onEnd={console.log('onEnd')}
                   onError={console.log('onError')}
-                                    repeat={true}
-                    rate={1}
-                                    seek={0}
-                                    paused={false}
+                                    repeat={repeat}
+                    rate={rate}
+                                    seek={seek}
+                                    paused={paused}
                   onFullscreenPlayerWillPresent={console.log('onFullscreenPlayerWillPresent')}
                   onFullscreenPlayerDidPresent={console.log('onFullscreenPlayerDidPresent')}
                   onFullscreenPlayerWillDismiss={console.log('onFullscreenPlayerWillDismiss')}
@@ -104,36 +111,54 @@ class MediaPlayerView extends Component {
     }
 
     pause() {
-        UIManager.dispatchViewManagerCommand(
-            this.RCTMediaPlayerView._nativeTag,
-            UIManager.RCTMediaPlayerView.Commands.pause,
-            null
-        );
+        if(Platform.OS === "ios") {
+            UIManager.dispatchViewManagerCommand(
+                this.RCTMediaPlayerView._nativeTag,
+                UIManager.RCTMediaPlayerView.Commands.pause,
+                null
+            );
+        }
+        else{
+            this.setState({paused:true});
+        }
     }
 
     play() {
-        UIManager.dispatchViewManagerCommand(
-            this.RCTMediaPlayerView._nativeTag,
-            UIManager.RCTMediaPlayerView.Commands.play,
-            null
-        );
+        if(Platform.OS === "ios") {
+            UIManager.dispatchViewManagerCommand(
+                this.RCTMediaPlayerView._nativeTag,
+                UIManager.RCTMediaPlayerView.Commands.play,
+                null
+            );
+        }else{
+            this.setState({paused:false});
+        }
     }
 
     stop() {
-        UIManager.dispatchViewManagerCommand(
-            this.RCTMediaPlayerView._nativeTag,
-            UIManager.RCTMediaPlayerView.Commands.stop,
-            null
-        );
+        if(Platform.OS === "ios") {
+            UIManager.dispatchViewManagerCommand(
+                this.RCTMediaPlayerView._nativeTag,
+                UIManager.RCTMediaPlayerView.Commands.stop,
+                null
+            );
+        }
+        else {
+            this.setState({paused:true,seek:0});
+        }
     }
 
     seekTo(timeMs) {
-        let args = [timeMs];
-        UIManager.dispatchViewManagerCommand(
-            this.RCTMediaPlayerView._nativeTag,
-            UIManager.RCTMediaPlayerView.Commands.seekTo,
-            args
-        );
+        if(Platform.OS === "ios") {
+            let args = [timeMs];
+            UIManager.dispatchViewManagerCommand(
+                this.RCTMediaPlayerView._nativeTag,
+                UIManager.RCTMediaPlayerView.Commands.seekTo,
+                args
+            );
+        }else   {
+            this.setState({seek:timeMs/1000});
+        }
     }
 
     _onPlayerBuffering() {
@@ -250,6 +275,12 @@ MediaPlayerView.propTypes = {
     onPlayerProgress: PropTypes.func,
     onPlayerBufferChange: PropTypes.func,
     onPlaybackError: PropTypes.func
+};
+
+MediaPlayerView.defaultProps = {
+    rate:1,
+    seek:0,
+    paused:false
 };
 
 let styles = StyleSheet.create({
