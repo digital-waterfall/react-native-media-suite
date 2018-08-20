@@ -59,6 +59,8 @@ class DownloadManager {
                 _.forEach(downloads, download => {
                     const newDownload = new Download(download[1].downloadID, download[1].remoteURL, download[1].state, download[1].bitRate, download[1].title, download[1].assetArtworkURL, this.nativeDownloader, download[1]);
                     newDownload.addEventListener(EVENT_LISTENER_TYPES.deleted, () => this.deleteDownloaded(newDownload.downloadID));
+                    newDownload.addEventListener(EVENT_LISTENER_TYPES.paused, () => this.callUpdateListeners(newDownload.downloadID));
+                    newDownload.addEventListener(EVENT_LISTENER_TYPES.resumed, () => this.callUpdateListeners(newDownload.downloadID));
                     this.downloads.push(newDownload);
                     console.log('Downloads', this.downloads);
                     downloadIds.push(download[1].downloadID);
@@ -177,14 +179,19 @@ class DownloadManager {
 
     getDownload(downloadIDs, returnWithLabels) {
         const matchedDownloads = _.filter(this.downloads, download => {
-            if(_.isArray(downloadIDs)){
-                return _.indexOf(downloadIDs, download.downloadID) !== -1;
+            if (download.state !== DOWNLOAD_STATES.deleted) {
+                if (_.isArray(downloadIDs)) {
+                    return _.indexOf(downloadIDs, download.downloadID) !== -1;
+                }
+                return download.downloadID === downloadIDs;
             }
-            return download.downloadID === downloadIDs
+            return false;
         });
+
         if(_.isEmpty(matchedDownloads)){
             return null;
         }
+
         if (returnWithLabels) {
             const matchedDownloadsWithLabels = {};
             _.forEach(matchedDownloads, matchedDownload => {
@@ -192,6 +199,7 @@ class DownloadManager {
             });
             return matchedDownloadsWithLabels;
         }
+
         if(_.size(matchedDownloads) === 1){
             return matchedDownloads[0];
         }
