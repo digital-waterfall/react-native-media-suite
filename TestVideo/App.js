@@ -66,7 +66,7 @@ export default class App extends React.Component {
                 'http://184.72.239.149/vod/smil:BigBuckBunny.smil/playlist.m3u8'
             ],
             android: [
-                'https://bae.sgp1.digitaloceanspaces.com/videos/121/dash/590b546f0d4e3896f611cd51d718e32f.mpd',
+                'https://d2h2jy22itvgms.cloudfront.net/dash/short_test.mpd',
                 'https://bitmovin-a.akamaihd.net/content/playhouse-vr/mpds/105560.mpd',
                 'https://bitmovin-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd'
             ]
