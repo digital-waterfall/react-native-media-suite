@@ -60,9 +60,8 @@ class MediaDownloader: RCTEventEmitter {
                 let asset = AVURLAsset(url: assetURL)
             
                 var data: Data?=nil;
-                if (assetArtworkURL != "none") {
-                    let url = URL(string: assetArtworkURL)
-                    data = try? Data(contentsOf: url!)
+                if (assetArtworkURL != "none" && !assetArtworkURL.isEmpty) {
+                    data = try? Data(contentsOf: URL(string: assetArtworkURL)!)
                 }
                 
                 let downloadTask: AVAssetDownloadTask?
