@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import {DownloadManager} from '../index';
 
 import ReactNative, {
     View,
@@ -13,26 +12,50 @@ import ReactNative, {
     StyleSheet, ViewPropTypes
 } from 'react-native';
 
+import {DownloadManager} from '../index';
+
 export default class MediaPlayerView extends Component {
     static defaultProps = {
         autoplay: false,
         offline: false,
         preload: 'auto',
-        loop: false
+        loop: false,
+        rate: 1,
+        seek: 0,
+        paused: false
     };
+
     constructor(props) {
         super(props);
 
         this.MediaPlayerView = NativeModules.MediaPlayerView;
+        this.assignRoot = this.assignRoot.bind(this);
         this.play = this.play.bind(this);
+        this.seekTo = this.seekTo.bind(this);
+        this.onSeek = this.onSeek.bind(this);
+        this.onLoadStart = this.onLoadStart.bind(this);
+        this.onLoad = this.onLoad.bind(this);
+        this.onError = this.onError.bind(this);
+        this.onProgress = this.onProgress.bind(this);
+        this.onBuffer = this.onBuffer.bind(this);
+        this.onBufferChange = this.onBufferChange.bind(this);
+        this.onBufferOk = this.onBufferOk.bind(this);
+        this.onEnd = this.onEnd.bind(this);
+        this.onPlay = this.onPlay.bind(this);
+        this.onPause = this.onPause.bind(this);
+        this.onTimedMetadata = this.onTimedMetadata.bind(this);
+        this.onFullscreenPlayerWillPresent = this.onFullscreenPlayerWillPresent.bind(this);
+        this.onFullscreenPlayerDidPresent = this.onFullscreenPlayerDidPresent.bind(this);
+        this.onFullscreenPlayerWillDismiss = this.onFullscreenPlayerWillDismiss.bind(this);
+        this.onFullscreenPlayerDidDismiss = this.onFullscreenPlayerDidDismiss.bind(this);
+        this.onReadyForDisplay = this.onReadyForDisplay.bind(this);
+        this.onPlaybackStalled = this.onPlaybackStalled.bind(this);
+        this.onPlaybackResume = this.onPlaybackResume.bind(this);
+        this.onPlaybackRateChange = this.onPlaybackRateChange.bind(this);
+        this.onAudioBecomingNoisy = this.onAudioBecomingNoisy.bind(this);
+        this.onAudioFocusChanged = this.onAudioFocusChanged.bind(this);
+        this.onLayout = this.onLayout.bind(this);
     }
-    setNativeProps(nativeProps) {
-        this._root.setNativeProps(nativeProps);
-    }
-
-    _assignRoot = (component) => {
-        this._root = component;
-    };
 
     componentDidMount() {
         this.mapViewHandle = findNodeHandle(this.RCTMediaPlayerView);
@@ -41,133 +64,6 @@ export default class MediaPlayerView extends Component {
     componentWillUnmount() {
         this.stop();
     }
-
-    presentFullscreenPlayer = () => {
-        this.setNativeProps({ fullscreen: true });
-    };
-
-    dismissFullscreenPlayer = () => {
-        this.setNativeProps({ fullscreen: false });
-    };
-
-    seek = (time) => {
-        this.setNativeProps({ seek: time });
-    };
-
-    _onLoadStart = (event) => {
-        if (this.props.onLoadStart) {
-            this.props.onLoadStart(event.nativeEvent);
-        }
-    };
-
-    _onLoad = (event) => {
-        if (this.props.onLoad) {
-            this.props.onLoad(event.nativeEvent);
-        }
-    };
-
-    _onError = (event) => {
-        if (this.props.onError) {
-            this.props.onError(event.nativeEvent);
-        }
-    };
-
-    _onProgress = (event) => {
-        if (this.props.onProgress) {
-            this.props.onProgress(event.nativeEvent);
-        }
-    };
-
-    _onSeek = (event) => {
-        if (this.state.showPoster) {
-            this.setState({showPoster: false});
-        }
-
-        if (this.props.onSeek) {
-            this.props.onSeek(event.nativeEvent);
-        }
-    };
-
-    _onEnd = (event) => {
-        if (this.props.onEnd) {
-            this.props.onEnd(event.nativeEvent);
-        }
-    };
-    _onTimedMetadata = (event) => {
-        if (this.props.onTimedMetadata) {
-            this.props.onTimedMetadata(event.nativeEvent);
-        }
-    };
-
-    _onFullscreenPlayerWillPresent = (event) => {
-        if (this.props.onFullscreenPlayerWillPresent) {
-            this.props.onFullscreenPlayerWillPresent(event.nativeEvent);
-        }
-    };
-
-    _onFullscreenPlayerDidPresent = (event) => {
-        if (this.props.onFullscreenPlayerDidPresent) {
-            this.props.onFullscreenPlayerDidPresent(event.nativeEvent);
-        }
-    };
-
-    _onFullscreenPlayerWillDismiss = (event) => {
-        if (this.props.onFullscreenPlayerWillDismiss) {
-            this.props.onFullscreenPlayerWillDismiss(event.nativeEvent);
-        }
-    };
-
-    _onFullscreenPlayerDidDismiss = (event) => {
-        if (this.props.onFullscreenPlayerDidDismiss) {
-            this.props.onFullscreenPlayerDidDismiss(event.nativeEvent);
-        }
-    };
-
-    _onReadyForDisplay = (event) => {
-        if (this.props.onReadyForDisplay) {
-            this.props.onReadyForDisplay(event.nativeEvent);
-        }
-    };
-
-    _onPlaybackStalled = (event) => {
-        if (this.props.onPlaybackStalled) {
-            this.props.onPlaybackStalled(event.nativeEvent);
-        }
-    };
-
-    _onPlaybackResume = (event) => {
-        if (this.props.onPlaybackResume) {
-            this.props.onPlaybackResume(event.nativeEvent);
-        }
-    };
-
-    _onPlaybackRateChange = (event) => {
-        if (this.state.showPoster && (event.nativeEvent.playbackRate !== 0)) {
-            this.setState({showPoster: false});
-        }
-
-        if (this.props.onPlaybackRateChange) {
-            this.props.onPlaybackRateChange(event.nativeEvent);
-        }
-    };
-
-    _onAudioBecomingNoisy = () => {
-        if (this.props.onAudioBecomingNoisy) {
-            this.props.onAudioBecomingNoisy();
-        }
-    };
-
-    _onAudioFocusChanged = (event) => {
-        if (this.props.onAudioFocusChanged) {
-            this.props.onAudioFocusChanged(event.nativeEvent);
-        }
-    };
-
-    _onBuffer = (event) => {
-        if (this.props.onBuffer) {
-            this.props.onBuffer(event.nativeEvent);
-        }
-    };
 
     render() {
         return (
@@ -186,14 +82,15 @@ export default class MediaPlayerView extends Component {
                     {...this.props}
                     ref={(RCTMediaPlayerView) => this.RCTMediaPlayerView = RCTMediaPlayerView}
                     style={{flex: 1, alignSelf: 'stretch'}}
-                    onPlayerPlaying={this._onPlayerPlaying.bind(this)}
-                    onPlayerProgress={this._onPlayerProgress.bind(this)}
-                    onPlayerPaused={this._onPlayerPaused.bind(this)}
-                    onPlayerBuffering={this._onPlayerBuffering.bind(this)}
-                    onPlayerBufferOK={this._onPlayerBufferOK.bind(this)}
-                    onPlayerFinished={this._onPlayerFinished.bind(this)}
-                    onPlayerBufferChange={this._onPlayerBufferChange.bind(this)}
-                    onPlaybackError={this._onPlaybackError.bind(this)}/>
+                    onPlayerPlaying={this.onPlay}
+                    onPlayerProgress={this.onProgress}
+                    onPlayerPaused={this.onPause}
+                    onPlayerBuffering={this.onBuffer}
+                    onPlayerBufferOK={this.onBufferOk}
+                    onPlayerFinished={this.onEnd}
+                    onPlayerBufferChange={this.onBufferChange}
+                    onPlaybackError={this.onError}
+                />
             );
         } else {
             const  downloads = DownloadManager.getDownload(this.props.src);
@@ -202,37 +99,168 @@ export default class MediaPlayerView extends Component {
                 <RCTMediaPlayerView
                     src={{uri:remoteUrl}}
                     paused={this.props.paused}
-                    ref={this._assignRoot}
-                    onVideoLoadStart={ this._onLoadStart.bind(this)}
-                    onVideoLoad={ this._onLoad.bind(this)}
-                    onVideoError={this._onError.bind(this)}
-                    onVideoProgress={ this._onProgress.bind(this)}
-                    onVideoSeek={ this._onSeek.bind(this)}
-                    onVideoEnd={ this._onEnd.bind(this)}
-                    onVideoBuffer={ this._onBuffer.bind(this)}
-                    onTimedMetadata={ this._onTimedMetadata.bind(this)}
-                    onVideoFullscreenPlayerWillPresent={ this._onFullscreenPlayerWillPresent.bind(this)}
-                    onVideoFullscreenPlayerDidPresent={ this._onFullscreenPlayerDidPresent}
-                    onVideoFullscreenPlayerWillDismiss={ this._onFullscreenPlayerWillDismiss.bind(this)}
-                    onVideoFullscreenPlayerDidDismiss={ this._onFullscreenPlayerDidDismiss.bind(this)}
-                    onReadyForDisplay={ this._onReadyForDisplay.bind(this)}
-                    onPlaybackStalled={ this._onPlaybackStalled.bind(this)}
-                    onPlaybackResume={ this._onPlaybackResume.bind(this)}
-                    onPlaybackRateChange={ this._onPlaybackRateChange.bind(this)}
-                    onAudioFocusChanged={ this._onAudioFocusChanged.bind(this)}
-                    onAudioBecomingNoisy={ this._onAudioBecomingNoisy.bind(this)}
+                    ref={this.assignRoot}
+                    onVideoLoadStart={this.onLoadStart}
+                    onVideoLoad={this.onLoad}
+                    onVideoError={this.onError}
+                    onVideoProgress={ this.onProgress}
+                    onVideoSeek={this.onSeek}
+                    onVideoEnd={this.onEnd}
+                    onVideoBuffer={this.onBuffer}
+                    onTimedMetadata={this.onTimedMetadata}
+                    onVideoFullscreenPlayerWillPresent={this.onFullscreenPlayerWillPresent}
+                    onVideoFullscreenPlayerDidPresent={this.onFullscreenPlayerDidPresent}
+                    onVideoFullscreenPlayerWillDismiss={this.onFullscreenPlayerWillDismiss}
+                    onVideoFullscreenPlayerDidDismiss={this.onFullscreenPlayerDidDismiss}
+                    onReadyForDisplay={this.onReadyForDisplay}
+                    onPlaybackStalled={this.onPlaybackStalled}
+                    onPlaybackResume={this.onPlaybackResume}
+                    onPlaybackRateChange={this.onPlaybackRateChange}
+                    onAudioFocusChanged={this.onAudioFocusChanged}
+                    onAudioBecomingNoisy={this.onAudioBecomingNoisy}
                     style={styles.backgroundVideo}
                 />
             );
         }
     }
 
+    setNativeProps(nativeProps) {
+        this.root.setNativeProps(nativeProps);
+    }
 
-    _onLayout(e) {
-        const {width, height} = e.nativeEvent.layout;
+    assignRoot(component) {
+        this.root = component;
+    };
+
+    presentFullscreenPlayer() {
+        this.setNativeProps({ fullscreen: true });
+    };
+
+    dismissFullscreenPlayer = () => {
+        this.setNativeProps({ fullscreen: false });
+    };
+
+    seekTo(timeMs) {
+        if (Platform.OS === "ios") {
+            let args = [timeMs];
+            UIManager.dispatchViewManagerCommand(
+                this.RCTMediaPlayerView._nativeTag,
+                UIManager.RCTMediaPlayerView.Commands.seekTo,
+                args
+            );
+        } else {
+            this.setNativeProps({ seek: timeMs });
+        }
+    }
+
+    onSeek(event) {
+        this.props.onSeek && this.props.onSeek(event.nativeEvent);
+    };
+
+    onLoadStart(event) {
+        this.props.onLoadStart && this.props.onLoadStart(event.nativeEvent);
+    };
+
+    onLoad(event) {
+        this.props.onLoad && this.props.onLoad(event.nativeEvent);
+    };
+
+    onError(event) {
+        const error = event.nativeEvent.error;
+        console.warn(error);
+        this.props.onPlaybackError && this.props.onPlaybackError(error);
+    };
+
+    onProgress(event) {
+        let current = event.nativeEvent.current; //in ms
+        let duration = event.nativeEvent.duration; //in ms
+
+        this.props.onPlayerProgress && this.props.onPlayerProgress(current, duration);
+    };
+
+    onEnd(event) {
+        this.props.onPlayerFinished && this.props.onPlayerFinished(event.nativeEvent);
+
+        if (this.props.controls) {
+            this.setState({
+                playing: false,
+                buffering: false
+            });
+        }
+    };
+
+    onTimedMetadata(event) {
+        this.props.onTimedMetadata && this.props.onTimedMetadata(event.nativeEvent);
+    };
+
+    onFullscreenPlayerWillPresent(event) {
+        this.props.onFullscreenPlayerWillPresent && this.props.onFullscreenPlayerWillPresent(event.nativeEvent);
+    };
+
+    onFullscreenPlayerDidPresent(event) {
+        this.props.onFullscreenPlayerDidPresent && this.props.onFullscreenPlayerDidPresent(event.nativeEvent);
+    };
+
+    onFullscreenPlayerWillDismiss(event) {
+        this.props.onFullscreenPlayerWillDismiss && this.props.onFullscreenPlayerWillDismiss(event.nativeEvent);
+    };
+
+    onFullscreenPlayerDidDismiss(event) {
+        this.props.onFullscreenPlayerDidDismiss && this.props.onFullscreenPlayerDidDismiss(event.nativeEvent);
+    };
+
+    onReadyForDisplay(event) {
+        this.props.onReadyForDisplay && this.props.onReadyForDisplay(event.nativeEvent);
+    };
+
+    onPlaybackStalled(event) {
+        this.props.onPlaybackStalled && this.props.onPlaybackStalled(event.nativeEvent);
+    };
+
+    onPlaybackResume(event) {
+        this.props.onPlaybackResume && this.props.onPlaybackResume(event.nativeEvent);
+    };
+
+    onPlaybackRateChange(event) {
+        this.props.onPlaybackRateChange && this.props.onPlaybackRateChange(event.nativeEvent);
+    };
+
+    onAudioBecomingNoisy() {
+        this.props.onAudioBecomingNoisy && this.props.onAudioBecomingNoisy();
+    };
+
+    onAudioFocusChanged(event) {
+        this.props.onAudioFocusChanged && this.props.onAudioFocusChanged(event.nativeEvent);
+    };
+
+    onBuffer(event) {
+        this.props.onPlayerBuffering && this.props.onPlayerBuffering(event.nativeEvent);
+        if (this.props.onBuffer) {
+            this.props.onBuffer();
+        }
+
+        if (this.props.controls) {
+            this.setState({
+                buffering: true
+            });
+        }
+    };
+
+    onBufferChange(event) {
+        this.props.onPlayerBuffering && this.props.onPlayerBuffering(event.nativeEvent);
+
+        if (this.props.controls) {
+            this.setState({
+                bufferRanges: event.nativeEvent.ranges
+            });
+        }
+    }
+
+    onLayout(event) {
+        const {width, height} = event.nativeEvent.layout;
         this.setState({width, height});
 
-        this.props.onLayout && this.props.onLayout(e);
+        this.props.onLayout && this.props.onLayout(event.nativeEvent);
     }
 
     pause() {
@@ -265,38 +293,7 @@ export default class MediaPlayerView extends Component {
         }
     }
 
-    seekTo(timeMs) {
-        if(Platform.OS === "ios") {
-            let args = [timeMs];
-            UIManager.dispatchViewManagerCommand(
-                this.RCTMediaPlayerView._nativeTag,
-                UIManager.RCTMediaPlayerView.Commands.seekTo,
-                args
-            );
-        }
-    }
-
-    _onPlayerBuffering() {
-        this.props.onPlayerBuffering && this.props.onPlayerBuffering();
-
-        if (this.props.controls) {
-            this.setState({
-                buffering: true
-            });
-        }
-    }
-
-    _onPlayerBufferChange(e) {
-        this.props.onPlayerBuffering && this.props.onPlayerBuffering(e);
-
-        if (this.props.controls) {
-            this.setState({
-                bufferRanges: e.nativeEvent.ranges
-            });
-        }
-    }
-
-    _onPlayerBufferOK() {
+    onBufferOk() {
         this.props.onPlayerBufferOK && this.props.onPlayerBufferOK();
 
         if (this.props.controls) {
@@ -306,7 +303,7 @@ export default class MediaPlayerView extends Component {
         }
     }
 
-    _onPlayerPlaying() {
+    onPlay() {
         this.props.onPlayerPlaying && this.props.onPlayerPlaying();
 
         if (this.props.controls) {
@@ -317,7 +314,7 @@ export default class MediaPlayerView extends Component {
         }
     }
 
-    _onPlayerPaused() {
+    onPause() {
         this.props.onPlayerPaused && this.props.onPlayerPaused();
 
         if (this.props.controls) {
@@ -325,30 +322,6 @@ export default class MediaPlayerView extends Component {
                 playing: false
             });
         }
-    }
-
-    _onPlayerFinished() {
-        this.props.onPlayerFinished && this.props.onPlayerFinished();
-
-        if (this.props.controls) {
-            this.setState({
-                playing: false,
-                buffering: false
-            });
-        }
-    }
-
-    _onPlayerProgress(event) {
-        let current = event.nativeEvent.current; //in ms
-        let duration = event.nativeEvent.duration; //in ms
-
-        this.props.onPlayerProgress && this.props.onPlayerProgress(current, duration);
-    }
-
-    _onPlaybackError(event) {
-        const error = event.nativeEvent.error;
-        console.log(error);
-        this.props.onPlaybackError && this.props.onPlaybackError(error);
     }
 }
 
@@ -395,8 +368,6 @@ MediaPlayerView.propTypes = {
     onFullscreenPlayerDidDismiss: PropTypes.func,
     currentTime: PropTypes.number,
 
-
-
     onPlayerPaused: PropTypes.func,
     onPlayerPlaying: PropTypes.func,
     onPlayerFinished: PropTypes.func,
@@ -413,15 +384,11 @@ MediaPlayerView.propTypes = {
     onAudioFocusChanged: PropTypes.func,
     onAudioBecomingNoisy: PropTypes.func,
 
-    /* Native only */
-    seek: PropTypes.number,
-    fullscreen: PropTypes.bool,
     onVideoLoadStart: PropTypes.func,
     onVideoLoad: PropTypes.func,
     onVideoBuffer: PropTypes.func,
     onVideoError: PropTypes.func,
     onVideoProgress: PropTypes.func,
-    onVideoSeek: PropTypes.func,
     onVideoEnd: PropTypes.func,
     onTimedMetadata: PropTypes.func,
     onVideoFullscreenPlayerWillPresent: PropTypes.func,
@@ -437,12 +404,6 @@ MediaPlayerView.propTypes = {
     translateY: PropTypes.number,
     rotation: PropTypes.number,
     ...ViewPropTypes
-};
-
-MediaPlayerView.defaultProps = {
-    rate:1,
-    seek:0,
-    paused:false
 };
 
 let styles = StyleSheet.create({
