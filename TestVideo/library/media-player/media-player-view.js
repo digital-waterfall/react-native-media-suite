@@ -73,17 +73,24 @@ export default class MediaPlayerView extends Component {
         return (
             <View
                 style={this.props.style}
-                onLayout={this._onLayout.bind(this)}>
+                onLayout={this.onLayout}>
                 {this.renderPlayer()}
             </View>
         );
     }
 
     renderPlayer(){
-        if(Platform.OS === "ios"){
+        if(Platform.OS === "ios") {
+            const { autoplay, src, offline, preload, loop, muted, ignoreSilentSwitch } = this.props;
             return(
                 <RCTMediaPlayerView
-                    {...this.props}
+                    autoplay={autoplay}
+                    src={src}
+                    offline={offline}
+                    preload={preload}
+                    loop={loop}
+                    muted={muted}
+                    ignoreSilentSwitch={ignoreSilentSwitch}
                     ref={(RCTMediaPlayerView) => this.RCTMediaPlayerView = RCTMediaPlayerView}
                     style={{flex: 1, alignSelf: 'stretch'}}
                     onPlayerPlaying={this.onPlay}

@@ -1,7 +1,7 @@
 import React from 'react';
 import {StyleSheet, Text, View, Dimensions, Platform, Alert} from 'react-native';
 import Video, {DOWNLOAD_STATES, DownloadManager, EVENT_LISTENER_TYPES} from './library/index';
-import { Tabs, Button, WhiteSpace } from 'antd-mobile-rn';
+import { Tabs, Button, WhiteSpace, TabBar } from 'antd-mobile-rn';
 import _ from 'lodash';
 
 const {width} = Dimensions.get('window');
@@ -27,7 +27,8 @@ export default class App extends React.Component {
             player: null
         };
 
-        this.player = null;
+        this.downloadPlayer = null;
+        this.videoPlayer = null;
 
         let videos = [];
         _.map(VIDEO_IDS, (videoId, index) => {
@@ -36,7 +37,7 @@ export default class App extends React.Component {
         });
         this.state = {activeIndex: 0, videos};
 
-        this.registerPlayer = this.registerPlayer.bind(this);
+        this.registerDownloadPlayer = this.registerDownloadPlayer.bind(this);
         this.showVideo = this.showVideo.bind(this);
         this.renderVideo = this.renderVideo.bind(this);
         this.download = this.download.bind(this);
@@ -72,19 +73,34 @@ export default class App extends React.Component {
             ]
         });
         return (
-            <View style={{ flex: 1, marginTop: 20}}>
-                <Tabs tabs={tabs} initialPage={0} onChange={(tab, index) => {
-                    this.setActive(index)
-                }}>
-                    {_.map(videoURLs, (url, index) => this.renderVideo(url, index))}
-                </Tabs>
-                { this.showVideo() }
-            </View>
+                    <View>
+                        <Video
+                            ref={(ref) => this.registerVideoPlayer(ref)}
+                            style={{width: 300, height: 170, backgroundColor: 'black'}}
+                            autoplay
+                            loop
+                            muted={false}
+                            src="https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8"
+                            onError={(error) => console.warn(error)}
+                            onProgress={data => console.log(data)}
+                        />
+                        <View style={{width: 300, height: 30, flexDirection: 'row', justifyContent: 'space-evenly'}}>
+                            <Button type="primary" size="small" onClick={() => this.videoPlayer.seekTo(20000)}>{'<'}</Button>
+                            <Button type="primary" size="small" onClick={() => this.videoPlayer.play()}>Play</Button>
+                            <Button type="primary" size="small" onClick={() => this.videoPlayer.stop()}>Stop</Button>
+                            <Button type="primary" size="small" onClick={() => this.videoPlayer.pause()}>Pause</Button>
+                            <Button type="primary" size="small" onClick={() => this.videoPlayer.seekTo(30000)}>{'>'}</Button>
+                        </View>
+                    </View>
         );
     }
 
-    registerPlayer(ref) {
-        this.player = ref;
+    registerDownloadPlayer(ref) {
+        this.downloadPlayer = ref;
+    }
+
+    registerVideoPlayer(ref) {
+        this.videoPlayer = ref;
     }
 
     showVideo() {
@@ -95,22 +111,22 @@ export default class App extends React.Component {
                 <View>
                     <WhiteSpace size="lg" />
                     <Video
-                        ref={(ref) => this.registerPlayer(ref)}
+                        ref={(ref) => this.registerDownloadPlayer(ref)}
                         style={{width: 300, height: 170, backgroundColor: 'black'}}
                         autoplay
                         loop
                         muted={false}
                         src={download.downloadID}
                         offline
-                        onPlaybackError={(error) => console.warn(error)}
-                        onPlayerProgress={data => console.log(data)}
+                        onError={(error) => console.warn(error)}
+                        onProgress={data => console.log(data)}
                     />
                     <View style={{width: 300, height: 30, flexDirection: 'row', justifyContent: 'space-evenly'}}>
-                        <Button type="primary" size="small" onClick={() => this.player.seekTo(20000)}>{'<'}</Button>
-                        <Button type="primary" size="small" onClick={() => this.player.play()}>Play</Button>
-                        <Button type="primary" size="small" onClick={() => this.player.stop()}>Stop</Button>
-                        <Button type="primary" size="small" onClick={() => this.player.pause()}>Pause</Button>
-                        <Button type="primary" size="small" onClick={() => this.player.seekTo(30000)}>{'>'}</Button>
+                        <Button type="primary" size="small" onClick={() => this.downloadPlayer.seekTo(20000)}>{'<'}</Button>
+                        <Button type="primary" size="small" onClick={() => this.downloadPlayer.play()}>Play</Button>
+                        <Button type="primary" size="small" onClick={() => this.downloadPlayer.stop()}>Stop</Button>
+                        <Button type="primary" size="small" onClick={() => this.downloadPlayer.pause()}>Pause</Button>
+                        <Button type="primary" size="small" onClick={() => this.downloadPlayer.seekTo(30000)}>{'>'}</Button>
                     </View>
                 </View>
             );
