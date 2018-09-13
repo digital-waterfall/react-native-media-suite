@@ -28,6 +28,10 @@ export default class MediaPlayerView extends Component {
     constructor(props) {
         super(props);
 
+        this.state = {
+            paused: false
+        };
+
         this.MediaPlayerView = NativeModules.MediaPlayerView;
         this.assignRoot = this.assignRoot.bind(this);
 
@@ -79,7 +83,7 @@ export default class MediaPlayerView extends Component {
         );
     }
 
-    renderPlayer(){
+    renderPlayer() {
         if(Platform.OS === "ios") {
             const { autoplay, src, offline, preload, loop, muted, ignoreSilentSwitch } = this.props;
             return(
@@ -104,9 +108,17 @@ export default class MediaPlayerView extends Component {
                 />
             );
         } else {
+            const { autoplay, src } = this.props;
             const  download = DownloadManager.getDownload(this.props.src);
             const remoteUrl = _.get(download,'remoteURL',this.props.src);
-            const { paused } = this.state;
+            let { paused } = this.state;
+
+            if (paused === null && !autoplay) {
+                paused = false;
+            } else if (autoplay) {
+                paused = true;
+            }
+
             return(
                 <RCTMediaPlayerView
                     src={{uri:remoteUrl}}
