@@ -332,6 +332,7 @@ MediaPlayerView.propTypes = {
     progressUpdateInterval: PropTypes.number,
     currentTime: PropTypes.number,
     selectedTextTrack: PropTypes.any,
+    paused: PropTypes.bool,
 
     onAudioBecomingNoisy: PropTypes.func,
     onAudioFocusChanged: PropTypes.func,
