@@ -19,8 +19,8 @@ RCT_EXPORT_VIEW_PROPERTY(muted, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(ignoreSilentSwitch, BOOL)
 
 
-RCT_EXPORT_VIEW_PROPERTY(onPlayerPaused, RCTBubblingEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onPlayerPlaying, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onPlayerPause, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onPlayerPlay, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onPlayerFinished, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onPlayerBuffering, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onPlayerBufferOK, RCTBubblingEventBlock)

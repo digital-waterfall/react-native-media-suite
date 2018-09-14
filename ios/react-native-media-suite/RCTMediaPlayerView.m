@@ -54,8 +54,8 @@
       } else {
           NSString *assetPath = [[[NSUserDefaults standardUserDefaults] URLForKey:self.src] relativePath];
           if (assetPath == nil) {
-              if(self.onPlaybackError) {
-                  self.onPlaybackError(@{@"error": [NSString stringWithFormat:@"Could not find the download with the given ID: %@", self.src]});
+              if(self.onPlayerError) {
+                  self.onPlayerError(@{@"error": [NSString stringWithFormat:@"Could not find the download with the given ID: %@", self.src]});
               }
               return;
           }
@@ -66,8 +66,8 @@
           if ([asset.assetCache isPlayableOffline]) {
               player = [AVPlayer playerWithPlayerItem:[AVPlayerItem playerItemWithAsset:[AVURLAsset URLAssetWithURL:assetURL options:nil]]];
           } else {
-              if(self.onPlaybackError) {
-                  self.onPlaybackError(@{@"error": @"The asset cannot be played offline."});
+              if(self.onPlayerError) {
+                  self.onPlayerError(@{@"error": @"The asset cannot be played offline."});
               }
               NSLog(@"The asset cannot be played offline!");
           }
@@ -241,20 +241,20 @@
 
 
 - (void) notifyPlayerPlaying {
-  if(self.onPlayerPlaying) {
-    self.onPlayerPlaying(nil);
+  if(self.onPlayerPlay) {
+    self.onPlayerPlay(nil);
   }
 }
 
 - (void) notifyPlayerPaused {
-  if (self.onPlayerPaused) {
-    self.onPlayerPaused(nil);
+  if (self.onPlayerPause) {
+    self.onPlayerPause(nil);
   }
 }
 
 - (void) notifyPlayerFinished {
-  if (self.onPlayerFinished) {
-    self.onPlayerFinished(nil);
+  if (self.onPlayerEnd) {
+    self.onPlayerEnd(nil);
   }
 }
 
