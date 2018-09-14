@@ -113,9 +113,9 @@ export default class MediaPlayerView extends Component {
             let { paused } = this.state;
 
             if (paused === null && !autoplay) {
-                paused = false;
-            } else if (autoplay) {
                 paused = true;
+            } else if (autoplay) {
+                paused = false;
             }
 
             return(
@@ -259,7 +259,7 @@ export default class MediaPlayerView extends Component {
                 null
             );
         } else {
-            this.setState({paused:true});
+            this.setNativeProps({ paused: true});
         }
     }
 
@@ -271,7 +271,7 @@ export default class MediaPlayerView extends Component {
                 null
             );
         } else {
-            this.setState({paused:false});
+            this.setNativeProps({ paused: false});
         }
     }
 
@@ -300,7 +300,7 @@ export default class MediaPlayerView extends Component {
                 null
             );
         } else {
-            this.setState({ paused: true });
+            this.setNativeProps({ paused: true});
             this.setNativeProps({ seek: 0});
         }
     }
