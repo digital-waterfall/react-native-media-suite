@@ -1,7 +1,7 @@
 import React from 'react';
 import {StyleSheet, Text, View, Dimensions, Platform, Alert} from 'react-native';
 import Video, {DOWNLOAD_STATES, DownloadManager, EVENT_LISTENER_TYPES} from './library/index';
-import { Tabs, Button, WhiteSpace } from 'antd-mobile-rn';
+import { Tabs, Button, WhiteSpace, TabBar } from 'antd-mobile-rn';
 import _ from 'lodash';
 
 const {width} = Dimensions.get('window');
@@ -38,7 +38,7 @@ export default class App extends React.Component {
 
         this.registerPlayer = this.registerPlayer.bind(this);
         this.showVideo = this.showVideo.bind(this);
-        this.renderVideo = this.renderVideo.bind(this);
+        this.renderDownloadAndVideo = this.renderDownloadAndVideo.bind(this);
         this.download = this.download.bind(this);
         this.updateProgress = this.updateProgress.bind(this);
         this.restoreDownloads = this.restoreDownloads.bind(this);
@@ -50,16 +50,8 @@ export default class App extends React.Component {
                 this.restoreDownloads(downloadIds);
             }
         });
-    }
 
-    render() {
-        const tabs = [
-            { title: 'Video 1' },
-            { title: 'Video 2' },
-            { title: 'Video 3' },
-        ];
-
-        const videoURLs = Platform.select({
+        this.videoURLs = Platform.select({
             ios: [
                 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8',
                 'http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8',
@@ -71,12 +63,20 @@ export default class App extends React.Component {
                 'https://bitmovin-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd'
             ]
         });
+    }
+
+    render() {
+        const tabs = [
+            { title: 'Download 1' },
+            { title: 'Download 2' },
+            { title: 'Stream Video' },
+        ];
         return (
             <View style={{ flex: 1, marginTop: 20}}>
                 <Tabs tabs={tabs} initialPage={0} onChange={(tab, index) => {
                     this.setActive(index)
                 }}>
-                    {_.map(videoURLs, (url, index) => this.renderVideo(url, index))}
+                    {_.map(this.videoURLs, (url, index) => this.renderDownloadAndVideo(url, index))}
                 </Tabs>
                 { this.showVideo() }
             </View>
@@ -89,10 +89,14 @@ export default class App extends React.Component {
 
     showVideo() {
         const activeIndex = this.state.activeIndex;
+        if (activeIndex === 2) {
+            return null;
+        }
+
         const download = this.state.videos[activeIndex].download;
         if (download && download.state === DOWNLOAD_STATES.downloaded) {
             return (
-                <View>
+                <View style={{alignItems: 'center'}}>
                     <WhiteSpace size="lg" />
                     <Video
                         ref={(ref) => this.registerPlayer(ref)}
@@ -102,8 +106,9 @@ export default class App extends React.Component {
                         muted={false}
                         src={download.downloadID}
                         offline
-                        onPlaybackError={(error) => console.warn(error)}
-                        onPlayerProgress={data => console.log(data)}
+                        ignoreSilentSwitch
+                        onError={(error) => console.warn(error)}
+                        onProgress={data => console.log(data)}
                     />
                     <View style={{width: 300, height: 30, flexDirection: 'row', justifyContent: 'space-evenly'}}>
                         <Button type="primary" size="small" onClick={() => this.player.seekTo(20000)}>{'<'}</Button>
@@ -117,7 +122,32 @@ export default class App extends React.Component {
         }
     }
 
-    renderVideo(url, index) {
+    renderDownloadAndVideo(url, index) {
+        if (index === 2) {
+            return (
+                <View style={{alignItems: 'center'}}>
+                    <WhiteSpace size="lg" />
+                    <Video
+                        ref={(ref) => this.registerPlayer(ref)}
+                        style={{width: 300, height: 170, backgroundColor: 'black'}}
+                        autoplay
+                        loop
+                        ignoreSilentSwitch
+                        muted={false}
+                        src={this.videoURLs[2]}
+                        onError={(error) => console.warn(error)}
+                        onProgress={data => console.log(data)}
+                    />
+                    <View style={{width: 300, height: 30, flexDirection: 'row', justifyContent: 'space-evenly'}}>
+                        <Button type="primary" size="small" onClick={() => this.player.seekTo(20000)}>{'<'}</Button>
+                        <Button type="primary" size="small" onClick={() => this.player.play()}>Play</Button>
+                        <Button type="primary" size="small" onClick={() => this.player.stop()}>Stop</Button>
+                        <Button type="primary" size="small" onClick={() => this.player.pause()}>Pause</Button>
+                        <Button type="primary" size="small" onClick={() => this.player.seekTo(30000)}>{'>'}</Button>
+                    </View>
+                </View>
+            );
+        }
         const progress = _.get(this.state.videos[index], 'download.progress', 0);
         const download = this.state.videos[index].download;
         return (
