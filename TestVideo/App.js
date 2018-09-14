@@ -106,6 +106,7 @@ export default class App extends React.Component {
                         muted={false}
                         src={download.downloadID}
                         offline
+                        ignoreSilentSwitch
                         onError={(error) => console.warn(error)}
                         onProgress={data => console.log(data)}
                     />
@@ -131,6 +132,7 @@ export default class App extends React.Component {
                         style={{width: 300, height: 170, backgroundColor: 'black'}}
                         autoplay
                         loop
+                        ignoreSilentSwitch
                         muted={false}
                         src={this.videoURLs[2]}
                         onError={(error) => console.warn(error)}

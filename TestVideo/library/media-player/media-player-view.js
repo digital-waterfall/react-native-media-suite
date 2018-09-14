@@ -95,6 +95,7 @@ export default class MediaPlayerView extends Component {
                     preload={preload}
                     loop={loop}
                     muted={muted}
+                    ignoreSilentSwitch={ignoreSilentSwitch}
                     onPlayerPlaying={this.onPlayerPlay}
                     onPlayerProgress={this.onPlayerProgress}
                     onPlayerPaused={this.onPlayerPause}
@@ -288,7 +289,7 @@ export default class MediaPlayerView extends Component {
                 args
             );
         } else {
-            this.setNativeProps({ seek: timeMs });
+            this.setNativeProps({ seek: timeMs/1000 });
         }
     }
 
@@ -314,7 +315,7 @@ MediaPlayerView.propTypes = {
     preload: PropTypes.string,
     loop: PropTypes.bool,
     muted: PropTypes.bool,
-    ignoreSilentSwitch: PropTypes.oneOf(['ignore', 'obey']),
+    ignoreSilentSwitch: PropTypes.bool,
     repeat: PropTypes.bool,
     rate: PropTypes.number,
     seek: PropTypes.number,
