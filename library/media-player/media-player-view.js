@@ -95,6 +95,7 @@ export default class MediaPlayerView extends Component {
                     preload={preload}
                     loop={loop}
                     muted={muted}
+                    ignoreSilentSwitch={ignoreSilentSwitch}
                     onPlayerPlaying={this.onPlayerPlay}
                     onPlayerProgress={this.onPlayerProgress}
                     onPlayerPaused={this.onPlayerPause}
@@ -113,9 +114,9 @@ export default class MediaPlayerView extends Component {
             let { paused } = this.state;
 
             if (paused === null && !autoplay) {
-                paused = false;
-            } else if (autoplay) {
                 paused = true;
+            } else if (autoplay) {
+                paused = false;
             }
 
             return(
@@ -259,7 +260,7 @@ export default class MediaPlayerView extends Component {
                 null
             );
         } else {
-            this.setState({paused:true});
+            this.setNativeProps({ paused: true});
         }
     }
 
@@ -271,7 +272,7 @@ export default class MediaPlayerView extends Component {
                 null
             );
         } else {
-            this.setState({paused:false});
+            this.setNativeProps({ paused: false});
         }
     }
 
@@ -288,7 +289,7 @@ export default class MediaPlayerView extends Component {
                 args
             );
         } else {
-            this.setNativeProps({ seek: timeMs });
+            this.setNativeProps({ seek: timeMs/1000 });
         }
     }
 
@@ -300,7 +301,7 @@ export default class MediaPlayerView extends Component {
                 null
             );
         } else {
-            this.setState({ paused: true });
+            this.setNativeProps({ paused: true});
             this.setNativeProps({ seek: 0});
         }
     }
@@ -314,7 +315,7 @@ MediaPlayerView.propTypes = {
     preload: PropTypes.string,
     loop: PropTypes.bool,
     muted: PropTypes.bool,
-    ignoreSilentSwitch: PropTypes.oneOf(['ignore', 'obey']),
+    ignoreSilentSwitch: PropTypes.bool,
     repeat: PropTypes.bool,
     rate: PropTypes.number,
     seek: PropTypes.number,
