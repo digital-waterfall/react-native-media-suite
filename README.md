@@ -112,7 +112,7 @@ render() {
 - `seekTo()`
 
 
-For details about the usage of above APIs, check [`library/media-downloadPlayer/media-downloadPlayer-view.js`](library/media-player/media-player-view.js).
+For details about the usage of above APIs, check [`library/media-player/media-player-view.js`](library/media-player/media-player-view.js).
 
 ### Downloader API
 
