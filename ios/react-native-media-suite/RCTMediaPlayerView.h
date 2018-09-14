@@ -9,7 +9,7 @@
 @property (nonatomic, strong) RCTDirectEventBlock onPlayerPause;
 @property (nonatomic, strong) RCTDirectEventBlock onPlayerProgress;
 @property (nonatomic, strong) RCTDirectEventBlock onPlayerBuffering;
-@property (nonatomic, strong) RCTDirectEventBlock onPlayerBufferOK;
+@property (nonatomic, strong) RCTDirectEventBlock onPlayerBufferOk;
 @property (nonatomic, strong) RCTDirectEventBlock onPlayerEnd;
 @property (nonatomic, strong) RCTDirectEventBlock onPlayerBufferChange;
 @property (nonatomic, strong) RCTDirectEventBlock onPlayerError;

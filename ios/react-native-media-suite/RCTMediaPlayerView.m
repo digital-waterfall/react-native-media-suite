@@ -228,8 +228,8 @@
 }
 
 - (void) notifyPlayerBufferOK {
-  if(self.onPlayerBufferOK) {
-    self.onPlayerBufferOK(nil);
+  if(self.onPlayerBufferOk) {
+    self.onPlayerBufferOk(nil);
   }
 }
 

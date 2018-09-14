@@ -88,17 +88,22 @@ export default class MediaPlayerView extends Component {
             const { autoplay, src, offline, preload, loop, muted, ignoreSilentSwitch } = this.props;
             return(
                 <RCTMediaPlayerView
-                    {...this.props}
                     ref={(RCTMediaPlayerView) => this.RCTMediaPlayerView = RCTMediaPlayerView}
-                    style={{flex: 1, alignSelf: 'stretch'}}
+                    autoplay={autoplay}
+                    src={src}
+                    offline={offline}
+                    preload={preload}
+                    loop={loop}
+                    muted={muted}
                     onPlayerPlaying={this.onPlayerPlay}
                     onPlayerProgress={this.onPlayerProgress}
                     onPlayerPaused={this.onPlayerPause}
                     onPlayerBuffering={this.onPlayerBuffer}
-                    onPlayerBufferOK={this.onPlayerBufferOk}
+                    onPlayerBufferOk={this.onPlayerBufferOk}
                     onPlayerFinished={this.onPlayerEnd}
                     onPlayerBufferChange={this.onPlayerBufferChange}
-                    onPlaybackError={this.onPlayerError}
+                    onPlayerError={this.onPlayerError}
+                    style={{flex: 1, alignSelf: 'stretch'}}
                 />
             );
         } else {
