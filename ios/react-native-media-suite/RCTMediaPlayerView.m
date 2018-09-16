@@ -216,6 +216,7 @@
       totalTime = 0;
     }
     if(self.onPlayerProgress) {
+        NSLog(@"on progress");
       self.onPlayerProgress(@{@"current": @(currentTime * 1000), @"total": @(totalTime * 1000)}); //in millisec
     }
   }
@@ -235,7 +236,9 @@
 
 - (void) notifyPlayerBufferChange: (NSArray *)ranges {
   if(self.onPlayerBufferChange) {
-    self.onPlayerBufferChange(@{@"ranges": ranges});
+      if ([ranges count] > 0) {
+          self.onPlayerBufferChange(@{@"bufferDuration": ranges[0][@"duration"]});
+      }
   }
 }
 

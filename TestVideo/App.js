@@ -108,7 +108,7 @@ export default class App extends React.Component {
                         offline
                         ignoreSilentSwitch
                         onError={(error) => console.warn(error)}
-                        onProgress={data => console.log(data)}
+                        onProgress={(data) => console.warn(data)}
                     />
                     <View style={{width: 300, height: 30, flexDirection: 'row', justifyContent: 'space-evenly'}}>
                         <Button type="primary" size="small" onClick={() => this.player.seekTo(20000)}>{'<'}</Button>
@@ -136,7 +136,7 @@ export default class App extends React.Component {
                         muted={false}
                         src={this.videoURLs[2]}
                         onError={(error) => console.warn(error)}
-                        onProgress={data => console.log(data)}
+                        onProgress={(data) => console.warn(data)}
                     />
                     <View style={{width: 300, height: 30, flexDirection: 'row', justifyContent: 'space-evenly'}}>
                         <Button type="primary" size="small" onClick={() => this.player.seekTo(20000)}>{'<'}</Button>

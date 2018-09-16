@@ -131,6 +131,7 @@ export default class MediaPlayerView extends Component {
                     onVideoSeek={this.onPlayerSeek}
                     onVideoEnd={this.onPlayerEnd}
                     onVideoBuffer={this.onPlayerBuffer}
+                    onVideoBufferChange={this.onPlayerBufferChange}
                     onTimedMetadata={this.onPlayerTimedMetadata}
                     onVideoFullscreenPlayerWillPresent={this.onFullscreenPlayerWillPresent}
                     onVideoFullscreenPlayerDidPresent={this.onFullscreenPlayerDidPresent}
@@ -169,7 +170,7 @@ export default class MediaPlayerView extends Component {
     };
 
     onPlayerBufferChange(event) {
-        this.props.onPlayerBufferChange && this.props.onPlayerBufferChange(event.nativeEvent);
+        this.props.onPlayerBufferChange && this.props.onPlayerBufferChange(event.nativeEvent.bufferDuration);
     }
 
     onPlayerBufferOk() {
@@ -218,8 +219,15 @@ export default class MediaPlayerView extends Component {
     };
 
     onPlayerProgress(event) {
-        let current = event.nativeEvent.current; //in ms
-        let duration = event.nativeEvent.duration; //in ms
+        let current;
+        let duration;
+        if (Platform.OS === 'ios') {
+            current = event.nativeEvent.current; //in ms
+            duration = event.nativeEvent.duration; //in ms
+        } else {
+            current = event.nativeEvent.currentTime;
+            duration = event.nativeEvent.seekableDuration;
+        }
 
         this.props.onPlayerProgress && this.props.onPlayerProgress(current, duration);
     };

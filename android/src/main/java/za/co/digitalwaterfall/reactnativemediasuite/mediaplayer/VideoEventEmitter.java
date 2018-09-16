@@ -40,6 +40,7 @@ class VideoEventEmitter {
     private static final String EVENT_RESUME = "onPlaybackResume";
     private static final String EVENT_READY = "onReadyForDisplay";
     private static final String EVENT_BUFFER = "onVideoBuffer";
+    private static final String EVENT_BUFFER_CHANGE = "onVideoBufferChange";
     private static final String EVENT_IDLE = "onVideoIdle";
     private static final String EVENT_TIMED_METADATA = "onTimedMetadata";
     private static final String EVENT_AUDIO_BECOMING_NOISY = "onAudioBecomingNoisy";
@@ -61,6 +62,7 @@ class VideoEventEmitter {
             EVENT_RESUME,
             EVENT_READY,
             EVENT_BUFFER,
+            EVENT_BUFFER_CHANGE,
             EVENT_IDLE,
             EVENT_TIMED_METADATA,
             EVENT_AUDIO_BECOMING_NOISY,
@@ -84,6 +86,7 @@ class VideoEventEmitter {
             EVENT_RESUME,
             EVENT_READY,
             EVENT_BUFFER,
+            EVENT_BUFFER_CHANGE,
             EVENT_IDLE,
             EVENT_TIMED_METADATA,
             EVENT_AUDIO_BECOMING_NOISY,
@@ -112,6 +115,7 @@ class VideoEventEmitter {
     private static final String EVENT_PROP_TEXT_TRACKS = "textTracks";
     private static final String EVENT_PROP_HAS_AUDIO_FOCUS = "hasAudioFocus";
     private static final String EVENT_PROP_IS_BUFFERING = "isBuffering";
+    private static final String EVENT_PROP_BUFFER_DURATION = "bufferDuration";
     private static final String EVENT_PROP_PLAYBACK_RATE = "playbackRate";
 
     private static final String EVENT_PROP_ERROR = "error";
@@ -132,8 +136,8 @@ class VideoEventEmitter {
     void load(double duration, double currentPosition, int videoWidth, int videoHeight,
               WritableArray textTracks) {
         WritableMap event = Arguments.createMap();
-        event.putDouble(EVENT_PROP_DURATION, duration / 1000D);
-        event.putDouble(EVENT_PROP_CURRENT_TIME, currentPosition / 1000D);
+        event.putDouble(EVENT_PROP_DURATION, duration);
+        event.putDouble(EVENT_PROP_CURRENT_TIME, currentPosition);
 
         WritableMap naturalSize = Arguments.createMap();
         naturalSize.putInt(EVENT_PROP_WIDTH, videoWidth);
@@ -161,9 +165,9 @@ class VideoEventEmitter {
 
     void progressChanged(double currentPosition, double bufferedDuration, double seekableDuration) {
         WritableMap event = Arguments.createMap();
-        event.putDouble(EVENT_PROP_CURRENT_TIME, currentPosition / 1000D);
-        event.putDouble(EVENT_PROP_PLAYABLE_DURATION, bufferedDuration / 1000D);
-        event.putDouble(EVENT_PROP_SEEKABLE_DURATION, seekableDuration / 1000D);
+        event.putDouble(EVENT_PROP_CURRENT_TIME, currentPosition);
+        event.putDouble(EVENT_PROP_PLAYABLE_DURATION, bufferedDuration);
+        event.putDouble(EVENT_PROP_SEEKABLE_DURATION, seekableDuration);
         receiveEvent(EVENT_PROGRESS, event);
     }
 
@@ -179,9 +183,15 @@ class VideoEventEmitter {
     }
 
     void buffering(boolean isBuffering) {
-        WritableMap map = Arguments.createMap();
-        map.putBoolean(EVENT_PROP_IS_BUFFERING, isBuffering);
-        receiveEvent(EVENT_BUFFER, map);
+        WritableMap event = Arguments.createMap();
+        event.putBoolean(EVENT_PROP_IS_BUFFERING, isBuffering);
+        receiveEvent(EVENT_BUFFER, event);
+    }
+
+    void bufferChange(double bufferDuration) {
+        WritableMap event = Arguments.createMap();
+        event.putDouble(EVENT_PROP_BUFFER_DURATION, bufferDuration);
+        receiveEvent(EVENT_BUFFER_CHANGE, event);
     }
 
     void idle() {

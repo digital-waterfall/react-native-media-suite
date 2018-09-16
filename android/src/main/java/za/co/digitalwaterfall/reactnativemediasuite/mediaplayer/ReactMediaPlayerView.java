@@ -133,6 +133,7 @@ class ReactMediaPlayerView extends FrameLayout implements
                         long pos = player.getCurrentPosition();
                         long bufferedDuration = player.getBufferedPercentage() * player.getDuration();
                         eventEmitter.progressChanged(pos, bufferedDuration, player.getDuration());
+                        eventEmitter.bufferChange(player.getBufferedPercentage() * player.getDuration());
                         msg = obtainMessage(SHOW_PROGRESS);
                         sendMessageDelayed(msg, Math.round(mProgressUpdateInterval));
                     }
