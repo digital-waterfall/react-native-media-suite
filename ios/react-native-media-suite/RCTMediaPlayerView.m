@@ -226,9 +226,9 @@
     }
 }
 
-- (void) notifyPlayerBuffering {
+- (void) notifyPlayerBuffering: (BOOL)isBuffering {
     if(self.onPlayerBuffering) {
-        self.onPlayerBuffering(nil);
+        self.onPlayerBuffering(@{@"isBuffering": @(isBuffering)});
     }
 }
 
@@ -236,6 +236,7 @@
     if(self.onPlayerBufferOk) {
         self.onPlayerBufferOk(nil);
     }
+    [self notifyPlayerBuffering:false];
 }
 
 - (void) notifyPlayerBufferChange: (NSArray *)ranges {
@@ -322,7 +323,7 @@
 }
 
 - (void)playerItemPlaybackStalled:(NSNotification *)notification {
-    [self notifyPlayerBuffering];
+    [self notifyPlayerBuffering:true];
 }
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context {
@@ -374,7 +375,7 @@
             if (firstReady) {
                 [self notifyPlayerPlaying];
             } else {
-                [self notifyPlayerBuffering];
+                [self notifyPlayerBuffering:true];
             }
         }
     } else if([keyPath isEqualToString:@"playbackBufferFull"]) {
@@ -382,6 +383,8 @@
         if (shouldResumePlay) {
             [self play];
         }
+    } else if ([keyPath isEqualToString:@"playbackBufferEmpty"]) {
+        [self notifyPlayerBuffering:true];
     }
 }
 
