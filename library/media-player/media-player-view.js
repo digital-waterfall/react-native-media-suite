@@ -104,6 +104,8 @@ export default class MediaPlayerView extends Component {
                     onPlayerFinished={this.onPlayerEnd}
                     onPlayerBufferChange={this.onPlayerBufferChange}
                     onPlayerError={this.onPlayerError}
+                    onPlayerLoadStart={this.onPlayerLoadStart}
+                    onPlayerLoad={this.onPlayerLoad}
                     style={{flex: 1, alignSelf: 'stretch'}}
                 />
             );
@@ -211,11 +213,11 @@ export default class MediaPlayerView extends Component {
     }
 
     onPlayerLoad(event) {
-        this.props.onPlayerLoad && this.props.onPlayerLoad(event.nativeEvent);
+        this.props.onPlayerLoad && this.props.onPlayerLoad(event.nativeEvent.duration);
     };
 
-    onPlayerLoadStart(event) {
-        this.props.onPlayerLoadStart && this.props.onPlayerLoadStart(event.nativeEvent);
+    onPlayerLoadStart() {
+        this.props.onPlayerLoadStart && this.props.onPlayerLoadStart();
     };
 
     onPlayerProgress(event) {

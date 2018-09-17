@@ -9,113 +9,117 @@
 
 @implementation RCTMediaPlayerView {
 @private
-  AVPlayer *player;
-  id progressObserverHandle;
-  BOOL shouldResumePlay;
-  BOOL shouldContinuePlayWhenForeground;
-  BOOL firstLayout;
-  BOOL firstReady;
+    AVPlayer *player;
+    id progressObserverHandle;
+    BOOL shouldResumePlay;
+    BOOL shouldContinuePlayWhenForeground;
+    BOOL firstLayout;
+    BOOL firstReady;
 }
 
 + (Class)layerClass {
-  return [AVPlayerLayer class];
+    return [AVPlayerLayer class];
 }
 - (AVPlayer*)player {
-  return [(AVPlayerLayer *)[self layer] player];
+    return [(AVPlayerLayer *)[self layer] player];
 }
 - (void)setPlayer:(AVPlayer *)player {
-  [(AVPlayerLayer *)[self layer] setPlayer:player];
+    [(AVPlayerLayer *)[self layer] setPlayer:player];
 }
 
 
 - (instancetype) init {
-  self = [super init];
-  return self;
+    self = [super init];
+    return self;
 }
 
 - (void)willMoveToWindow:(UIWindow *)newWindow {
-  NSLog(@"willMoveToWindow...%@", newWindow);
-  if(!newWindow) {
-    [self releasePlayer];
-  }
+    NSLog(@"willMoveToWindow...%@", newWindow);
+    if(!newWindow) {
+        [self releasePlayer];
+    }
 }
 
 - (void)willMoveToSuperview:(UIView *)newSuperview {
-  NSLog(@"willMoveToSuperview...%@", newSuperview);
-  if(!newSuperview) {
-    [self releasePlayer];
-  }
+    NSLog(@"willMoveToSuperview...%@", newSuperview);
+    if(!newSuperview) {
+        [self releasePlayer];
+    }
 }
 
 - (void)initPlayerIfNeeded {
-  if(!player) {
-      if (!self.offline) {
-          player = [AVPlayer playerWithURL:[NSURL URLWithString:self.src]];
-      } else {
-          NSString *assetPath = [[[NSUserDefaults standardUserDefaults] URLForKey:self.src] relativePath];
-          if (assetPath == nil) {
-              if(self.onPlayerError) {
-                  self.onPlayerError(@{@"error": [NSString stringWithFormat:@"Could not find the download with the given ID: %@", self.src]});
-              }
-              return;
-          }
-          NSURL *baseURL = [NSURL fileURLWithPath: NSHomeDirectory()];
-          NSURL *assetURL = [baseURL URLByAppendingPathComponent:assetPath];
-          AVURLAsset *asset = [AVURLAsset URLAssetWithURL:assetURL options:nil];
-          
-          if ([asset.assetCache isPlayableOffline]) {
-              player = [AVPlayer playerWithPlayerItem:[AVPlayerItem playerItemWithAsset:[AVURLAsset URLAssetWithURL:assetURL options:nil]]];
-          } else {
-              if(self.onPlayerError) {
-                  self.onPlayerError(@{@"error": @"The asset cannot be played offline."});
-              }
-              NSLog(@"The asset cannot be played offline!");
-          }
-       }
-      
-      if (_ignoreSilentSwitch) {
-          [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: nil];
-      }
-      
-      [self setPlayer:player];
-      [self addProgressObserver];
-      [self addObservers];
-      
-      if(player) {
-          if(self.muted) {
-              player.muted = YES;
-          } else {
-              player.muted = NO;
-          }
-      }
-  }
+    if(!player) {
+        if (!self.offline) {
+            player = [AVPlayer playerWithURL:[NSURL URLWithString:self.src]];
+        } else {
+            NSString *assetPath = [[[NSUserDefaults standardUserDefaults] URLForKey:self.src] relativePath];
+            if (assetPath == nil) {
+                if(self.onPlayerError) {
+                    self.onPlayerError(@{@"error": [NSString stringWithFormat:@"Could not find the download with the given ID: %@", self.src]});
+                }
+                return;
+            }
+            NSURL *baseURL = [NSURL fileURLWithPath: NSHomeDirectory()];
+            NSURL *assetURL = [baseURL URLByAppendingPathComponent:assetPath];
+            AVURLAsset *asset = [AVURLAsset URLAssetWithURL:assetURL options:nil];
+            
+            if ([asset.assetCache isPlayableOffline]) {
+                player = [AVPlayer playerWithPlayerItem:[AVPlayerItem playerItemWithAsset:[AVURLAsset URLAssetWithURL:assetURL options:nil]]];
+            } else {
+                if(self.onPlayerError) {
+                    self.onPlayerError(@{@"error": @"The asset cannot be played offline."});
+                }
+                NSLog(@"The asset cannot be played offline!");
+            }
+        }
+        
+        if (self.onPlayerLoadStart) {
+            self.onPlayerLoadStart(nil);
+        }
+        
+        if (_ignoreSilentSwitch) {
+            [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: nil];
+        }
+        
+        [self setPlayer:player];
+        [self addProgressObserver];
+        [self addObservers];
+        
+        if(player) {
+            if(self.muted) {
+                player.muted = YES;
+            } else {
+                player.muted = NO;
+            }
+        }
+    }
 }
 
 - (void)releasePlayer {
-  if(player) {
-    [player pause];
-    [self removeProgressObserver];
-    [self removeObservers];
-    player = nil;
-    firstReady = false;
-  }
+    if(player) {
+        [player pause];
+        [self removeProgressObserver];
+        [self removeObservers];
+        player = nil;
+        firstReady = false;
+    }
 }
 
 - (void) setAutoplay:(BOOL)autoplay {
-  NSLog(@"setAutoplay...autoplay=%d", autoplay);
-  _autoplay = autoplay;
-  [self updateProps];
+    NSLog(@"setAutoplay...autoplay=%d", autoplay);
+    _autoplay = autoplay;
+    [self updateProps];
 }
 
 - (void) setSrc: (NSString *)uri {
-  NSLog(@"setSrc...src=%@", uri);
-  _src = uri;
-  
-
-  if(player) {
-    [self releasePlayer];
-  }
-  [self updateProps];
+    NSLog(@"setSrc...src=%@", uri);
+    _src = uri;
+    
+    
+    if(player) {
+        [self releasePlayer];
+    }
+    [self updateProps];
 }
 
 - (void) setOffline:(BOOL)offline {
@@ -125,21 +129,21 @@
 }
 
 - (void) setPreload:(NSString *)preload {
-  NSLog(@"setPreload...preload=%@", preload);
-  _preload = preload;
-  [self updateProps];
+    NSLog(@"setPreload...preload=%@", preload);
+    _preload = preload;
+    [self updateProps];
 }
 
 - (void) setLoop:(BOOL)loop {
-  NSLog(@"setLoop...loop=%d", loop);
-  _loop = loop;
-  [self updateProps];
+    NSLog(@"setLoop...loop=%d", loop);
+    _loop = loop;
+    [self updateProps];
 }
 
 - (void) setMuted:(BOOL)muted {
-  NSLog(@"setMuted...muted=%d", muted);
-  _muted = muted;
-  [self updateProps];
+    NSLog(@"setMuted...muted=%d", muted);
+    _muted = muted;
+    [self updateProps];
 }
 
 - (void) setIgnoreSilentSwitch:(BOOL)ignoreSilentSwitch {
@@ -149,259 +153,272 @@
 }
 
 - (void) layoutSubviews {
-  NSLog(@"layoutSubviews...");
-  [super layoutSubviews];
-  firstLayout = true;
-  [self updateProps];
+    NSLog(@"layoutSubviews...");
+    [super layoutSubviews];
+    firstLayout = true;
+    [self updateProps];
 }
 
 - (void) updateProps {
-  if(!self.src || !firstLayout) {
-    return;
-  }
-
-  if (!player) {
-    if (self.autoplay) {
-      [self initPlayerIfNeeded];
-      [self play];
-    } else {
-      if ([self.preload isEqualToString:@"none"]) {
-
-      } else if ([self.preload isEqualToString:@"metadata"]) {
-
-      } else if ([self.preload isEqualToString:@"auto"]) {
-        [self initPlayerIfNeeded];
-      }
+    if(!self.src || !firstLayout) {
+        return;
     }
-  }
-  if(player) {
-    if(self.muted) {
-      player.muted = YES;
-    } else {
-      player.muted = NO;
+    
+    if (!player) {
+        if (self.autoplay) {
+            [self initPlayerIfNeeded];
+            [self play];
+        } else {
+            if ([self.preload isEqualToString:@"none"]) {
+                
+            } else if ([self.preload isEqualToString:@"metadata"]) {
+                
+            } else if ([self.preload isEqualToString:@"auto"]) {
+                [self initPlayerIfNeeded];
+            }
+        }
     }
-  }
+    if(player) {
+        if(self.muted) {
+            player.muted = YES;
+        } else {
+            player.muted = NO;
+        }
+    }
 }
 
 
 
 - (void) addProgressObserver {
-  if(!progressObserverHandle) {
-    if(player) {
-      progressObserverHandle = [player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1, 1) queue:NULL usingBlock:^(CMTime time) {
-        [self notifyPlayerProgress];
-      }];
+    if(!progressObserverHandle) {
+        if(player) {
+            progressObserverHandle = [player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1, 1) queue:NULL usingBlock:^(CMTime time) {
+                [self notifyPlayerProgress];
+            }];
+        }
+        
     }
-
-  }
 }
 
 - (void) removeProgressObserver {
-  if(progressObserverHandle) {
-    if(player) {
-      [player removeTimeObserver:progressObserverHandle];
-      progressObserverHandle = nil;
+    if(progressObserverHandle) {
+        if(player) {
+            [player removeTimeObserver:progressObserverHandle];
+            progressObserverHandle = nil;
+        }
     }
-  }
 }
 
 - (void) notifyPlayerProgress {
-  if(player && player.currentItem) {
-    double currentTime = CMTimeGetSeconds(player.currentTime);
-    double totalTime = CMTimeGetSeconds(player.currentItem.duration);
-    if(isnan(currentTime) || isinf(currentTime)) {
-      currentTime = 0;
+    if(player && player.currentItem) {
+        double currentTime = CMTimeGetSeconds(player.currentTime);
+        double totalTime = CMTimeGetSeconds(player.currentItem.duration);
+        if(isnan(currentTime) || isinf(currentTime)) {
+            currentTime = 0;
+        }
+        if(isnan(totalTime) || isinf(totalTime)) {
+            totalTime = 0;
+        }
+        if(self.onPlayerProgress) {
+            NSLog(@"on progress");
+            self.onPlayerProgress(@{@"current": @(currentTime * 1000), @"total": @(totalTime * 1000)}); //in millisec
+        }
     }
-    if(isnan(totalTime) || isinf(totalTime)) {
-      totalTime = 0;
-    }
-    if(self.onPlayerProgress) {
-        NSLog(@"on progress");
-      self.onPlayerProgress(@{@"current": @(currentTime * 1000), @"total": @(totalTime * 1000)}); //in millisec
-    }
-  }
 }
 
 - (void) notifyPlayerBuffering {
-  if(self.onPlayerBuffering) {
-    self.onPlayerBuffering(nil);
-  }
+    if(self.onPlayerBuffering) {
+        self.onPlayerBuffering(nil);
+    }
 }
 
 - (void) notifyPlayerBufferOK {
-  if(self.onPlayerBufferOk) {
-    self.onPlayerBufferOk(nil);
-  }
+    if(self.onPlayerBufferOk) {
+        self.onPlayerBufferOk(nil);
+    }
 }
 
 - (void) notifyPlayerBufferChange: (NSArray *)ranges {
-  if(self.onPlayerBufferChange) {
-      if ([ranges count] > 0) {
-          self.onPlayerBufferChange(@{@"bufferDuration": ranges[0][@"duration"]});
-      }
-  }
+    if(self.onPlayerBufferChange) {
+        if ([ranges count] > 0) {
+            self.onPlayerBufferChange(@{@"bufferDuration": ranges[0][@"duration"]});
+        }
+    }
 }
 
 
 - (void) notifyPlayerPlaying {
-  if(self.onPlayerPlay) {
-    self.onPlayerPlay(nil);
-  }
+    if(self.onPlayerPlay) {
+        self.onPlayerPlay(nil);
+    }
 }
 
 - (void) notifyPlayerPaused {
-  if (self.onPlayerPause) {
-    self.onPlayerPause(nil);
-  }
+    if (self.onPlayerPause) {
+        self.onPlayerPause(nil);
+    }
 }
 
 - (void) notifyPlayerFinished {
-  if (self.onPlayerEnd) {
-    self.onPlayerEnd(nil);
-  }
+    if (self.onPlayerEnd) {
+        self.onPlayerEnd(nil);
+    }
 }
 
 
 - (void)addObservers {
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResignActive:)
-                                               name:UIApplicationWillResignActiveNotification object:nil];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActive:)
-                                               name:UIApplicationDidBecomeActiveNotification object:nil];
-
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playerItemDidReachEnd:)
-                                               name:AVPlayerItemDidPlayToEndTimeNotification object:[player currentItem]];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playerItemPlaybackStalled:)
-                                               name:AVPlayerItemPlaybackStalledNotification object:[player currentItem]];
-  if (player) {
-    [player addObserver:self forKeyPath:@"rate" options:0 context:nil];
-    if (player.currentItem) {
-      [player.currentItem addObserver:self forKeyPath:@"status" options:0 context:nil];
-      [player.currentItem addObserver:self forKeyPath:@"loadedTimeRanges" options:0 context:nil];
-      [player.currentItem addObserver:self forKeyPath:@"playbackBufferFull" options:0 context:nil];
-      [player.currentItem addObserver:self forKeyPath:@"playbackBufferEmpty" options:0 context:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResignActive:)
+                                                 name:UIApplicationWillResignActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActive:)
+                                                 name:UIApplicationDidBecomeActiveNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playerItemDidReachEnd:)
+                                                 name:AVPlayerItemDidPlayToEndTimeNotification object:[player currentItem]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playerItemPlaybackStalled:)
+                                                 name:AVPlayerItemPlaybackStalledNotification object:[player currentItem]];
+    if (player) {
+        [player addObserver:self forKeyPath:@"rate" options:0 context:nil];
+        if (player.currentItem) {
+            [player.currentItem addObserver:self forKeyPath:@"status" options:0 context:nil];
+            [player.currentItem addObserver:self forKeyPath:@"loadedTimeRanges" options:0 context:nil];
+            [player.currentItem addObserver:self forKeyPath:@"playbackBufferFull" options:0 context:nil];
+            [player.currentItem addObserver:self forKeyPath:@"playbackBufferEmpty" options:0 context:nil];
+        }
     }
-  }
 }
 
 - (void)removeObservers {
-  [[NSNotificationCenter defaultCenter] removeObserver:self];
-  if (player) {
-    [player removeObserver:self forKeyPath:@"rate"];
-    if (player.currentItem) {
-      [player.currentItem removeObserver:self forKeyPath:@"status"];
-      [player.currentItem removeObserver:self forKeyPath:@"loadedTimeRanges"];
-      [player.currentItem removeObserver:self forKeyPath:@"playbackBufferFull"];
-      [player.currentItem removeObserver:self forKeyPath:@"playbackBufferEmpty"];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    if (player) {
+        [player removeObserver:self forKeyPath:@"rate"];
+        if (player.currentItem) {
+            [player.currentItem removeObserver:self forKeyPath:@"status"];
+            [player.currentItem removeObserver:self forKeyPath:@"loadedTimeRanges"];
+            [player.currentItem removeObserver:self forKeyPath:@"playbackBufferFull"];
+            [player.currentItem removeObserver:self forKeyPath:@"playbackBufferEmpty"];
+        }
     }
-  }
 }
 
 - (void)applicationWillResignActive:(NSNotification *)notification {
-  shouldContinuePlayWhenForeground = shouldResumePlay;
-  [self pause];
+    shouldContinuePlayWhenForeground = shouldResumePlay;
+    [self pause];
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
-  if (shouldContinuePlayWhenForeground) {
-    [self play];
-  }
+    if (shouldContinuePlayWhenForeground) {
+        [self play];
+    }
 }
 
 - (void)playerItemDidReachEnd:(NSNotification *)notification {
-  [self notifyPlayerFinished];
-  if(player) {
-    [player seekToTime:kCMTimeZero];
-    if (self.loop) {
-      [self play];
+    [self notifyPlayerFinished];
+    if(player) {
+        [player seekToTime:kCMTimeZero];
+        if (self.loop) {
+            [self play];
+        }
     }
-  }
 }
 
 - (void)playerItemPlaybackStalled:(NSNotification *)notification {
-  [self notifyPlayerBuffering];
+    [self notifyPlayerBuffering];
 }
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context {
-  NSLog(keyPath);
-  if(!player) {
-    return;
-  }
-  if ([keyPath isEqualToString:@"status"]) {
-    AVPlayerItem *playerItem = (AVPlayerItem *)object;
-    if(playerItem.status == AVPlayerItemStatusReadyToPlay) {
-      NSLog(@"status...ready to play");
-      firstReady = true;
-      [self notifyPlayerProgress];
-      [self notifyPlayerBufferOK];
-      if(player.rate != 0) {
-        [self notifyPlayerPlaying];
-      }
-    } else if(playerItem.status == AVPlayerItemStatusUnknown) {
-      NSLog(@"status...unknown");
-    } else if(playerItem.status == AVPlayerItemStatusFailed) {
-      NSLog(@"status...failed");
-      NSLog(@"%@",[playerItem.error localizedFailureReason]);
+    NSLog(keyPath);
+    if(!player) {
+        return;
     }
-  } else if ([keyPath isEqualToString:@"loadedTimeRanges"]) {
-    NSMutableArray *array = [NSMutableArray arrayWithCapacity:1];
-    for (NSValue *time in player.currentItem.loadedTimeRanges) {
-      CMTimeRange range = [time CMTimeRangeValue];
-      [array addObject:@{@"start": @(CMTimeGetSeconds(range.start) * 1000), @"duration": @(CMTimeGetSeconds(range.duration) * 1000)}];
+    if ([keyPath isEqualToString:@"status"]) {
+        AVPlayerItem *playerItem = (AVPlayerItem *)object;
+        if(playerItem.status == AVPlayerItemStatusReadyToPlay) {
+            NSLog(@"status...ready to play");
+            firstReady = true;
+            
+            if (self.onPlayerLoad) {
+                if(player && player.currentItem) {
+                    double totalTime = CMTimeGetSeconds(player.currentItem.duration);
+                    
+                    if(isnan(totalTime) || isinf(totalTime)) {
+                        totalTime = 0;
+                    }
+                    
+                    self.onPlayerLoad(@{@"duration": @(totalTime * 1000)});
+                }
+            }
+            
+            [self notifyPlayerProgress];
+            [self notifyPlayerBufferOK];
+            if(player.rate != 0) {
+                [self notifyPlayerPlaying];
+            }
+        } else if(playerItem.status == AVPlayerItemStatusUnknown) {
+            NSLog(@"status...unknown");
+        } else if(playerItem.status == AVPlayerItemStatusFailed) {
+            NSLog(@"status...failed");
+            NSLog(@"%@",[playerItem.error localizedFailureReason]);
+        }
+    } else if ([keyPath isEqualToString:@"loadedTimeRanges"]) {
+        NSMutableArray *array = [NSMutableArray arrayWithCapacity:1];
+        for (NSValue *time in player.currentItem.loadedTimeRanges) {
+            CMTimeRange range = [time CMTimeRangeValue];
+            [array addObject:@{@"start": @(CMTimeGetSeconds(range.start) * 1000), @"duration": @(CMTimeGetSeconds(range.duration) * 1000)}];
+        }
+        [self notifyPlayerBufferChange:array];
+    } else if( [keyPath isEqualToString:@"rate"]) {
+        NSLog(@"rate=%f", player.rate);
+        if(player.rate == 0) {
+            [self notifyPlayerPaused];
+        } else {
+            if (firstReady) {
+                [self notifyPlayerPlaying];
+            } else {
+                [self notifyPlayerBuffering];
+            }
+        }
+    } else if([keyPath isEqualToString:@"playbackBufferFull"]) {
+        [self notifyPlayerBufferOK];
+        if (shouldResumePlay) {
+            [self play];
+        }
     }
-    [self notifyPlayerBufferChange:array];
-  } else if( [keyPath isEqualToString:@"rate"]) {
-    NSLog(@"rate=%f", player.rate);
-    if(player.rate == 0) {
-      [self notifyPlayerPaused];
-    } else {
-      if (firstReady) {
-        [self notifyPlayerPlaying];
-      } else {
-        [self notifyPlayerBuffering];
-      }
-    }
-  } else if([keyPath isEqualToString:@"playbackBufferFull"]) {
-    [self notifyPlayerBufferOK];
-    if (shouldResumePlay) {
-      [self play];
-    }
-  }
 }
 
 
 
 
 - (void)pause {
-  NSLog(@"pause...");
-  if (player) {
-    [player pause];
-    shouldResumePlay = false;
-  }
+    NSLog(@"pause...");
+    if (player) {
+        [player pause];
+        shouldResumePlay = false;
+    }
 }
 
 - (void)play {
-  NSLog(@"play...");
-  [self initPlayerIfNeeded];
-  if(player) {
-    [player play];
-    shouldResumePlay = YES;
-  }
+    NSLog(@"play...");
+    [self initPlayerIfNeeded];
+    if(player) {
+        [player play];
+        shouldResumePlay = YES;
+    }
 }
 
 - (void)stop {
-  NSLog(@"stop...");
-  if (player) {
-    [player pause];
-    [player seekToTime:kCMTimeZero];
-    shouldResumePlay = false;
-  }
+    NSLog(@"stop...");
+    if (player) {
+        [player pause];
+        [player seekToTime:kCMTimeZero];
+        shouldResumePlay = false;
+    }
 }
 
 - (void)seekTo: (NSTimeInterval) timeMs {
-  NSLog(@"seekTo...timeMs=%f", timeMs);
-  if(player) {
-    CMTime cmTime = CMTimeMakeWithSeconds(timeMs/1000, 1);
-    [player seekToTime:cmTime];
-  }
+    NSLog(@"seekTo...timeMs=%f", timeMs);
+    if(player) {
+        CMTime cmTime = CMTimeMakeWithSeconds(timeMs/1000, 1);
+        [player seekToTime:cmTime];
+    }
 }
 @end

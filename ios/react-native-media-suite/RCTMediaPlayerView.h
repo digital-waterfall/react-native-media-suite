@@ -13,6 +13,8 @@
 @property (nonatomic, strong) RCTDirectEventBlock onPlayerEnd;
 @property (nonatomic, strong) RCTDirectEventBlock onPlayerBufferChange;
 @property (nonatomic, strong) RCTDirectEventBlock onPlayerError;
+@property (nonatomic, strong) RCTDirectEventBlock onPlayerLoad;
+@property (nonatomic, strong) RCTDirectEventBlock onPlayerLoadStart;
 
 @property (nonatomic) BOOL autoplay;
 @property (nonatomic) NSString* src;
