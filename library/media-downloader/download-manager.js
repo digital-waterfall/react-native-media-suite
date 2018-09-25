@@ -22,6 +22,8 @@ class DownloadManager {
             this.onDownloadFinished = this.onDownloadFinished.bind(this);
             this.onDownloadError = this.onDownloadError.bind(this);
             this.onDownloadCancelled = this.onDownloadCancelled.bind(this);
+            this.onDownloadPaused = this.onDownloadPaused.bind(this);
+            this.onDownloadResumed = this.onDownloadResumed.bind(this);
 
             this.addUpdateListener = this.addUpdateListener.bind(this);
             this.callUpdateListeners = this.callUpdateListeners.bind(this);
@@ -57,12 +59,12 @@ class DownloadManager {
             storageService.getAllKeyValuePairs(this.tenant).then(downloads => {
                 let downloadIds = [];
                 _.forEach(downloads, download => {
+                    console.warn(download[1].state);
                     const newDownload = new Download(download[1].downloadID, download[1].remoteURL, download[1].state, download[1].bitRate, download[1].title, download[1].assetArtworkURL, this.nativeDownloader, download[1]);
-                    newDownload.addEventListener(EVENT_LISTENER_TYPES.deleted, () => this.deleteDownloaded(newDownload.downloadID));
-                    newDownload.addEventListener(EVENT_LISTENER_TYPES.paused, () => this.callUpdateListeners(newDownload.downloadID));
-                    newDownload.addEventListener(EVENT_LISTENER_TYPES.resumed, () => this.callUpdateListeners(newDownload.downloadID));
+                    newDownload.addEventListener(EVENT_LISTENER_TYPES.deleted, this.deleteDownloaded);
+                    newDownload.addEventListener(EVENT_LISTENER_TYPES.paused, this.onDownloadPaused);
+                    newDownload.addEventListener(EVENT_LISTENER_TYPES.resumed, this.onDownloadResumed);
                     this.downloads.push(newDownload);
-                    console.log('Downloads', this.downloads);
                     downloadIds.push(download[1].downloadID);
                 });
                 resolve(downloadIds);
@@ -90,8 +92,8 @@ class DownloadManager {
         download = new Download(downloadID, url, DOWNLOAD_STATES.initialized, bitRate, title, assetArtworkURL, this.nativeDownloader);
         this.downloads.push(download);
         download.addEventListener(EVENT_LISTENER_TYPES.deleted, this.deleteDownloaded);
-        download.addEventListener(EVENT_LISTENER_TYPES.paused, this.callUpdateListeners);
-        download.addEventListener(EVENT_LISTENER_TYPES.resumed, this.callUpdateListeners);
+        download.addEventListener(EVENT_LISTENER_TYPES.paused, this.onDownloadPaused);
+        download.addEventListener(EVENT_LISTENER_TYPES.resumed, this.onDownloadResumed);
         this.persistDownload(download);
         this.callUpdateListeners(downloadID);
         return download;
@@ -117,6 +119,7 @@ class DownloadManager {
         if (!download) return;
 
         download.onDownloadProgress(data.percentComplete);
+        this.persistDownload(download);
         this.callUpdateListeners(data.downloadID);
     }
 
@@ -147,6 +150,22 @@ class DownloadManager {
         _.remove(this.downloads, download => download.downloadID === data.downloadID);
         storageService.removeItem(this.tenant, data.downloadID);
         this.callUpdateListeners(data.downloadID);
+    }
+
+    onDownloadPaused(downloadID) {
+        let download = this.getDownload(downloadID);
+        if (!download) return;
+
+        this.persistDownload(download);
+        this.callUpdateListeners(downloadID);
+    }
+
+    onDownloadResumed(downloadID) {
+        let download = this.getDownload(downloadID);
+        if (!download) return;
+
+        this.persistDownload(download);
+        this.callUpdateListeners(downloadID);
     }
 
     addUpdateListener(listener, options) {
