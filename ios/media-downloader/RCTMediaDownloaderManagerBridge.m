@@ -13,5 +13,6 @@ RCT_EXTERN_METHOD(pauseDownload:(NSString *)downloadID)
 RCT_EXTERN_METHOD(resumeDownload:(NSString *)downloadID)
 RCT_EXTERN_METHOD(cancelDownload:(NSString *)downloadID)
 RCT_EXTERN_METHOD(setMaxSimultaneousDownloads:(nonnull NSInteger *)maxSimultaneousDownloads)
+RCT_EXTERN_METHOD(checkIfStillDownloaded:(nonnull NSArray *)downloadIDs resolver:(RCTPromiseResolveBlock)resolve)
 
 @end

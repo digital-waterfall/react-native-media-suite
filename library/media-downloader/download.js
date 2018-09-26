@@ -182,7 +182,7 @@ export default class Download {
     onDownloadProgress(progress) {
         this.isDeleted();
 
-        this.state = DOWNLOAD_STATES.downloading;
+        if (!this.paused()) this.state = DOWNLOAD_STATES.downloading;
         this.progress = progress;
 
         this.callEventListeners(EVENT_LISTENER_TYPES.progress, progress);

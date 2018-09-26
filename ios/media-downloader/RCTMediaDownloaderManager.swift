@@ -178,6 +178,16 @@ class MediaDownloader: RCTEventEmitter {
         downloadSession.delegateQueue.maxConcurrentOperationCount = maxSimultaneousDownloads;
     }
     
+    @objc func checkIfStillDownloaded(_ downloadIDs: NSArray, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+        let isDownloadedDownloadIDs: NSArray = []
+        for downloadID in (downloadIDs as NSArray as! [String]) {
+            if isDownloaded(downloadID: downloadID) {
+                isDownloadedDownloadIDs.adding(downloadID)
+            }
+        }
+        resolve(isDownloadedDownloadIDs)
+    }
+    
 }
 
 extension AVURLAsset {
