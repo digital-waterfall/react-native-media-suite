@@ -8,9 +8,12 @@ import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.android.exoplayer2.C;
@@ -447,6 +450,21 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
         downloadManager.handleAction(removeDownloadAction);
         downloadTracker.removeDownloadTracking(downloadID, videoUri, extension);
         onDownloadProgressEvent(downloadID,0);
+    }
+
+    @ReactMethod
+    public void checkIfStillDownloaded(ReadableArray downloadIDs, final Promise promise) {
+        WritableArray isDownloadedDownloadIDs = Arguments.createArray();
+        for (int i=0; i<downloadIDs.size(); i++) {
+            String stringUri = getUri(downloadIDs.getString(i));
+            if (stringUri != null) {
+                Uri uri = Uri.parse(stringUri);
+                if (downloadTracker.isDownloaded(uri)) {
+                    isDownloadedDownloadIDs.pushString(downloadIDs.getString(i));
+                }
+            }
+        }
+        promise.resolve(isDownloadedDownloadIDs);
     }
 
     @Override
