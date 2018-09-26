@@ -1,4 +1,4 @@
-import {NativeModules, NativeEventEmitter, Platform } from 'react-native';
+import {NativeModules, NativeEventEmitter, Platform, AppState } from 'react-native';
 import _ from 'lodash';
 import storageService from 'rn-multi-tenant-async-storage';
 
@@ -29,12 +29,16 @@ class DownloadManager {
             this.callUpdateListeners = this.callUpdateListeners.bind(this);
             this.removeUpdateListener = this.removeUpdateListener.bind(this);
 
+            this.handleAppStateChange = this.handleAppStateChange.bind(this);
+
             this.getDownload = this.getDownload.bind(this);
             this.isDownloaded = this.isDownloaded.bind(this);
+            this.checkIfStillDownloaded = this.checkIfStillDownloaded.bind(this);
             this.persistDownload = this.persistDownload.bind(this);
 
             this.downloads = [];
             this.updateListeners = [];
+            this.appState = AppState.currentState;
 
             this.nativeDownloader = NativeModules.MediaDownloader;
             const downloaderEvent = new NativeEventEmitter(NativeModules.MediaDownloader);
@@ -44,6 +48,8 @@ class DownloadManager {
             downloaderEvent.addListener('onDownloadStarted', this.onDownloadStarted);
             downloaderEvent.addListener('onDownloadError', this.onDownloadError);
             downloaderEvent.addListener('onDownloadCancelled', this.onDownloadCancelled);
+
+            AppState.addEventListener('change', this.handleAppStateChange);
 
             DownloadManager.downloader = this;
         }
@@ -192,6 +198,12 @@ class DownloadManager {
         });
     }
 
+    handleAppStateChange(nextAppState) {
+        if (this.appState.match(/inactive|background/) && nextAppState === 'active') {
+            this.checkIfStillDownloaded();
+        }
+    }
+
     removeUpdateListener(listener) {
         _.remove(this.updateListeners, listenerObject => listenerObject.listener === listener);
     }
@@ -227,6 +239,17 @@ class DownloadManager {
 
     isDownloaded(downloadID) {
         return !!this.downloads.find(download => download.downloadID === downloadID);
+    }
+
+    checkIfStillDownloaded() {
+        let downloadIDs = _.map(this.downloads, download => download.downloadID);
+        this.nativeDownloader.checkIfStillDownloaded(downloadIDs).then(downloadedDownloadIDs => {
+            let deletedDownloadIDs = _.difference(downloadIDs, downloadedDownloadIDs);
+            _.forEach(deletedDownloadIDs, downloadedDownloadID => {
+                _.remove(this.downloads, download => download.downloadID === downloadedDownloadID);
+            });
+        });
+        this.callUpdateListeners(downloadIDs[0]);
     }
 
     persistDownload(download) {
