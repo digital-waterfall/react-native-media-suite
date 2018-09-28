@@ -38,7 +38,6 @@ class DownloadManager {
 
             this.downloads = [];
             this.updateListeners = [];
-            this.appState = AppState.currentState;
 
             this.nativeDownloader = NativeModules.MediaDownloader;
             const downloaderEvent = new NativeEventEmitter(NativeModules.MediaDownloader);
@@ -74,6 +73,7 @@ class DownloadManager {
                     downloadIds.push(download[1].downloadID);
                 });
                 resolve(downloadIds);
+                this.checkIfStillDownloaded()
             }, error => {
                 reject(error);
             });
@@ -199,7 +199,7 @@ class DownloadManager {
     }
 
     handleAppStateChange(nextAppState) {
-        if (this.appState.match(/inactive|background/) && nextAppState === 'active') {
+        if (nextAppState === 'active') {
             this.checkIfStillDownloaded();
         }
     }
@@ -244,12 +244,14 @@ class DownloadManager {
     checkIfStillDownloaded() {
         let downloadIDs = _.map(this.downloads, download => download.downloadID);
         this.nativeDownloader.checkIfStillDownloaded(downloadIDs).then(downloadedDownloadIDs => {
-            let deletedDownloadIDs = _.difference(downloadIDs, downloadedDownloadIDs);
-            _.forEach(deletedDownloadIDs, downloadedDownloadID => {
-                _.remove(this.downloads, download => download.downloadID === downloadedDownloadID);
-            });
+            if (!_.isEmpty(downloadedDownloadIDs)) {
+                let deletedDownloadIDs = _.difference(downloadIDs, downloadedDownloadIDs);
+                _.forEach(deletedDownloadIDs, downloadedDownloadID => {
+                    const download = _.find(this.downloads, download => download.downloadID === downloadedDownloadID);
+                    if (download) download.delete();
+                });
+            }
         });
-        this.callUpdateListeners(downloadIDs[0]);
     }
 
     persistDownload(download) {
