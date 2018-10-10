@@ -57,9 +57,6 @@ class DownloadManager {
     }
 
     restoreMediaDownloader() {
-        if (Platform.OS === 'ios') {
-            this.nativeDownloader.restoreMediaDownloader();
-        }
         return new Promise((resolve, reject) => {
             storageService.getAllKeyValuePairs(this.tenant).then(downloads => {
                 let downloadIds = [];
@@ -72,8 +69,13 @@ class DownloadManager {
                     this.downloads.push(newDownload);
                     downloadIds.push(download[1].downloadID);
                 });
-                resolve(downloadIds);
-                this.checkIfStillDownloaded()
+
+                if (Platform.OS === 'ios') {
+                    this.nativeDownloader.restoreMediaDownloader().then(() => {this.checkIfStillDownloaded(); resolve(downloadIds);});
+                } else {
+                    this.checkIfStillDownloaded();
+                    resolve(downloadIds);
+                }
             }, error => {
                 reject(error);
             });
@@ -141,6 +143,11 @@ class DownloadManager {
     onDownloadError(data) {
         let download = this.getDownload(data.downloadID);
         if (!download) return;
+
+        if (data.errorType === "UNEXPECTEDLY_CANCELLED" ) {
+            download.retry();
+            return;
+        }
 
         download.onDownloadError(data.errorType, data.error);
         console.warn(data.error);
@@ -248,7 +255,7 @@ class DownloadManager {
                 let deletedDownloadIDs = _.difference(downloadIDs, downloadedDownloadIDs);
                 _.forEach(deletedDownloadIDs, downloadedDownloadID => {
                     const download = _.find(this.downloads, download => download.downloadID === downloadedDownloadID);
-                    if (download) download.delete();
+                    if (download && download.state !== DOWNLOAD_STATES.failed) download.delete();
                 });
             }
         });

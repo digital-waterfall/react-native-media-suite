@@ -135,6 +135,12 @@ export default class Download {
         this.destructor();
     }
 
+    retry() {
+        this.isDeleted();
+
+        this.start();
+    }
+
     isDeleted() {
         if (this.state === DOWNLOAD_STATES.deleted || !this.state) throw 'Download has been deleted.'
     }

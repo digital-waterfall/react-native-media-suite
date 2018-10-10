@@ -8,13 +8,14 @@ class MediaDownloader: RCTEventEmitter {
     private var didRestorePersistenceManager = false
     fileprivate var downloadSession: AVAssetDownloadURLSession!
     fileprivate var activeDownloadsMap = [String: AVAssetDownloadTask]()
+    fileprivate var restoredDownloadsIdsArray = [String]()
     
     override func supportedEvents() -> [String]! {
         return ["onDownloadFinished", "onDownloadProgress", "onDownloadStarted", "onDownloadError", "onDownloadCancelled"]
     }
     
-    @objc func restoreMediaDownloader() {
-        guard !didRestorePersistenceManager else { return }
+    @objc func restoreMediaDownloader(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+        guard !didRestorePersistenceManager else { resolve(nil); return }
         
         didRestorePersistenceManager = true
         self.prepareDownloader()
@@ -23,8 +24,14 @@ class MediaDownloader: RCTEventEmitter {
             downloadSession.getAllTasks { tasksArray in
                 for task in tasksArray {
                     guard let downloadTask = task as? AVAssetDownloadTask, let downloadID = task.taskDescription else { break }
+                    
+                    print("Restored task: " + task.description + ". State: " + String(task.state.rawValue))
+                    
                     self.activeDownloadsMap[downloadID] = downloadTask
+                    self.restoredDownloadsIdsArray.append(downloadID)
                 }
+                resolve(nil)
+                return
             }
         }
     }
@@ -38,56 +45,80 @@ class MediaDownloader: RCTEventEmitter {
         }
     }
     
-    @objc func downloadStream(_ url: String, downloadID: String, title: String, assetArtworkURL: String) {
-        downloadStreamHelper(url: url, downloadID: downloadID, title: title, assetArtworkURL: assetArtworkURL)
+    @objc func downloadStream(_ url: String, downloadID: String, title: String, assetArtworkURL: String, retry: Bool) {
+        downloadStreamHelper(url: url, downloadID: downloadID, title: title, assetArtworkURL: assetArtworkURL, retry: retry)
     }
     
-    @objc func downloadStreamWithBitrate(_ url: String, downloadID: String, title: String, assetArtworkURL: String, bitRate: NSNumber) {
-        downloadStreamHelper(url: url, downloadID: downloadID, title: title, assetArtworkURL: assetArtworkURL, bitRate: bitRate)
+    @objc func downloadStreamWithBitrate(_ url: String, downloadID: String, title: String, assetArtworkURL: String, retry: Bool,  bitRate: NSNumber) {
+        downloadStreamHelper(url: url, downloadID: downloadID, title: title, assetArtworkURL: assetArtworkURL, retry: retry,  bitRate: bitRate)
     }
     
-    func downloadStreamHelper(url: String, downloadID: String, title: String, assetArtworkURL: String, bitRate: NSNumber?=nil) {
-        if #available(iOS 10.0, *) {
-            
+    func downloadStreamHelper(url: String, downloadID: String, title: String, assetArtworkURL: String, retry: Bool, bitRate: NSNumber?=nil) {
             self.prepareDownloader()
             
-            if !(isDownloaded(downloadID: downloadID)) && !(isDownloading(downloadID: downloadID)) {
+            let shouldDownload: Bool
+            if (retry) {
+                shouldDownload = true
+            } else {
+                shouldDownload = !(isDownloaded(downloadID: downloadID)) && !(isDownloading(downloadID: downloadID))
+            }
+            
+            
+            if shouldDownload {
                 
-                guard let assetURL = URL(string: url) else {
-                    self.sendEvent(withName: "onDownloadError", body: ["error" : "The URL cannot be null", "errorType" : "NO_URL", "downloadID" : downloadID])
-                    return
+                let asset: AVURLAsset
+                if (retry && isDownloaded(downloadID: downloadID)) {
+                    let baseURL = URL(fileURLWithPath: NSHomeDirectory())
+                    let assetURL = baseURL.appendingPathComponent((UserDefaults.standard.url(forKey: downloadID)?.path)!)
+                    
+                    asset = AVURLAsset(url: assetURL)
+                } else {
+                    guard let assetURL = URL(string: url) else {
+                        self.sendEvent(withName: "onDownloadError", body: ["error" : "The URL cannot be null", "errorType" : "NO_URL", "downloadID" : downloadID])
+                        return
+                    }
+                    
+                    asset = AVURLAsset(url: assetURL)
                 }
-                
-                let asset = AVURLAsset(url: assetURL)
                 
                 var data: Data?=nil;
                 if (assetArtworkURL != "none" && !assetArtworkURL.isEmpty) {
                     data = try? Data(contentsOf: URL(string: assetArtworkURL)!)
                 }
                 
-                let downloadTask: AVAssetDownloadTask?
-                if let unwrappedBitRate = bitRate {
-                    downloadTask = downloadSession.makeAssetDownloadTask(asset: asset,
-                                                                         assetTitle: title as String,
-                                                                         assetArtworkData: data,
-                                                                         options: [AVAssetDownloadTaskMinimumRequiredMediaBitrateKey: unwrappedBitRate])
-                    
-                } else {
-                    downloadTask = downloadSession.makeAssetDownloadTask(asset: asset,
-                                                                         assetTitle: title as String,
-                                                                         assetArtworkData: data)
+                guard let downloadTask = createDownloadTask(asset: asset, assetTitle: title, assetArtworkData: data, downloadID: downloadID) else {
+                    self.sendEvent(withName: "onDownloadError", body: ["error" : "Failed to create download task.", "errorType" : "DOWNLOAD_TASK_ERROR", "downloadID" : downloadID])
+                    return
                 }
                 
-                downloadTask?.taskDescription = downloadID
-                downloadTask?.resume()
-                activeDownloadsMap[downloadID] = downloadTask
+                downloadTask.taskDescription = downloadID
+                downloadTask.resume()
+                self.activeDownloadsMap[downloadID] = downloadTask
             } else {
                 self.sendEvent(withName: "onDownloadError", body: ["error" : "The asset is already downloaded", "errorType" : "ALREADY_DOWNLOADED", "downloadID" : downloadID])
                 return
             }
+    }
+    
+    func createDownloadTask(asset URLAsset: AVURLAsset,
+                            assetTitle title: String,
+                            assetArtworkData artworkData: Data?,
+                            downloadID: String,
+                            bitRate: NSNumber?=nil) -> AVAssetDownloadTask? {
+        if #available(iOS 10.0, *) {
+            if let unwrappedBitRate = bitRate {
+                return downloadSession.makeAssetDownloadTask(asset: URLAsset,
+                                                                     assetTitle: title,
+                                                                     assetArtworkData: artworkData,
+                                                                     options: [AVAssetDownloadTaskMinimumRequiredMediaBitrateKey: unwrappedBitRate])
+            } else {
+                return downloadSession.makeAssetDownloadTask(asset: URLAsset,
+                                                                     assetTitle: title,
+                                                                     assetArtworkData: artworkData)
+            }
         } else {
             self.sendEvent(withName: "onDownloadError", body:["error" : "Download not supported for iOS versions prior to iOS 10", "errorType" : "NOT_SUPPORTED", "downloadID" : downloadID])
-            return
+            return nil
         }
     }
     
@@ -109,7 +140,7 @@ class MediaDownloader: RCTEventEmitter {
     }
     
     func isDownloading(downloadID: String) -> Bool {
-        return activeDownloadsMap.keys.contains(downloadID)
+        return self.activeDownloadsMap.keys.contains(downloadID)
     }
     
     @objc func deleteDownloadedStream(_ downloadID: String) {
@@ -145,7 +176,10 @@ class MediaDownloader: RCTEventEmitter {
             self.sendEvent(withName: "onDownloadError", body: ["error" : "Download not found.", "errorType" : "NOT_FOUND", "downloadID" : downloadID])
             return
         }
-        activeDownloadsMap[downloadID]?.cancel()
+        self.activeDownloadsMap[downloadID]?.cancel()
+        
+        self.restoredDownloadsIdsArray.remove(at: self.restoredDownloadsIdsArray.firstIndex(of: downloadID)!)
+        
         print("(\(downloadID)) cancelled")
     }
     
@@ -158,7 +192,7 @@ class MediaDownloader: RCTEventEmitter {
             self.sendEvent(withName: "onDownloadError", body: ["error" : "Finished download cannot be paused.", "errorType" : "PAUSE_FAILED", "downloadID" : downloadID])
             return
         }
-        activeDownloadsMap[downloadID]?.suspend()
+        self.activeDownloadsMap[downloadID]?.suspend()
         print("(\(downloadID)) paused")
     }
     
@@ -171,7 +205,7 @@ class MediaDownloader: RCTEventEmitter {
             self.sendEvent(withName: "onDownloadError", body: ["error" : "Finished download cannot be resumed.", "errorType" : "RESUME_FAILED", "downloadID" : downloadID])
             return
         }
-        activeDownloadsMap[downloadID]?.resume()
+        self.activeDownloadsMap[downloadID]?.resume()
         print("(\(downloadID)) resumed")
     }
     
@@ -180,6 +214,7 @@ class MediaDownloader: RCTEventEmitter {
     }
     
     @objc func checkIfStillDownloaded(_ downloadIDs: NSArray, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+        
         let isDownloadedDownloadIDs: NSMutableArray = []
         for downloadID in (downloadIDs as NSArray as! [String]) {
             if isDownloaded(downloadID: downloadID) {
@@ -191,24 +226,28 @@ class MediaDownloader: RCTEventEmitter {
     
 }
 
-extension AVURLAsset {
-    var fileSize: Int? {
-        let keys: Set<URLResourceKey> = [.totalFileSizeKey, .fileSizeKey]
-        let resourceValues = try? url.resourceValues(forKeys: keys)
-        
-        return resourceValues?.fileSize ?? resourceValues?.totalFileSize
-    }
-}
-
 extension MediaDownloader: AVAssetDownloadDelegate {
     
     func urlSession(_ session: URLSession,
                     task: URLSessionTask,
                     didCompleteWithError error: Error?) {
         
+        self.activeDownloadsMap.removeValue(forKey: task.taskDescription!)
+        
         if let error = error as NSError? {
             switch (error.domain, error.code) {
             case (NSURLErrorDomain, NSURLErrorCancelled):
+                if self.restoredDownloadsIdsArray.contains(task.taskDescription ?? "") {
+                    self.sendEvent(withName: "onDownloadError", body:["downloadID" : task.taskDescription, "error" : "Download was unexpectedly cancelled.", "errorType" : "UNEXPECTEDLY_CANCELLED"])
+                    print("An unexpected error occured \(error.domain)")
+                    
+                    let restoredDownloadsIdIndex = self.restoredDownloadsIdsArray.firstIndex(of: task.taskDescription!)
+                    if restoredDownloadsIdIndex != nil {
+                        self.restoredDownloadsIdsArray.remove(at: restoredDownloadsIdIndex!)
+                    }
+                    return
+                }
+                
                 deleteDownloadedStream(task.taskDescription!)
                 print("Deleting downloaded files.")
                 self.sendEvent(withName: "onDownloadCancelled", body: ["downloadID" : task.taskDescription])
@@ -221,13 +260,12 @@ extension MediaDownloader: AVAssetDownloadDelegate {
                 self.sendEvent(withName: "onDownloadError", body:["downloadID" : task.taskDescription, "error" : "An unexpected error occured \(error.domain)", "errorType" : "UNKNOWN"])
                 print("An unexpected error occured \(error.domain)")
             }
-            activeDownloadsMap.removeValue(forKey: task.taskDescription!)
         } else {
-            activeDownloadsMap.removeValue(forKey: task.taskDescription!)
             
             let baseURL = URL(fileURLWithPath: NSHomeDirectory())
             let assetURL = baseURL.appendingPathComponent((UserDefaults.standard.url(forKey: task.taskDescription!)?.path)!)
             let estimatedSize: UInt64
+            
             do {
                 estimatedSize = try FileManager.default.allocatedSizeOfDirectory(atUrl: assetURL.absoluteURL)
             } catch {
@@ -243,7 +281,9 @@ extension MediaDownloader: AVAssetDownloadDelegate {
     func urlSession(_ session: URLSession,
                     assetDownloadTask: AVAssetDownloadTask,
                     didFinishDownloadingTo location: URL) {
-        UserDefaults.standard.set(location.relativePath, forKey: assetDownloadTask.taskDescription!)
+        if UserDefaults.standard.object(forKey: assetDownloadTask.taskDescription!) == nil {
+            UserDefaults.standard.set(location.relativePath, forKey: assetDownloadTask.taskDescription!)
+        }
     }
     
     func urlSession(_ session: URLSession, assetDownloadTask: AVAssetDownloadTask, didLoad timeRange: CMTimeRange, totalTimeRangesLoaded loadedTimeRanges: [NSValue], timeRangeExpectedToLoad: CMTimeRange) {
