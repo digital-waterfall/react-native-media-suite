@@ -178,7 +178,10 @@ class MediaDownloader: RCTEventEmitter {
         }
         self.activeDownloadsMap[downloadID]?.cancel()
         
-        self.restoredDownloadsIdsArray.remove(at: self.restoredDownloadsIdsArray.firstIndex(of: downloadID)!)
+        let restoredDownloadsIdIndex = self.restoredDownloadsIdsArray.firstIndex(of: downloadID)
+        if restoredDownloadsIdIndex != nil {
+            self.restoredDownloadsIdsArray.remove(at: restoredDownloadsIdIndex!)
+        }
         
         print("(\(downloadID)) cancelled")
     }

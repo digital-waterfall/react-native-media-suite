@@ -220,9 +220,9 @@ export default class App extends React.Component {
             _.find( this.state.videos, ['videoId', download.downloadID]).download = null;
             this.setState({videos: this.state.videos});
         });
-        download.addEventListener(EVENT_LISTENER_TYPES.error, (errorType, errorMessage) => Alert.alert(
-            errorType,
-            errorMessage
+        download.addEventListener(EVENT_LISTENER_TYPES.error, errorData => Alert.alert(
+            errorData.errorType,
+            errorData.errorMessage
         ));
         download.addEventListener(EVENT_LISTENER_TYPES.finished, () => {
             this.updateProgress(100, download.downloadID);

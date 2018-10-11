@@ -61,7 +61,6 @@ class DownloadManager {
             storageService.getAllKeyValuePairs(this.tenant).then(downloads => {
                 let downloadIds = [];
                 _.forEach(downloads, download => {
-                    console.warn(download[1].state);
                     const newDownload = new Download(download[1].downloadID, download[1].remoteURL, download[1].state, download[1].bitRate, download[1].title, download[1].assetArtworkURL, this.nativeDownloader, download[1]);
                     newDownload.addEventListener(EVENT_LISTENER_TYPES.deleted, this.deleteDownloaded);
                     newDownload.addEventListener(EVENT_LISTENER_TYPES.paused, this.onDownloadPaused);

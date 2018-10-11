@@ -159,7 +159,11 @@ export default class Download {
     }
 
     callEventListeners(type, data) {
-        _.forEach(this.eventListeners, eventListener => {if(eventListener.type === type){return eventListener.listener(data)} });
+        _.forEach(this.eventListeners, eventListener => {
+            if (eventListener.type === type) {
+                eventListener.listener(data);
+            }
+        });
     }
 
     destructor() {
