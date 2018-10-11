@@ -69,31 +69,33 @@ export default class Download {
             this.restoreDownload(restoreDownloadFields);
         }
     }
-    
+
     restoreDownload(downloadFields) {
         this.downloadID = downloadFields.downloadID;
-            this.remoteURL = downloadFields.remoteURL;
-            this.state = downloadFields.state;
-            this.bitRate = downloadFields.bitRate;
-            this.progress = downloadFields.progress;
-            this.localURL = downloadFields.localURL;
-            this.fileSize = downloadFields.fileSize;
-            this.errorType = downloadFields.errorType;
-            this.errorMessage = downloadFields.errorMessage;
-            this.startedTimeStamp = downloadFields.startedTimeStamp;
-            this.finishedTimeStamp = downloadFields.finishedTimeStamp;
-            this.erroredTimeStamp = downloadFields.erroredTimeStamp;
-            this.progressTimeStamp = downloadFields.progressTimeStamp;
+        this.remoteURL = downloadFields.remoteURL;
+        this.state = downloadFields.state;
+        this.bitRate = downloadFields.bitRate;
+        this.progress = downloadFields.progress;
+        this.localURL = downloadFields.localURL;
+        this.fileSize = downloadFields.fileSize;
+        this.errorType = downloadFields.errorType;
+        this.errorMessage = downloadFields.errorMessage;
+        this.startedTimeStamp = downloadFields.startedTimeStamp;
+        this.finishedTimeStamp = downloadFields.finishedTimeStamp;
+        this.erroredTimeStamp = downloadFields.erroredTimeStamp;
+        this.progressTimeStamp = downloadFields.progressTimeStamp;
     }
 
-    start() {
+    start(retry) {
         this.isDeleted();
+
+        if (!retry) retry = false;
 
         if (Platform.OS === 'ios') {
             if (this.bitRate) {
-                this.nativeDownloader.downloadStreamWithBitRate(this.remoteURL, this.downloadID, this.title, this.assetArtworkURL, this.bitRate)
+                this.nativeDownloader.downloadStreamWithBitRate(this.remoteURL, this.downloadID, this.title, this.assetArtworkURL, retry, this.bitRate)
             } else {
-                this.nativeDownloader.downloadStream(this.remoteURL, this.downloadID, this.title, this.assetArtworkURL);
+                this.nativeDownloader.downloadStream(this.remoteURL, this.downloadID, this.title, this.assetArtworkURL, retry);
             }
         } else {
             if (this.bitRate) {
@@ -138,7 +140,7 @@ export default class Download {
     retry() {
         this.isDeleted();
 
-        this.start();
+        this.start(true);
     }
 
     isDeleted() {
@@ -157,7 +159,11 @@ export default class Download {
     }
 
     callEventListeners(type, data) {
-        _.forEach(this.eventListeners, eventListener => {if(eventListener.type === type){return eventListener.listener(data)} });
+        _.forEach(this.eventListeners, eventListener => {
+            if (eventListener.type === type) {
+                eventListener.listener(data);
+            }
+        });
     }
 
     destructor() {

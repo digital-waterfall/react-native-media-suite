@@ -1210,7 +1210,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.cvh.TestVideo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.try.TestVideo;
 				PRODUCT_NAME = TestVideo;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.0;
@@ -1234,7 +1234,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.cvh.TestVideo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.try.TestVideo;
 				PRODUCT_NAME = TestVideo;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.0;
