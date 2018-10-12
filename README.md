@@ -10,7 +10,7 @@ Supported media types:
 * iOS: Should be the same as those supported by [AVPlayer](https://developer.apple.com/library/ios/documentation/AVFoundation/Reference/AVPlayer_Class/)
 * Android: Should be the same as those supported by [ExoPlayer](https://github.com/google/ExoPlayer)
 
-![](demo.gif)
+![](video-playing.gif)
 
 ## Installation
 
