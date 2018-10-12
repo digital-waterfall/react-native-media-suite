@@ -220,7 +220,7 @@ class MediaDownloader: RCTEventEmitter {
         
         let isDownloadedDownloadIDs: NSMutableArray = []
         for downloadID in (downloadIDs as NSArray as! [String]) {
-            if isDownloaded(downloadID: downloadID) {
+            if isDownloaded(downloadID: downloadID) || isDownloading(downloadID: downloadID){
                 isDownloadedDownloadIDs.add(downloadID)
             }
         }
