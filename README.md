@@ -14,20 +14,37 @@ Supported media types:
 
 ## Installation
 
-1. Run: `$ npm install --save react-native-media-suite@latest`
-2. For each platform (iOS/Android) you plan to use, follow one of the options for the corresponding platform.
+Using npm:
+`$ npm install --save react-native-media-suite`
 
-#### iOS
+or using yarn:
+`$ yarn add react-native-media-suite`
 
+For each platform (iOS/Android) you plan to use, follow one of the options for the corresponding platform.
+
+<details><summary>iOS</summary>
+<p>
+
+#### Standard Method
+Run `$ react-native link react-native-media-suite` to link the react-native-media-suite library. You only need to do this once, it will link both Android and iOS
+
+#### Manually
 1. Right click on **Libraries** and choose 'Add files to "Project Name"'.
 2. Navigate to `project_name/node_modules/react-native-media-suite/ios/` and add the file `react-native-media-suite.xcodeproj`.
 3. Open project settings and at the top choose '**Build Phases**'
 4. Expand the '**Link Binary With Libraries**' section.
 5. Click the + at the bottom of the list
 6. Add the `libreact-native-media-suite.a` file
+</p>
+</details>
 
-#### Android
+<details><summary>Android</summary>
+<p>
 
+#### Standard Method
+Run `$ react-native link react-native-media-suite` to link the react-native-media-suite library. You only need to do this once, it will link both Android and iOS.
+
+#### Manually
 ##### `android/settings.gradle`
 
 ```
@@ -56,6 +73,8 @@ protected List<ReactPackage> getPackages() {
     );
 }
 ```
+</p>
+</details>
 
 ## Documentation
 
