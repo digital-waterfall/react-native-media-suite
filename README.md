@@ -15,20 +15,24 @@ Supported media types:
 ## Installation
 
 Using npm:
-`$ npm install --save react-native-media-suite`
+```
+$ npm install --save react-native-media-suite
+```
 
 or using yarn:
-`$ yarn add react-native-media-suite`
+```
+$ yarn add react-native-media-suite
+```
 
 For each platform (iOS/Android) you plan to use, follow one of the options for the corresponding platform.
 
 <details><summary>iOS</summary>
 <p>
 
-#### Standard Method
+### Standard Method
 Run `$ react-native link react-native-media-suite` to link the react-native-media-suite library. You only need to do this once, it will link both Android and iOS
 
-#### Manually
+### Manually
 1. Right click on **Libraries** and choose 'Add files to "Project Name"'.
 2. Navigate to `project_name/node_modules/react-native-media-suite/ios/` and add the file `react-native-media-suite.xcodeproj`.
 3. Open project settings and at the top choose '**Build Phases**'
@@ -41,10 +45,10 @@ Run `$ react-native link react-native-media-suite` to link the react-native-medi
 <details><summary>Android</summary>
 <p>
 
-#### Standard Method
+### Standard Method
 Run `$ react-native link react-native-media-suite` to link the react-native-media-suite library. You only need to do this once, it will link both Android and iOS.
 
-#### Manually
+### Manually
 ##### `android/settings.gradle`
 
 ```
@@ -78,34 +82,58 @@ protected List<ReactPackage> getPackages() {
 
 ## Documentation
 
-#### Video Player API
-
-The API is designed to mimic the html [`<video />`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video).
+### Video Player API
 
 ```
 import Video from 'react-native-media-suite';
-...
+
 render() {
     return (
         <Video
-            ref={ref => this.videoRef = ref}
-            style={{ width: width, height: width * 9 / 16) }}
             src="https://bitmovin-a.akamaihd.net/content/playhouse-vr/mpds/105560.mpd"
-            autoplay={false}
-            preload="none"
-            loop={false}
-            controls={true}
-            muted={false}
-            poster="http://static.yoaicdn.com/shoppc/images/cover_img_e1e9e6b.jpg"
+            ref={ref => this.videoRef = ref}
+            style={styles.videoStyle}
+            onError={this.videoError}                // Callback when video cannot be loaded
+            onProgress={this.videoProgress}          // Callback called every second to give info about playback
         />
     );
 }
+
+var styles = StyleSheet.create({
+  videoStyle: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+  },
+});
 ```
 
-##### Properties
+#### Properties
+##### Configurable props
+
+<details><summary>src</summary><p>
+
+<table class="tg">
+  <tr>
+    <th class="tg-c3ow">Property</th>
+    <th class="tg-c3ow">Type</th>
+    <th class="tg-c3ow">Description</th>
+  </tr>
+  <tr>
+    <td class="tg-0pky">src</td>
+    <td class="tg-0pky">String</td>
+    <td class="tg-0pky">Sets the media source. This can either be a remote URI of a manifest file or a downloadID of a downloaded stream. </td>
+  </tr>
+</table>
+
+</p></details>
+
 
 | Property Name          | Description                              | iOS  | Android |
 | ---------------------- | ---------------------------------------- | ---- | ------- |
+|                                                                                    |
 | `src`                  | The URL of the video                                                                                                               | :white_check_mark:   | :white_check_mark:      |
 | `offline`              | The ID of the downloaded asset                                                                                                     | :white_check_mark:   | :x:      |
 | `autoplay`             | True to automatically begins to play. Default is `false`.                                                                          | :white_check_mark:   | :x:      |
