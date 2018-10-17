@@ -110,38 +110,20 @@ var styles = StyleSheet.create({
 });
 ```
 
-#### Properties
-##### Configurable props
+### Properties
+#### Configurable props
+| Property Name          | Type | Description                              | iOS  | Android |
+| ---------------------- | ---- |---------------------------------------- | ---- | ------- |
+| `src`                  | string | The URL of the video                                                                                                               | :white_check_mark:   | :white_check_mark:      |
+| `autoplay`             | boolean | True to automatically begins to play. Default is `false`.                                                                          | :white_check_mark:   | :x:      |
+| `preload`              | string  | Can be `'none'`, `'auto'`. Default is `'none'`.                                                                                    | :white_check_mark:   | :x:      |
+| `loop`                 | boolean | `true` to automatically seek back to the start upon reaching the end of the video. Default is `false`.                             | :white_check_mark:   | :white_check_mark:      |
+| `ignoreSilentSwitch`   | boolean | An image URL indicating a poster frame to show until the user plays.                                                               | :white_check_mark:   | :x:      |
+| `muted`                | boolean |`true` to silence the audio. Default is `false`.                                                                                   | :white_check_mark:   | :x:      |
 
-<details><summary>src</summary><p>
-
-<table class="tg">
-  <tr>
-    <th class="tg-c3ow">Property</th>
-    <th class="tg-c3ow">Type</th>
-    <th class="tg-c3ow">Description</th>
-  </tr>
-  <tr>
-    <td class="tg-0pky">src</td>
-    <td class="tg-0pky">String</td>
-    <td class="tg-0pky">Sets the media source. This can either be a remote URI of a manifest file or a downloadID of a downloaded stream. </td>
-  </tr>
-</table>
-
-</p></details>
-
-
+#### Events
 | Property Name          | Description                              | iOS  | Android |
 | ---------------------- | ---------------------------------------- | ---- | ------- |
-|                                                                                    |
-| `src`                  | The URL of the video                                                                                                               | :white_check_mark:   | :white_check_mark:      |
-| `offline`              | The ID of the downloaded asset                                                                                                     | :white_check_mark:   | :x:      |
-| `autoplay`             | True to automatically begins to play. Default is `false`.                                                                          | :white_check_mark:   | :x:      |
-| `preload`              | Can be `'none'`, `'auto'`. Default is `'none'`.                                                                                    | :white_check_mark:   | :x:      |
-| `loop`                 | `true` to automatically seek back to the start upon reaching the end of the video. Default is `false`.                             | :white_check_mark:   | :white_check_mark:      |
-| `controls`             | `true` to show controls to allow user to control video playback, including seeking, and pause/resume playback. Default is `true`.  | :white_check_mark:   | :x:      |
-| `poster`               | An image URL indicating a poster frame to show until the user plays.                                                               | :white_check_mark:   | :x:      |
-| `muted`                | `true` to silence the audio. Default is `false`.                                                                                   | :white_check_mark:   | :x:      |
 | `onPlayerPaused`       |                                                                                                                                    | :white_check_mark:   | :x:      |
 | `onPlayerPlaying`      |                                                                                                                                    | :white_check_mark:   | :x:      |
 | `onPlayerFinished`     |                                                                                                                                    | :white_check_mark:   | :x:      |
