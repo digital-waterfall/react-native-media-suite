@@ -49,9 +49,8 @@
 
 - (void)initPlayerIfNeeded {
     if(!player) {
-        if (!self.offline) {
-            player = [AVPlayer playerWithURL:[NSURL URLWithString:self.src]];
-        } else {
+        
+        if ([[NSUserDefaults standardUserDefaults] URLForKey:self.src]  != nil) {
             NSString *assetPath = [[[NSUserDefaults standardUserDefaults] URLForKey:self.src] relativePath];
             if (assetPath == nil) {
                 if(self.onPlayerError) {
@@ -70,6 +69,16 @@
                     self.onPlayerError(@{@"error": @"The asset cannot be played offline."});
                 }
                 NSLog(@"The asset cannot be played offline!");
+            }
+        } else {
+            NSURL *url = [NSURL URLWithString:self.src];
+            if (url && url.scheme && url.host) {
+                player = [AVPlayer playerWithURL:[NSURL URLWithString:self.src]];
+            } else {
+                if(self.onPlayerError) {
+                    self.onPlayerError(@{@"error": [NSString stringWithFormat:@"Could not load content with URL: %@ ", self.src]});
+                }
+                return;
             }
         }
         
@@ -119,12 +128,6 @@
     if(player) {
         [self releasePlayer];
     }
-    [self updateProps];
-}
-
-- (void) setOffline:(BOOL)offline {
-    NSLog(@"setOffline...offline=%d", offline);
-    _offline = offline;
     [self updateProps];
 }
 
