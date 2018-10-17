@@ -1,10 +1,8 @@
 import React from 'react';
 import {StyleSheet, Text, View, Dimensions, Platform, Alert} from 'react-native';
 import Video, {DOWNLOAD_STATES, DownloadManager, EVENT_LISTENER_TYPES} from './library/index';
-import { Tabs, Button, WhiteSpace, TabBar } from 'antd-mobile-rn';
+import { Tabs, Button, WhiteSpace } from 'antd-mobile-rn';
 import _ from 'lodash';
-
-let test_video = require('./test.mp4');
 
 const {width} = Dimensions.get('window');
 
@@ -57,7 +55,7 @@ export default class App extends React.Component {
             ios: [
                 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8',
                 'http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8',
-                test_video
+                'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8',
             ],
             android: [
                 'https://d2h2jy22itvgms.cloudfront.net/dash/short_test.mpd',
@@ -136,7 +134,7 @@ export default class App extends React.Component {
                         loop
                         ignoreSilentSwitch
                         muted={false}
-                        src={test_video}
+                        src={this.videoURLs[2]}
                         onError={(error) => console.warn(error)}
                         onProgress={(data) => console.warn(data)}
                     />

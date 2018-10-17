@@ -17,7 +17,6 @@ import {DownloadManager} from '../index';
 export default class MediaPlayerView extends Component {
     static defaultProps = {
         autoplay: false,
-        offline: false,
         preload: 'auto',
         loop: false,
         rate: 1,
@@ -85,13 +84,12 @@ export default class MediaPlayerView extends Component {
 
     renderPlayer() {
         if(Platform.OS === "ios") {
-            const { autoplay, src, offline, preload, loop, muted, ignoreSilentSwitch } = this.props;
+            const { autoplay, src, preload, loop, muted, ignoreSilentSwitch } = this.props;
             return(
                 <RCTMediaPlayerView
                     ref={(RCTMediaPlayerView) => this.RCTMediaPlayerView = RCTMediaPlayerView}
                     autoplay={autoplay}
                     src={src}
-                    offline={offline}
                     preload={preload}
                     loop={loop}
                     muted={muted}
@@ -320,7 +318,6 @@ export default class MediaPlayerView extends Component {
 MediaPlayerView.propTypes = {
     resizeMode: PropTypes.number,
     src: PropTypes.string,
-    offline: PropTypes.bool,
     autoplay: PropTypes.bool,
     preload: PropTypes.string,
     loop: PropTypes.bool,
