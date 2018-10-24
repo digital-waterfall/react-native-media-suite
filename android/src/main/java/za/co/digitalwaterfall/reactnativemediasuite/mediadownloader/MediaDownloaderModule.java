@@ -378,7 +378,7 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
 
         String mappedDownloadID = getDownloadID(uri);
         if(mappedDownloadID != null && downloadID != mappedDownloadID){
-            onDownloadErrorEvent(downloadID,"DUPLICATE_DOWNLOAD","Duplicate asset for the uri found.");
+            onDownloadErrorEvent(downloadID,"DUPLICATE_URI","Duplicate asset for the uri found.");
             return;
         }
 
@@ -396,7 +396,7 @@ public class MediaDownloaderModule extends ReactContextBaseJavaModule {
             downloadManager.handleAction(downloadAction);
             downloadManager.startDownloads();
         } else if (activeTaskState.state == DownloadManager.TaskState.STATE_STARTED) {
-            onDownloadErrorEvent(downloadID, "DOWNLOAD_IN_PROGRESS", "The asset download is in progress");
+            onDownloadErrorEvent(downloadID, "ALREADY_DOWNLOADED", "The asset is already downloading");
         } else {
             Log.d(TAG, "Download not started");
         }

@@ -4,7 +4,11 @@
   "description": "A native media player with download capabilities. It was forked from react-native-media-kit.",
   "main": "library/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prettier": "prettier --write \"library/**/*.js\" \"TestVideo/library/**/*.js\"",
+    "lint": "eslint --fix \"library/**/*.js\" \"TestVideo/library/**/*.js\"",
+    "lint-ci": "eslint \"library/**/*.js\" \"TestVideo/library/**/*.js\"",
+    "precommit": "lint-staged"
   },
   "repository": {
     "type": "git",
@@ -29,7 +33,7 @@
   "license": "MIT",
   "homepage": "https://bitbucket.org/cellcdigital/cellc-digital-black-native-player#readme",
   "dependencies": {
-    "lodash": "^4.17.10",
+    "lodash": "4.17.10",
     "prop-types": "15.6.1",
     "rn-multi-tenant-async-storage": "0.0.3"
   },
@@ -38,6 +42,24 @@
     "react-native": ">=0.55.2"
   },
   "devDependencies": {
-    "prettier": "1.14.2"
+    "eslint": "5.7.0",
+    "eslint-config-esnext": "3.0.0",
+    "eslint-config-prettier": "2.9.0",
+    "eslint-config-react-native": "3.0.0",
+    "eslint-plugin-import": "2.14.0",
+    "eslint-plugin-jest": "21.22.0",
+    "eslint-plugin-prettier": "2.6.2",
+    "eslint-plugin-react": "7.11.1",
+    "eslint-plugin-react-native": "3.3.0",
+    "husky": "1.1.2",
+    "lint-staged": "7.3.0",
+    "prettier": "1.14.3"
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier --write \"library/**/*.js\" \"TestVideo/library/**/*.js\"",
+      "eslint \"library/**/*.js\"",
+      "git add"
+    ]
   }
 }

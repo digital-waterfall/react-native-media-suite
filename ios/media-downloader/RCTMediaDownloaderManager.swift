@@ -160,7 +160,7 @@ class MediaDownloader: RCTEventEmitter {
                 userDefaults.removeObject(forKey: downloadID)
                 return
             } catch {
-                self.sendEvent(withName: "onDownloadError", body: ["error" : "An error occured deleting the file: \(error)", "errorType" : "DELETE_FAILED", "downloadID" : downloadID])
+                self.sendEvent(withName: "onDownloadError", body: ["error" : "An error occurred deleting the file: \(error)", "errorType" : "DELETE_FAILED", "downloadID" : downloadID])
                 return
             }
         }
@@ -242,7 +242,7 @@ extension MediaDownloader: AVAssetDownloadDelegate {
             case (NSURLErrorDomain, NSURLErrorCancelled):
                 if self.restoredDownloadsIdsArray.contains(task.taskDescription ?? "") {
                     self.sendEvent(withName: "onDownloadError", body:["downloadID" : task.taskDescription, "error" : "Download was unexpectedly cancelled.", "errorType" : "UNEXPECTEDLY_CANCELLED"])
-                    print("An unexpected error occured \(error.domain)")
+                    print("An unexpected error occurred \(error.domain)")
                     
                     let restoredDownloadsIdIndex = self.restoredDownloadsIdsArray.firstIndex(of: task.taskDescription!)
                     if restoredDownloadsIdIndex != nil {
@@ -260,8 +260,8 @@ extension MediaDownloader: AVAssetDownloadDelegate {
                 print("Downloading HLS streams is not supported in the simulator.")
                 
             default:
-                self.sendEvent(withName: "onDownloadError", body:["downloadID" : task.taskDescription, "error" : "An unexpected error occured \(error.domain)", "errorType" : "UNKNOWN"])
-                print("An unexpected error occured \(error.domain)")
+                self.sendEvent(withName: "onDownloadError", body:["downloadID" : task.taskDescription, "error" : "An unexpected error occurred \(error.domain)", "errorType" : "UNKNOWN"])
+                print("An unexpected error occurred \(error.domain)")
             }
         } else {
             

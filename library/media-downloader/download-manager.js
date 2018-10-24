@@ -1,13 +1,12 @@
-import {NativeModules, NativeEventEmitter, Platform, AppState } from 'react-native';
+import { NativeModules, NativeEventEmitter, Platform, AppState } from 'react-native';
 import _ from 'lodash';
 import storageService from 'rn-multi-tenant-async-storage';
 
-import Download, { DOWNLOAD_STATES, EVENT_LISTENER_TYPES }from './download';
+import Download, { DOWNLOAD_STATES, EVENT_LISTENER_TYPES } from './download';
 
 const tenantKey = 'RNMediaSuite_DownloadManager';
 
 class DownloadManager {
-
     constructor() {
         if (!DownloadManager.downloader) {
             storageService.addStorageTenant(tenantKey);
@@ -57,46 +56,76 @@ class DownloadManager {
     }
 
     restoreMediaDownloader() {
-        return new Promise((resolve, reject) => {
-            storageService.getAllKeyValuePairs(this.tenant).then(downloads => {
+        return storageService.getAllKeyValuePairs(this.tenant).then(
+            downloads => {
                 let downloadIds = [];
                 _.forEach(downloads, download => {
-                    const newDownload = new Download(download[1].downloadID, download[1].remoteURL, download[1].state, download[1].bitRate, download[1].title, download[1].assetArtworkURL, this.nativeDownloader, download[1]);
-                    newDownload.addEventListener(EVENT_LISTENER_TYPES.deleted, this.deleteDownloaded);
-                    newDownload.addEventListener(EVENT_LISTENER_TYPES.paused, this.onDownloadPaused);
-                    newDownload.addEventListener(EVENT_LISTENER_TYPES.resumed, this.onDownloadResumed);
+                    const newDownload = new Download(
+                        download[1].downloadID,
+                        download[1].remoteURL,
+                        download[1].state,
+                        download[1].bitRate,
+                        download[1].title,
+                        download[1].assetArtworkURL,
+                        this.nativeDownloader,
+                        download[1]
+                    );
+                    newDownload.addEventListener(
+                        EVENT_LISTENER_TYPES.deleted,
+                        this.deleteDownloaded
+                    );
+                    newDownload.addEventListener(
+                        EVENT_LISTENER_TYPES.paused,
+                        this.onDownloadPaused
+                    );
+                    newDownload.addEventListener(
+                        EVENT_LISTENER_TYPES.resumed,
+                        this.onDownloadResumed
+                    );
                     this.downloads.push(newDownload);
                     downloadIds.push(download[1].downloadID);
                 });
 
                 if (Platform.OS === 'ios') {
-                    this.nativeDownloader.restoreMediaDownloader().then(() => {this.checkIfStillDownloaded(); resolve(downloadIds);});
+                    this.nativeDownloader.restoreMediaDownloader().then(() => {
+                        this.checkIfStillDownloaded();
+                        return downloadIds;
+                    });
                 } else {
                     this.checkIfStillDownloaded();
-                    resolve(downloadIds);
+                    return downloadIds;
                 }
-            }, error => {
-                reject(error);
-            });
-        });
+            },
+            error => {
+                return error;
+            }
+        );
     }
 
     setMaxSimultaneousDownloads(maxSimultaneousDownloads) {
         if (Platform.OS === 'ios') {
-            if (typeof maxSimultaneousDownloads !== 'number' || (maxSimultaneousDownloads % 1) !== 0) {
-                throw 'maxSimultaneousDownloads should be of type integer.'
+            if (_.isInteger(maxSimultaneousDownloads)) {
+                throw 'maxSimultaneousDownloads should be of type integer.';
             }
             this.nativeDownloader.setMaxSimultaneousDownloads(maxSimultaneousDownloads);
         }
     }
 
-    createNewDownload(url, downloadID, title, assetArtworkURL,  bitRate = 0) {
+    createNewDownload(url, downloadID, title, assetArtworkURL, bitRate = 0) {
         let download = this.downloads.find(download => download.downloadID === downloadID);
 
-        if (download && !download.failed()) {
+        if (download) {
             throw `Download already exists with ID: ${downloadID}`;
         }
-        download = new Download(downloadID, url, DOWNLOAD_STATES.initialized, bitRate, title, assetArtworkURL, this.nativeDownloader);
+        download = new Download(
+            downloadID,
+            url,
+            DOWNLOAD_STATES.initialized,
+            bitRate,
+            title,
+            assetArtworkURL,
+            this.nativeDownloader
+        );
         this.downloads.push(download);
         download.addEventListener(EVENT_LISTENER_TYPES.deleted, this.deleteDownloaded);
         download.addEventListener(EVENT_LISTENER_TYPES.paused, this.onDownloadPaused);
@@ -113,7 +142,7 @@ class DownloadManager {
     }
 
     onDownloadStarted(data) {
-        let download = this.getDownload(data.downloadID);
+        const download = this.getDownload(data.downloadID);
         if (!download) return;
 
         download.onDownloadStarted();
@@ -122,7 +151,7 @@ class DownloadManager {
     }
 
     onDownloadProgress(data) {
-        let download = this.getDownload(data.downloadID);
+        const download = this.getDownload(data.downloadID);
         if (!download) return;
 
         download.onDownloadProgress(data.percentComplete);
@@ -131,7 +160,7 @@ class DownloadManager {
     }
 
     onDownloadFinished(data) {
-        let download = this.getDownload(data.downloadID);
+        const download = this.getDownload(data.downloadID);
         if (!download) return;
 
         download.onDownloadFinished(data.downloadLocation, data.size);
@@ -140,10 +169,10 @@ class DownloadManager {
     }
 
     onDownloadError(data) {
-        let download = this.getDownload(data.downloadID);
+        const download = this.getDownload(data.downloadID);
         if (!download) return;
 
-        if (data.errorType === "UNEXPECTEDLY_CANCELLED" ) {
+        if (data.errorType === 'UNEXPECTEDLY_CANCELLED') {
             download.retry();
             return;
         }
@@ -155,17 +184,14 @@ class DownloadManager {
     }
 
     onDownloadCancelled(data) {
-        let download = this.getDownload(data.downloadID);
+        const download = this.getDownload(data.downloadID);
         if (!download) return;
 
         download.onDownloadCancelled();
-        _.remove(this.downloads, download => download.downloadID === data.downloadID);
-        storageService.removeItem(this.tenant, data.downloadID);
-        this.callUpdateListeners(data.downloadID);
     }
 
     onDownloadPaused(downloadID) {
-        let download = this.getDownload(downloadID);
+        const download = this.getDownload(downloadID);
         if (!download) return;
 
         this.persistDownload(download);
@@ -173,7 +199,7 @@ class DownloadManager {
     }
 
     onDownloadResumed(downloadID) {
-        let download = this.getDownload(downloadID);
+        const download = this.getDownload(downloadID);
         if (!download) return;
 
         this.persistDownload(download);
@@ -182,24 +208,31 @@ class DownloadManager {
 
     addUpdateListener(listener, options) {
         if (!options.downloadIDs) {
-            this.updateListeners.push({downloadIDs: null, listener: listener});
-            listener(this.getDownload(_.map(this.downloads, 'downloadID'), true));
+            this.updateListeners.push({ downloadIDs: null, listener: listener });
+            if (options.updateImmediately) {
+                listener(this.getDownload(_.map(this.downloads, 'downloadID'), true));
+            }
         } else {
-            this.updateListeners.push({downloadIDs: options.downloadIDs, listener});
-            if (options.updateImmediately) this.callUpdateListeners(options.downloadIDs[0]);
+            this.updateListeners.push({ downloadIDs: options.downloadIDs, listener });
+            if (options.updateImmediately) {
+                this.callUpdateListeners(options.downloadIDs[0]);
+            }
         }
     }
 
     callUpdateListeners(downloadID) {
         _.forEach(this.updateListeners, listenerObject => {
-            if (_.isArray(listenerObject.downloadIDs)) {
-                if (_.includes(listenerObject.downloadIDs, downloadID)) {
-                    listenerObject.listener(this.getDownload(listenerObject.downloadIDs, true));
-                }
-            } else if (listenerObject.downloadIDs) {
-                if (listenerObject.downloadIDs === downloadID) listenerObject.listener(this.getDownload(downloadID));
+            if (
+                _.isArray(listenerObject.downloadIDs) &&
+                _.includes(listenerObject.downloadIDs, downloadID)
+            ) {
+                listenerObject.listener(this.getDownload(listenerObject.downloadIDs, true));
+            } else if (listenerObject.downloadIDs && listenerObject.downloadIDs === downloadID) {
+                listenerObject.listener(this.getDownload(downloadID));
             } else {
-                listenerObject.listener(this.getDownload(_.map(this.downloads, 'downloadID'), true));
+                listenerObject.listener(
+                    this.getDownload(_.map(this.downloads, 'downloadID'), true)
+                );
             }
         });
     }
@@ -225,7 +258,7 @@ class DownloadManager {
             return false;
         });
 
-        if(_.isEmpty(matchedDownloads)){
+        if (_.isEmpty(matchedDownloads)) {
             return null;
         }
 
@@ -237,7 +270,7 @@ class DownloadManager {
             return matchedDownloadsWithLabels;
         }
 
-        if(_.size(matchedDownloads) === 1){
+        if (_.size(matchedDownloads) === 1) {
             return matchedDownloads[0];
         }
         return matchedDownloads;
@@ -248,12 +281,15 @@ class DownloadManager {
     }
 
     checkIfStillDownloaded() {
-        let downloadIDs = _.map(this.downloads, download => download.downloadID);
+        const downloadIDs = _.map(this.downloads, download => download.downloadID);
         this.nativeDownloader.checkIfStillDownloaded(downloadIDs).then(downloadedDownloadIDs => {
             if (!_.isEmpty(downloadedDownloadIDs)) {
-                let deletedDownloadIDs = _.difference(downloadIDs, downloadedDownloadIDs);
+                const deletedDownloadIDs = _.difference(downloadIDs, downloadedDownloadIDs);
                 _.forEach(deletedDownloadIDs, downloadedDownloadID => {
-                    const download = _.find(this.downloads, download => download.downloadID === downloadedDownloadID);
+                    const download = _.find(
+                        this.downloads,
+                        download => download.downloadID === downloadedDownloadID
+                    );
                     if (download && download.state !== DOWNLOAD_STATES.failed) download.delete();
                 });
             }
@@ -284,4 +320,4 @@ class DownloadManager {
 const downloadManager = new DownloadManager();
 Object.freeze(downloadManager);
 
-export  default downloadManager;
+export default downloadManager;

@@ -23,7 +23,16 @@ export const EVENT_LISTENER_TYPES = Object.freeze({
 });
 
 export default class Download {
-    constructor(downloadID, remoteURL, state, bitRate, title, assetArtworkURL, nativeDownloader, restoreDownloadFields) {
+    constructor(
+        downloadID,
+        remoteURL,
+        state,
+        bitRate,
+        title,
+        assetArtworkURL,
+        nativeDownloader,
+        restoreDownloadFields
+    ) {
         this.downloadID = downloadID.toString();
         this.remoteURL = remoteURL;
         this.state = state;
@@ -46,8 +55,8 @@ export default class Download {
         this.resume = this.resume.bind(this);
         this.cancel = this.cancel.bind(this);
         this.delete = this.delete.bind(this);
-        this.isDeleted = this.isDeleted.bind(this);
-        this.destructor = this.destructor.bind(this);
+        this.isDestroyed = this.isDeleted.bind(this);
+        this.destroy = this.destructor.bind(this);
         this.addEventListener = this.addEventListener.bind(this);
         this.removeEventListener = this.removeEventListener.bind(this);
         this.callEventListeners = this.callEventListeners.bind(this);
@@ -57,13 +66,13 @@ export default class Download {
         this.onDownloadFinished = this.onDownloadFinished.bind(this);
         this.onDownloadCancelled = this.onDownloadCancelled.bind(this);
 
-        this.initialized = this.initialized.bind(this);
-        this.started = this.started.bind(this);
-        this.downloading = this.downloading.bind(this);
-        this.downloaded = this.downloaded.bind(this);
-        this.cancelled = this.cancelled.bind(this);
-        this.paused = this.paused.bind(this);
-        this.failed = this.failed.bind(this);
+        this.isInitialized = this.initialized.bind(this);
+        this.isStarted = this.started.bind(this);
+        this.isDownloading = this.downloading.bind(this);
+        this.isDownloaded = this.downloaded.bind(this);
+        this.isCancelled = this.cancelled.bind(this);
+        this.isPaused = this.paused.bind(this);
+        this.isFailed = this.failed.bind(this);
 
         if (restoreDownloadFields) {
             this.restoreDownload(restoreDownloadFields);
@@ -93,13 +102,30 @@ export default class Download {
 
         if (Platform.OS === 'ios') {
             if (this.bitRate) {
-                this.nativeDownloader.downloadStreamWithBitRate(this.remoteURL, this.downloadID, this.title, this.assetArtworkURL, retry, this.bitRate)
+                this.nativeDownloader.downloadStreamWithBitRate(
+                    this.remoteURL,
+                    this.downloadID,
+                    this.title,
+                    this.assetArtworkURL,
+                    retry,
+                    this.bitRate
+                );
             } else {
-                this.nativeDownloader.downloadStream(this.remoteURL, this.downloadID, this.title, this.assetArtworkURL, retry);
+                this.nativeDownloader.downloadStream(
+                    this.remoteURL,
+                    this.downloadID,
+                    this.title,
+                    this.assetArtworkURL,
+                    retry
+                );
             }
         } else {
             if (this.bitRate) {
-                this.nativeDownloader.downloadStreamWithBitRate(this.remoteURL, this.downloadID, this.bitRate)
+                this.nativeDownloader.downloadStreamWithBitRate(
+                    this.remoteURL,
+                    this.downloadID,
+                    this.bitRate
+                );
             } else {
                 this.nativeDownloader.downloadStream(this.remoteURL, this.downloadID);
             }
@@ -144,13 +170,14 @@ export default class Download {
     }
 
     isDeleted() {
-        if (this.state === DOWNLOAD_STATES.deleted || !this.state) throw 'Download has been deleted.'
+        if (this.state === DOWNLOAD_STATES.deleted || !this.state)
+            throw 'Download has been deleted.';
     }
 
     addEventListener(type, listener) {
         this.isDeleted();
 
-        this.eventListeners.push({type, listener});
+        this.eventListeners.push({ type, listener });
     }
 
     removeEventListener(listener) {
@@ -208,7 +235,7 @@ export default class Download {
         this.fileSize = size;
         this.finishedTimeStamp = Date.now();
 
-        this.callEventListeners(EVENT_LISTENER_TYPES.finished, {downloadLocation, size});
+        this.callEventListeners(EVENT_LISTENER_TYPES.finished, { downloadLocation, size });
     }
 
     onDownloadError(errorType, errorMessage) {
@@ -221,7 +248,7 @@ export default class Download {
         this.errorMessage = errorMessage;
         this.erroredTimeStamp = Date.now();
 
-        this.callEventListeners(EVENT_LISTENER_TYPES.error, {errorType, errorMessage});
+        this.callEventListeners(EVENT_LISTENER_TYPES.error, { errorType, errorMessage });
     }
 
     onDownloadCancelled() {
@@ -260,7 +287,7 @@ export default class Download {
     cancelled() {
         this.isDeleted();
 
-        return this.state === DOWNLOAD_STATES.cancelled;
+        return this.state === DOWNLOAD_STATES.isCancelled;
     }
 
     paused() {

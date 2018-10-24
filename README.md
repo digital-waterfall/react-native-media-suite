@@ -114,12 +114,11 @@ var styles = StyleSheet.create({
 #### Configurable props
 | Property Name          | Type | Description                              | iOS  | Android |
 | ---------------------- | ---- |---------------------------------------- | ---- | ------- |
-| `src`                  | string | The URL of the video                                                                                                               | :white_check_mark:   | :white_check_mark:      |
-| `autoplay`             | boolean | True to automatically begins to play. Default is `false`.                                                                          | :white_check_mark:   | :x:      |
-| `preload`              | string  | Can be `'none'`, `'auto'`. Default is `'none'`.                                                                                    | :white_check_mark:   | :x:      |
+| `src`                  | string | The URL of the video or downloadID                                                                                                               | :white_check_mark:   | :white_check_mark:      |
+| `autoplay`             | boolean | True to automatically begins to play. Default is `false`.                                                                          | :white_check_mark:   | :white_check_mark:      |
 | `loop`                 | boolean | `true` to automatically seek back to the start upon reaching the end of the video. Default is `false`.                             | :white_check_mark:   | :white_check_mark:      |
 | `ignoreSilentSwitch`   | boolean | An image URL indicating a poster frame to show until the user plays.                                                               | :white_check_mark:   | :x:      |
-| `muted`                | boolean |`true` to silence the audio. Default is `false`.                                                                                   | :white_check_mark:   | :x:      |
+| `muted`                | boolean |`true` to silence the audio. Default is `false`.                                                                                   | :white_check_mark:   | :white_check_mark:      |
 
 #### Events
 | Property Name          | Description                              | iOS  | Android |

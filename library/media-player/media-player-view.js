@@ -1,18 +1,19 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 
-import ReactNative, {
+import {
     View,
     requireNativeComponent,
     UIManager,
     NativeModules,
     findNodeHandle,
     Platform,
-    StyleSheet, ViewPropTypes
+    StyleSheet,
+    ViewPropTypes
 } from 'react-native';
 
-import {DownloadManager} from '../index';
+import { DownloadManager } from '../index';
 
 export default class MediaPlayerView extends Component {
     static defaultProps = {
@@ -32,7 +33,7 @@ export default class MediaPlayerView extends Component {
         };
 
         this.MediaPlayerView = NativeModules.MediaPlayerView;
-        this.assignRoot = this.assignRoot.bind(this);
+        this.setReference = this.setReference.bind(this);
 
         this.onPlayerAudioBecomingNoisy = this.onPlayerAudioBecomingNoisy.bind(this);
         this.onPlayerAudioFocusChanged = this.onPlayerAudioFocusChanged.bind(this);
@@ -74,20 +75,18 @@ export default class MediaPlayerView extends Component {
 
     render() {
         return (
-            <View
-                style={this.props.style}
-                onLayout={this.onLayout}>
+            <View style={this.props.style} onLayout={this.onLayout}>
                 {this.renderPlayer()}
             </View>
         );
     }
 
     renderPlayer() {
-        if(Platform.OS === "ios") {
+        if (Platform.OS === 'ios') {
             const { autoplay, src, preload, loop, muted, ignoreSilentSwitch } = this.props;
-            return(
+            return (
                 <RCTMediaPlayerView
-                    ref={(RCTMediaPlayerView) => this.RCTMediaPlayerView = RCTMediaPlayerView}
+                    ref={this.setReference}
                     autoplay={autoplay}
                     src={src}
                     preload={preload}
@@ -104,13 +103,13 @@ export default class MediaPlayerView extends Component {
                     onPlayerError={this.onPlayerError}
                     onPlayerLoadStart={this.onPlayerLoadStart}
                     onPlayerLoad={this.onPlayerLoad}
-                    style={{flex: 1, alignSelf: 'stretch'}}
+                    style={styles.backgroundVideoIos}
                 />
             );
         } else {
             const { autoplay, src } = this.props;
-            const  download = DownloadManager.getDownload(src);
-            const remoteUrl = _.get(download,'remoteURL',src);
+            const download = DownloadManager.getDownload(src);
+            const remoteUrl = _.get(download, 'remoteURL', src);
             let { paused } = this.state;
 
             if (paused === null && !autoplay) {
@@ -119,15 +118,15 @@ export default class MediaPlayerView extends Component {
                 paused = false;
             }
 
-            return(
+            return (
                 <RCTMediaPlayerView
-                    src={{uri:remoteUrl}}
+                    src={{ uri: remoteUrl }}
                     paused={paused}
-                    ref={this.assignRoot}
+                    ref={this.setReference}
                     onVideoLoadStart={this.onPlayerLoadStart}
                     onVideoLoad={this.onPlayerLoad}
                     onVideoError={this.onPlayerError}
-                    onVideoProgress={ this.onPlayerProgress}
+                    onVideoProgress={this.onPlayerProgress}
                     onVideoSeek={this.onPlayerSeek}
                     onVideoEnd={this.onPlayerEnd}
                     onVideoBuffer={this.onPlayerBuffer}
@@ -143,7 +142,7 @@ export default class MediaPlayerView extends Component {
                     onPlaybackRateChange={this.onPlayerRateChange}
                     onAudioFocusChanged={this.onPlayerAudioFocusChanged}
                     onAudioBecomingNoisy={this.onPlayerAudioBecomingNoisy}
-                    style={styles.backgroundVideo}
+                    style={styles.backgroundVideoAndroid}
                 />
             );
         }
@@ -153,24 +152,30 @@ export default class MediaPlayerView extends Component {
         this.root.setNativeProps(nativeProps);
     }
 
-    assignRoot(component) {
-        this.root = component;
-    };
+    setReference(component) {
+        if (Platform.OS === 'ios') {
+            this.RCTMediaPlayerView = RCTMediaPlayerView;
+        } else {
+            this.root = component;
+        }
+    }
 
     onPlayerAudioBecomingNoisy() {
         this.props.onPlayerAudioBecomingNoisy && this.props.onPlayerAudioBecomingNoisy();
-    };
+    }
 
     onPlayerAudioFocusChanged(event) {
-        this.props.onPlayerAudioFocusChanged && this.props.onPlayerAudioFocusChanged(event.nativeEvent);
-    };
+        this.props.onPlayerAudioFocusChanged &&
+            this.props.onPlayerAudioFocusChanged(event.nativeEvent);
+    }
 
     onPlayerBuffer(event) {
         this.props.onPlayerBuffer && this.props.onPlayerBuffer(event.nativeEvent);
-    };
+    }
 
     onPlayerBufferChange(event) {
-        this.props.onPlayerBufferChange && this.props.onPlayerBufferChange(event.nativeEvent.bufferDuration);
+        this.props.onPlayerBufferChange &&
+            this.props.onPlayerBufferChange(event.nativeEvent.bufferDuration);
     }
 
     onPlayerBufferOk() {
@@ -179,44 +184,48 @@ export default class MediaPlayerView extends Component {
 
     onPlayerEnd(event) {
         this.props.onPlayerEnd && this.props.onPlayerEnd(event.nativeEvent);
-    };
+    }
 
     onPlayerError(event) {
         const error = event.nativeEvent.error;
         console.warn(error);
         this.props.onPlayerError && this.props.onPlayerError(error);
-    };
+    }
 
     onFullscreenPlayerDidDismiss(event) {
-        this.props.onFullscreenPlayerDidDismiss && this.props.onFullscreenPlayerDidDismiss(event.nativeEvent);
-    };
+        this.props.onFullscreenPlayerDidDismiss &&
+            this.props.onFullscreenPlayerDidDismiss(event.nativeEvent);
+    }
 
     onFullscreenPlayerDidPresent(event) {
-        this.props.onFullscreenPlayerDidPresent && this.props.onFullscreenPlayerDidPresent(event.nativeEvent);
-    };
+        this.props.onFullscreenPlayerDidPresent &&
+            this.props.onFullscreenPlayerDidPresent(event.nativeEvent);
+    }
 
     onFullscreenPlayerWillDismiss(event) {
-        this.props.onFullscreenPlayerWillDismiss && this.props.onFullscreenPlayerWillDismiss(event.nativeEvent);
-    };
+        this.props.onFullscreenPlayerWillDismiss &&
+            this.props.onFullscreenPlayerWillDismiss(event.nativeEvent);
+    }
 
     onFullscreenPlayerWillPresent(event) {
-        this.props.onFullscreenPlayerWillPresent && this.props.onFullscreenPlayerWillPresent(event.nativeEvent);
-    };
+        this.props.onFullscreenPlayerWillPresent &&
+            this.props.onFullscreenPlayerWillPresent(event.nativeEvent);
+    }
 
     onPlayerLayout(event) {
-        const {width, height} = event.nativeEvent.layout;
-        this.setState({width, height});
+        const { width, height } = event.nativeEvent.layout;
+        this.setState({ width, height });
 
         this.props.onPlayerLayout && this.props.onPlayerLayout(event.nativeEvent);
     }
 
     onPlayerLoad(event) {
         this.props.onPlayerLoad && this.props.onPlayerLoad(event.nativeEvent.duration);
-    };
+    }
 
     onPlayerLoadStart() {
         this.props.onPlayerLoadStart && this.props.onPlayerLoadStart();
-    };
+    }
 
     onPlayerProgress(event) {
         let current;
@@ -230,7 +239,7 @@ export default class MediaPlayerView extends Component {
         }
 
         this.props.onPlayerProgress && this.props.onPlayerProgress(current, duration);
-    };
+    }
 
     onPlayerPause() {
         this.props.onPlayerPause && this.props.onPlayerPause();
@@ -242,54 +251,54 @@ export default class MediaPlayerView extends Component {
 
     onPlayerRateChange(event) {
         this.props.onPlayerRateChange && this.props.onPlayerRateChange(event.nativeEvent);
-    };
+    }
 
     onPlayerReadyForDisplay(event) {
         this.props.onPlayerReadyForDisplay && this.props.onPlayerReadyForDisplay(event.nativeEvent);
-    };
+    }
 
     onPlayerSeek(event) {
         this.props.onPlayerSeek && this.props.onPlayerSeek(event.nativeEvent);
-    };
+    }
 
     onPlayerTimedMetadata(event) {
         this.props.onPlayerTimedMetadata && this.props.onPlayerTimedMetadata(event.nativeEvent);
-    };
+    }
 
     dismissFullscreenPlayer() {
         this.setNativeProps({ fullscreen: false });
-    };
+    }
 
     pause() {
-        if (Platform.OS === "ios") {
+        if (Platform.OS === 'ios') {
             UIManager.dispatchViewManagerCommand(
                 this.RCTMediaPlayerView._nativeTag,
                 UIManager.RCTMediaPlayerView.Commands.pause,
                 null
             );
         } else {
-            this.setNativeProps({ paused: true});
+            this.setNativeProps({ paused: true });
         }
     }
 
     play() {
-        if (Platform.OS === "ios") {
+        if (Platform.OS === 'ios') {
             UIManager.dispatchViewManagerCommand(
                 this.RCTMediaPlayerView._nativeTag,
                 UIManager.RCTMediaPlayerView.Commands.play,
                 null
             );
         } else {
-            this.setNativeProps({ paused: false});
+            this.setNativeProps({ paused: false });
         }
     }
 
     presentFullscreenPlayer() {
         this.setNativeProps({ fullscreen: true });
-    };
+    }
 
     seekTo(timeMs) {
-        if (Platform.OS === "ios") {
+        if (Platform.OS === 'ios') {
             let args = [timeMs];
             UIManager.dispatchViewManagerCommand(
                 this.RCTMediaPlayerView._nativeTag,
@@ -297,20 +306,20 @@ export default class MediaPlayerView extends Component {
                 args
             );
         } else {
-            this.setNativeProps({ seek: timeMs/1000 });
+            this.setNativeProps({ seek: timeMs / 1000 });
         }
     }
 
     stop() {
-        if (Platform.OS === "ios") {
+        if (Platform.OS === 'ios') {
             UIManager.dispatchViewManagerCommand(
                 this.RCTMediaPlayerView._nativeTag,
                 UIManager.RCTMediaPlayerView.Commands.stop,
                 null
             );
         } else {
-            this.setNativeProps({ paused: true});
-            this.setNativeProps({ seek: 0});
+            this.setNativeProps({ paused: true });
+            this.setNativeProps({ seek: 0 });
         }
     }
 }
@@ -375,19 +384,23 @@ MediaPlayerView.propTypes = {
 };
 
 let styles = StyleSheet.create({
-    backgroundVideo: {
+    backgroundVideoAndroid: {
         position: 'absolute',
         top: 0,
         left: 0,
         bottom: 0,
-        right: 0,
+        right: 0
     },
+    backgroundVideoIos: {
+        flex: 1,
+        alignSelf: 'stretch'
+    }
 });
 
-const RCTMediaPlayerView = requireNativeComponent('RCTMediaPlayerView', MediaPlayerView,{
+const RCTMediaPlayerView = requireNativeComponent('RCTMediaPlayerView', MediaPlayerView, {
     nativeOnly: {
         src: true,
         seek: true,
-        fullscreen: true,
-    },
+        fullscreen: true
+    }
 });

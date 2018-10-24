@@ -1,0 +1,46 @@
+{
+    "env": {
+        "browser": true,
+        "node": true,
+        "es6": true,
+        "jest": true
+    },
+    "globals": {
+        "__DEV__": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    },
+    "extends": [
+        "react-native",
+        "esnext",
+        "eslint:recommended",
+        "plugin:react/recommended",
+        "plugin:jest/recommended",
+        "prettier"
+    ],
+    "plugins": ["react", "react-native", "jest", "prettier"],
+    "settings": {
+        "react": {
+            "version": "16.5.2"
+        }
+    },
+    "rules": {
+        "class-methods-use-this": "off",
+        "react-native/split-platform-components": "off",
+        "semi": ["error", "always"],
+        "no-console": ["error", { "allow": ["warn", "error", "log"] }],
+        "react/jsx-handler-names": "off",
+        "import/no-namespace": "off",
+        "import/namespace": "off",
+        "import/prefer-default-export": "off",
+        "import/default": "off",
+        "react/prefer-stateless-function": "off",
+      "react-native/no-color-literals": "off",
+        "react/jsx-curly-brace-presence": ["error", { "props": "never", "children": "ignore" }]
+    }
+}
