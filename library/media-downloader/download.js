@@ -22,6 +22,81 @@ export const EVENT_LISTENER_TYPES = Object.freeze({
     resumed: 'RESUMED'
 });
 
+export const ERRORS = Object.freeze([
+    {
+        type: 'ALREADY_DOWNLOADED',
+        description: 'The asset is already downloaded or downloading.',
+        code: '01',
+        platforms: [Platform.ios, Platform.android]
+    },
+    {
+        type: 'NO_URL',
+        description: 'The URL passed to the downloader was empty.',
+        code: '02',
+        platforms: [Platform.ios]
+    },
+    {
+        type: 'DOWNLOAD_TASK_ERROR',
+        description: 'Failed to create download task for a unknown reason.',
+        code: '03',
+        platforms: [Platform.ios]
+    },
+    {
+        type: 'NOT_SUPPORTED',
+        description: 'Downloads are not supported on the current device.',
+        code: '04',
+        platforms: [Platform.ios]
+    },
+    {
+        type: 'DELETE_FAILED',
+        description: 'An error occurred while deleting the download.',
+        code: '05',
+        platforms: [Platform.ios]
+    },
+    {
+        type: 'NOT_FOUND',
+        description: 'The native downloader could not find the download.',
+        code: '06',
+        platforms: [Platform.ios]
+    },
+    {
+        type: 'PAUSE_FAILED',
+        description: 'Tried to pause a download that has already finished downloading.',
+        code: '07',
+        platforms: [Platform.ios]
+    },
+    {
+        type: 'RESUME_FAILED',
+        description: 'Tried to resume a download that has already finished downloading.',
+        code: '08',
+        platforms: [Platform.ios]
+    },
+    {
+        type: 'UNEXPECTEDLY_CANCELLED',
+        description: 'The download was unexpectedly cancelled.',
+        code: '09',
+        platforms: [Platform.ios]
+    },
+    {
+        type: 'SIMULATOR_NOT_SUPPORTED',
+        description: 'Downloading HLS streams is not supported in the simulator.',
+        code: '10',
+        platforms: [Platform.ios]
+    },
+    {
+        type: 'DUPLICATE_URI',
+        description: 'Duplicate asset for the uri found.',
+        code: '11',
+        platforms: [Platform.android]
+    },
+    {
+        type: 'UNKNOWN',
+        description: 'An unexpected error occurred',
+        code: '12',
+        platforms: [Platform.ios]
+    }
+]);
+
 export default class Download {
     constructor(
         downloadID,
@@ -55,8 +130,8 @@ export default class Download {
         this.resume = this.resume.bind(this);
         this.cancel = this.cancel.bind(this);
         this.delete = this.delete.bind(this);
-        this.isDestroyed = this.isDeleted.bind(this);
-        this.destroy = this.destructor.bind(this);
+        this.isDestroyed = this.isDestroyed.bind(this);
+        this.destroy = this.destroy.bind(this);
         this.addEventListener = this.addEventListener.bind(this);
         this.removeEventListener = this.removeEventListener.bind(this);
         this.callEventListeners = this.callEventListeners.bind(this);
@@ -66,13 +141,13 @@ export default class Download {
         this.onDownloadFinished = this.onDownloadFinished.bind(this);
         this.onDownloadCancelled = this.onDownloadCancelled.bind(this);
 
-        this.isInitialized = this.initialized.bind(this);
-        this.isStarted = this.started.bind(this);
-        this.isDownloading = this.downloading.bind(this);
-        this.isDownloaded = this.downloaded.bind(this);
-        this.isCancelled = this.cancelled.bind(this);
-        this.isPaused = this.paused.bind(this);
-        this.isFailed = this.failed.bind(this);
+        this.isInitialized = this.isInitialized.bind(this);
+        this.isStarted = this.isStarted.bind(this);
+        this.isDownloading = this.isDownloading.bind(this);
+        this.isDownloaded = this.isDownloaded.bind(this);
+        this.isCancelled = this.isCancelled.bind(this);
+        this.isPaused = this.isPaused.bind(this);
+        this.isFailed = this.isFailed.bind(this);
 
         if (restoreDownloadFields) {
             this.restoreDownload(restoreDownloadFields);
@@ -96,9 +171,7 @@ export default class Download {
     }
 
     start(retry) {
-        this.isDeleted();
-
-        if (!retry) retry = false;
+        this.isDestroyed();
 
         if (Platform.OS === 'ios') {
             if (this.bitRate) {
@@ -107,7 +180,7 @@ export default class Download {
                     this.downloadID,
                     this.title,
                     this.assetArtworkURL,
-                    retry,
+                    Boolean(retry),
                     this.bitRate
                 );
             } else {
@@ -116,7 +189,7 @@ export default class Download {
                     this.downloadID,
                     this.title,
                     this.assetArtworkURL,
-                    retry
+                    Boolean(retry)
                 );
             }
         } else {
@@ -133,7 +206,7 @@ export default class Download {
     }
 
     pause() {
-        this.isDeleted();
+        this.isDestroyed();
 
         this.nativeDownloader.pauseDownload(this.downloadID);
         this.state = DOWNLOAD_STATES.paused;
@@ -141,7 +214,7 @@ export default class Download {
     }
 
     resume() {
-        this.isDeleted();
+        this.isDestroyed();
 
         this.nativeDownloader.resumeDownload(this.downloadID);
         this.state = DOWNLOAD_STATES.downloading;
@@ -149,39 +222,39 @@ export default class Download {
     }
 
     cancel() {
-        this.isDeleted();
+        this.isDestroyed();
 
         this.nativeDownloader.cancelDownload(this.downloadID);
     }
 
     delete() {
-        this.isDeleted();
+        this.isDestroyed();
 
         this.nativeDownloader.deleteDownloadedStream(this.downloadID);
         this.state = DOWNLOAD_STATES.deleted;
         this.callEventListeners(EVENT_LISTENER_TYPES.deleted, this.downloadID);
-        this.destructor();
+        this.destroy();
     }
 
     retry() {
-        this.isDeleted();
+        this.isDestroyed();
 
         this.start(true);
     }
 
-    isDeleted() {
+    isDestroyed() {
         if (this.state === DOWNLOAD_STATES.deleted || !this.state)
             throw 'Download has been deleted.';
     }
 
     addEventListener(type, listener) {
-        this.isDeleted();
+        this.isDestroyed();
 
         this.eventListeners.push({ type, listener });
     }
 
     removeEventListener(listener) {
-        this.isDeleted();
+        this.isDestroyed();
         _.remove(this.eventListeners, eventListener => eventListener === listener);
     }
 
@@ -193,7 +266,7 @@ export default class Download {
         });
     }
 
-    destructor() {
+    destroy() {
         this.downloadID = undefined;
         this.remoteURL = undefined;
         this.state = DOWNLOAD_STATES.deleted;
@@ -210,7 +283,7 @@ export default class Download {
     }
 
     onDownloadStarted() {
-        this.isDeleted();
+        this.isDestroyed();
 
         this.state = DOWNLOAD_STATES.started;
         this.startedTimeStamp = Date.now();
@@ -219,16 +292,16 @@ export default class Download {
     }
 
     onDownloadProgress(progress) {
-        this.isDeleted();
+        this.isDestroyed();
 
-        if (!this.paused()) this.state = DOWNLOAD_STATES.downloading;
+        if (!this.isPaused()) this.state = DOWNLOAD_STATES.downloading;
         this.progress = progress;
 
         this.callEventListeners(EVENT_LISTENER_TYPES.progress, progress);
     }
 
     onDownloadFinished(downloadLocation, size) {
-        this.isDeleted();
+        this.isDestroyed();
 
         this.state = DOWNLOAD_STATES.downloaded;
         this.localURL = downloadLocation;
@@ -238,66 +311,72 @@ export default class Download {
         this.callEventListeners(EVENT_LISTENER_TYPES.finished, { downloadLocation, size });
     }
 
-    onDownloadError(errorType, errorMessage) {
-        this.isDeleted();
+    onDownloadError(errorType) {
+        this.isDestroyed();
 
-        if (errorType !== 'ALREADY_DOWNLOADED') {
+        let errorObject = _.find(ERRORS, error => error.type === errorType);
+        if (!errorObject) {
+            errorObject = _.find(ERRORS, error => (error.code = '12'));
+        }
+
+        if (errorObject.type !== _.find(ERRORS, error => error.code === '01').type) {
             this.state = DOWNLOAD_STATES.failed;
         }
-        this.errorType = errorType;
-        this.errorMessage = errorMessage;
+        this.errorType = errorObject.type;
+        this.errorMessage = errorObject.description;
         this.erroredTimeStamp = Date.now();
 
-        this.callEventListeners(EVENT_LISTENER_TYPES.error, { errorType, errorMessage });
+        this.callEventListeners(EVENT_LISTENER_TYPES.error, {
+            errorType: errorObject.type,
+            errorMessage: errorObject.description
+        });
     }
 
     onDownloadCancelled() {
-        this.isDeleted();
+        this.isDestroyed();
 
-        this.state = DOWNLOAD_STATES.deleted;
+        this.delete();
         this.callEventListeners(EVENT_LISTENER_TYPES.cancelled);
-
-        this.destructor();
     }
 
-    initialized() {
-        this.isDeleted();
+    isInitialized() {
+        this.isDestroyed();
 
         return this.state === DOWNLOAD_STATES.initialized;
     }
 
-    started() {
-        this.isDeleted();
+    isStarted() {
+        this.isDestroyed();
 
         return this.state === DOWNLOAD_STATES.started;
     }
 
-    downloading() {
-        this.isDeleted();
+    isDownloading() {
+        this.isDestroyed();
 
         return this.state === DOWNLOAD_STATES.downloading;
     }
 
-    downloaded() {
-        this.isDeleted();
+    isDownloaded() {
+        this.isDestroyed();
 
         return this.state === DOWNLOAD_STATES.downloaded;
     }
 
-    cancelled() {
-        this.isDeleted();
+    isCancelled() {
+        this.isDestroyed();
 
         return this.state === DOWNLOAD_STATES.isCancelled;
     }
 
-    paused() {
-        this.isDeleted();
+    isPaused() {
+        this.isDestroyed();
 
         return this.state === DOWNLOAD_STATES.paused;
     }
 
-    failed() {
-        this.isDeleted();
+    isFailed() {
+        this.isDestroyed();
 
         return this.state === DOWNLOAD_STATES.failed;
     }
