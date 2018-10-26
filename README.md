@@ -80,7 +80,7 @@ protected List<ReactPackage> getPackages() {
 </p>
 </details>
 
-## Documentation
+# Documentation
 
 ### Video Player API
 
@@ -112,6 +112,7 @@ var styles = StyleSheet.create({
 
 ### Properties
 #### Configurable props
+-----------------------
 | Property Name          | Type | Description                              | iOS  | Android |
 | ---------------------- | ---- |---------------------------------------- | ---- | ------- |
 | `src`                  | string | The URL of the video or downloadID                                                                                                               | :white_check_mark:   | :white_check_mark:      |
@@ -120,7 +121,8 @@ var styles = StyleSheet.create({
 | `muted`                | boolean |`true` to silence the audio. Default is `false`.                                                                                   | :white_check_mark:   | :white_check_mark:      |
 | `ignoreSilentSwitch`   | boolean |`true` to ignore the iPhone silent switch when playing audio.                                                              | :white_check_mark:   | :x:      |
 
-#### Events
+### Events
+----------
 | Property Name                   | Description                              | iOS  | Android |
 | ------------------------------- | ---------------------------------------- | ---- | ------- |
 | `onPlayerPause`                 |                                                                                                                                    | :white_check_mark:   | :white_check_mark:      |
@@ -144,7 +146,8 @@ var styles = StyleSheet.create({
 | `onPlayerAudioFocusChanged`     |                                                                                                                                    | :x:   | :white_check_mark:      |
 | `onPlayerAudioBecomingNoisy`    |                                                                                                                                    | :x:   | :white_check_mark:      |
 
-#### Reference Methods
+### Reference Methods
+---------------------
 <details><summary>play()</summary>
 <p>
 
@@ -230,9 +233,9 @@ Platforms: **Android**
 
 For details about the usage of above APIs, check [`library/media-player/media-player-view.js`](library/media-player/media-player-view.js).
 
-### Downloader API
+# Downloader API
 
-##### Initialisation
+### Initialisation
 
 Methods can be passed to the constructor to be called when events occur. The following callbacks are supported.
 
