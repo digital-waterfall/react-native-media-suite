@@ -111,8 +111,7 @@ var styles = StyleSheet.create({
 ```
 
 ### Properties
-#### Configurable props
------------------------
+### Configurable props
 | Property Name          | Type | Description                              | iOS  | Android |
 | ---------------------- | ---- |---------------------------------------- | ---- | ------- |
 | `src`                  | string | The URL of the video or downloadID                                                                                                               | :white_check_mark:   | :white_check_mark:      |
@@ -122,7 +121,6 @@ var styles = StyleSheet.create({
 | `ignoreSilentSwitch`   | boolean |`true` to ignore the iPhone silent switch when playing audio.                                                              | :white_check_mark:   | :x:      |
 
 ### Events
-----------
 | Property Name                   | Description                              | iOS  | Android |
 | ------------------------------- | ---------------------------------------- | ---- | ------- |
 | `onPlayerPause`                 |                                                                                                                                    | :white_check_mark:   | :white_check_mark:      |
@@ -147,7 +145,6 @@ var styles = StyleSheet.create({
 | `onPlayerAudioBecomingNoisy`    |                                                                                                                                    | :x:   | :white_check_mark:      |
 
 ### Reference Methods
----------------------
 <details><summary>play()</summary>
 <p>
 
