@@ -117,27 +117,51 @@ var styles = StyleSheet.create({
 | `src`                  | string | The URL of the video or downloadID                                                                                                               | :white_check_mark:   | :white_check_mark:      |
 | `autoplay`             | boolean | True to automatically begins to play. Default is `false`.                                                                          | :white_check_mark:   | :white_check_mark:      |
 | `loop`                 | boolean | `true` to automatically seek back to the start upon reaching the end of the video. Default is `false`.                             | :white_check_mark:   | :white_check_mark:      |
-| `ignoreSilentSwitch`   | boolean | An image URL indicating a poster frame to show until the user plays.                                                               | :white_check_mark:   | :x:      |
 | `muted`                | boolean |`true` to silence the audio. Default is `false`.                                                                                   | :white_check_mark:   | :white_check_mark:      |
+| `ignoreSilentSwitch`   | boolean |`true` to ignore the iPhone silent switch when playing audio.                                                              | :white_check_mark:   | :x:      |
 
 #### Events
-| Property Name          | Description                              | iOS  | Android |
-| ---------------------- | ---------------------------------------- | ---- | ------- |
-| `onPlayerPaused`       |                                                                                                                                    | :white_check_mark:   | :x:      |
-| `onPlayerPlaying`      |                                                                                                                                    | :white_check_mark:   | :x:      |
-| `onPlayerFinished`     |                                                                                                                                    | :white_check_mark:   | :x:      |
-| `onPlayerBuffering`    |                                                                                                                                    | :white_check_mark:   | :x:      |
-| `onPlayerBufferOK`     |                                                                                                                                    | :white_check_mark:   | :x:      |
-| `onPlayerProgress`     |                                                                                                                                    | :white_check_mark:   | :x:      |
-| `onPlayerError`        |                                                                                                                                    | :white_check_mark:   | :x:      |
-| `onPlayerBufferChange` |                                                                                                                                    | :white_check_mark:   | :x:      |
+| Property Name                   | Description                              | iOS  | Android |
+| ------------------------------- | ---------------------------------------- | ---- | ------- |
+| `onPlayerPause`                 |                                                                                                                                    | :white_check_mark:   | :white_check_mark:      |
+| `onPlayerPlay`                  |                                                                                                                                    | :white_check_mark:   | :white_check_mark:      |
+| `onPlayerEnd`                   |                                                                                                                                    | :white_check_mark:   | :white_check_mark:      |
+| `onPlayerBuffer`                |                                                                                                                                    | :white_check_mark:   | :white_check_mark:      |
+| `onPlayerBufferOk`              |                                                                                                                                    | :white_check_mark:   | :white_check_mark:      |
+| `onPlayerProgress`              |                                                                                                                                    | :white_check_mark:   | :white_check_mark:      |
+| `onPlayerError`                 |                                                                                                                                    | :white_check_mark:   | :white_check_mark:      |
+| `onPlayerBufferChange`          |                                                                                                                                    | :white_check_mark:   | :white_check_mark:      |
+| `onPlayerLoadStart`             |                                                                                                                                    | :white_check_mark:   | :white_check_mark:      |
+| `onPlayerLoad`                  |                                                                                                                                    | :white_check_mark:   | :white_check_mark:      |
+| `onPlayerSeek`                  |                                                                                                                                    | :x:   | :white_check_mark:      |
+| `onPlayerTimedMetadata`         |                                                                                                                                    | :x:   | :white_check_mark:      |
+| `onFullscreenPlayerWillPresent` |                                                                                                                                    | :x:   | :white_check_mark:      |
+| `onFullscreenPlayerDidPresent`  |                                                                                                                                    | :x:   | :white_check_mark:      |
+| `onFullscreenPlayerWillDismiss` |                                                                                                                                    | :x:   | :white_check_mark:      |
+| `onFullscreenPlayerDidDismiss`  |                                                                                                                                    | :x:   | :white_check_mark:      |
+| `onPlayerReadyForDisplay`       |                                                                                                                                    | :x:   | :white_check_mark:      |
+| `onPlayerRateChange`            |                                                                                                                                    | :x:   | :white_check_mark:      |
+| `onPlayerAudioFocusChanged`     |                                                                                                                                    | :x:   | :white_check_mark:      |
+| `onPlayerAudioBecomingNoisy`    |                                                                                                                                    | :x:   | :white_check_mark:      |
 
-##### Reference Methods
+#### Reference Methods
+<details><summary>pause()</summary>
+<p>
+`pause()`
+Pause playback.
+Example:
+```
+this.videoRef.pause();
+Platforms: all
+```
+</p>
+</details>
 
-- `pause()`
 - `play()`
 - `stop()`
-- `seekTo()`
+- `seekTo(seconds)`
+- `presentFullscreenPlayer()`
+- `dismissFullscreenPlayer()`
 
 
 For details about the usage of above APIs, check [`library/media-player/media-player-view.js`](library/media-player/media-player-view.js).
