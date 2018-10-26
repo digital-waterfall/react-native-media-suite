@@ -227,9 +227,6 @@ Platforms: **Android**
 </p>
 </details>
 
-
-For details about the usage of above APIs, check [`library/media-player/media-player-view.js`](library/media-player/media-player-view.js).
-
 # Downloader API
 
 ### Initialisation
