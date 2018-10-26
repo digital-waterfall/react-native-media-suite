@@ -145,23 +145,87 @@ var styles = StyleSheet.create({
 | `onPlayerAudioBecomingNoisy`    |                                                                                                                                    | :x:   | :white_check_mark:      |
 
 #### Reference Methods
-<details><summary>pause()</summary>
+<details><summary>play()</summary>
 <p>
-`pause()`
-Pause playback.
+
+`play()`
+
+Resumes playback.
+
 Example:
 ```
-this.videoRef.pause();
-Platforms: all
+this.videoRef.play();
 ```
+Platforms: **All**
+
 </p>
 </details>
 
-- `play()`
-- `stop()`
-- `seekTo(seconds)`
-- `presentFullscreenPlayer()`
-- `dismissFullscreenPlayer()`
+<details><summary>pause()</summary>
+<p>
+
+`pause()`
+
+Pauses playback.
+
+Example:
+```
+this.videoRef.pause();
+```
+Platforms: **All**
+
+</p>
+</details>
+
+<details><summary>seekTo()</summary>
+<p>
+
+`seekTo(milliseconds)`
+
+Seek to the specified position represented by milliseconds, milliseconds is a integer value.
+
+Example:
+```
+this.videoRef.seekTo(33300); //Seek to 33.3 seconds
+```
+Platforms: **All**
+
+</p>
+</details>
+
+<details><summary>presentFullscreenPlayer()</summary>
+<p>
+
+`presentFullscreenPlayer()`
+
+Puts the player into fullscreen mode.
+
+On Android, this puts the navigation controls in fullscreen mode. Note this does not put the video into fullscreen, will still need to apply a style that makes the width and height match your screen dimensions to get a fullscreen video.
+
+Example:
+```
+this.videoRef.presentFullscreenPlayer();
+```
+Platforms: **Android**
+
+</p>
+</details>
+
+<details><summary>dismissFullscreenPlayer()</summary>
+<p>
+
+`dismissFullscreenPlayer()`
+
+Takes the player out of fullscreen mode.
+
+Example:
+```
+this.videoRef.dismissFullscreenPlayer();
+```
+Platforms: **Android**
+
+</p>
+</details>
 
 
 For details about the usage of above APIs, check [`library/media-player/media-player-view.js`](library/media-player/media-player-view.js).
