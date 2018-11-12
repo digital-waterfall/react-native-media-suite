@@ -233,7 +233,7 @@ Please note this documentation is VERY out of date and is in the progress of bei
 
 The download manager manages downloads. It persists details to storage and handles update listeners.
 
-<details>restoreMediaDownloader()</summary>
+<details><restoreMediaDownloader()</summary>
 <p>
 
 `restoreMediaDownloader()`
