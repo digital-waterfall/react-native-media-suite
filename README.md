@@ -262,9 +262,8 @@ Sets the maximum number of downloads that can download concurrently.
 |--------------------------|---------|----------|------------------------------------------------|
 | maxSimultaneousDownloads | integer | Yes      | The maximum simultaneous downloads.            |
 **Platforms:** iOS (Android is fixed at 2).
-</p>
-</details>
 
+---
 </p>
 </details>
 
@@ -287,6 +286,8 @@ Creates a new download. Returns a `Promise` object, if the promise resolves it w
 | bitRate                  | string  | No       | The bitrate of the asset to download.                             |
 
 **Platforms:** All
+
+---
 </p>
 </details>
 
@@ -306,6 +307,8 @@ Adds an update listener for a particular download or list of downloads.
 | options                  | Object | Yes       | Options that can be passed when adding an update listener. The options that can be given are `downloadIDs: string[]` and `updateImmediately: boolean`. `downloadIDs` is an array of the downloads which should be listened to. `updateImmediately` calls the listener directly after it has been added.
 
 **Platforms:** All
+
+---
 </p>
 </details>
 
@@ -324,6 +327,8 @@ Removes an update listener.
 | downloadID               | listener: ?(() => \[Download\])  | Yes      | The callback function that should be removed. (The same callback function that was added using addUpdateListener)). |
 
 **Platforms:** All
+
+---
 </p>
 </details>
 
@@ -343,6 +348,8 @@ Retrieves all the `download` objects with the given IDs.
 | returnWithLabels              | boolean  | No      | Boolean indicating whether the downloads returned should be labeled with their download IDs. |
 
 **Platforms:** All
+
+---
 </p>
 </details>
 
@@ -361,6 +368,8 @@ Retrieves all the `download` objects with the given IDs.
 | downloadID              | string  | Yes      | The download ID of the download to be checked. |
 
 **Platforms:** All
+
+---
 </p>
 </details>
 
