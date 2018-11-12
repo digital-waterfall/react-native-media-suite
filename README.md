@@ -229,9 +229,11 @@ Platforms: **Android**
 
 # Downloader Manager API
 
-Please note this documentation is VERY out of date and is in the progress of being updated.
+Please note this documentation is incomplete and is in the progress of being updated.
 
 The download manager manages downloads. It persists details to storage and handles update listeners.
+
+The following are the all the methods of the Download Manager.
 
 <details><summary>restoreMediaDownloader()</summary>
 <p>
@@ -368,7 +370,10 @@ Retrieves all the `download` objects with the given IDs.
 </p>
 </details>
 
-For details about the usage of above APIs, check [`library/media-downloader/download-manager.js`](library/media-downloader/media-downloader.js).
+
+For details about the usage of above APIs, check [`library/media-downloader/download-manager.js`](/blob/master/library/media-downloader/download-manager.js).
+
+# Download Class API
 
 ## TODO
 
