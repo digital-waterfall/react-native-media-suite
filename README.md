@@ -227,11 +227,142 @@ Platforms: **Android**
 | `onPlayerAudioFocusChanged`     | Called when the audio focus of the app has changed. (Lost audio focus or received audio focus). See Android's explanation [here](https://developer.android.com/guide/topics/media-apps/audio-focus). | :x:                         | :white_check_mark:      |
 | `onPlayerAudioBecomingNoisy`    | Called when the audio becomes noisy. See Android's explanation [here](https://developer.android.com/guide/topics/media-apps/volume-and-earphones#becoming-noisy).                                    | :x:                         | :white_check_mark:      |
 
-# Downloader API
-
-### Initialisation
+# Downloader Manager API
 
 Please note this documentation is VERY out of date and is in the progress of being updated.
+
+The download manager manages downloads. It persists details to storage and handles update listeners.
+
+<details>restoreMediaDownloader()</summary>
+<p>
+
+`restoreMediaDownloader()`
+```
+restoreMediaDownloader()
+```
+
+Restores the downloader. Should be called when app starts. Returns a `Promise` object, if the promise resolves it will return all the downloaded contents IDs.
+
+Platforms: **All**
+
+</p>
+</details>
+
+<details>setMaxSimultaneousDownloads()</summary>
+<p>
+
+`setMaxSimultaneousDownloads()`
+```
+setMaxSimultaneousDownloads(maxSimultaneousDownloads: integer)
+```
+
+Sets the maximum number of downloads that can download concurrently.
+
+| Name                     | Type    | Required | Description                                    |
+|--------------------------|---------|----------|------------------------------------------------|
+| maxSimultaneousDownloads | integer | Yes      | The maximum simultaneous downloads.            |
+**Platforms:** iOS (Android is fixed at 2).
+</p>
+</details>
+
+</p>
+</details>
+
+<details>createNewDownload()</summary>
+<p>
+
+`createNewDownload()`
+```
+createNewDownload(url: string, downloadID: string, title: string, assetArtworkURL: string, bitRate: number)
+```
+
+Creates a new download. Returns a `Promise` object, if the promise resolves it will return a new `Download` object. _Please note: You need to still start the download using the `start()` method of the `Download` object._
+
+| Name                     | Type    | Required | Description                                    |
+|--------------------------|---------|----------|------------------------------------------------|
+| url                      | string  | Yes      | The url of the HLS or Dash manifest file to be played.            |
+| downloadID               | string  | Yes      | The ID to be assigned to the download.                            |
+| title                    | string  | Yes      | The title of the asset being downloaded.                          |
+| assetArtworkURL          | string  | Yes      | The url of the artwork to save. May be null.                      |
+| bitRate                  | string  | No       | The bitrate of the asset to download.                             |
+
+**Platforms:** All
+</p>
+</details>
+
+<details>addUpdateListener()</summary>
+<p>
+
+`addUpdateListener()`
+```
+addUpdateListener(listener: ?(() => \[Download\]), options: Object)
+```
+
+Adds an update listener for a particular download or list of downloads.
+
+| Name                     | Type    | Required | Description                                    |
+|--------------------------|---------|----------|------------------------------------------------|
+| downloadID               | listener: ?(() => \[Download\])  | Yes      | The callback called when the download or any of the downlods in the array are updated.                          |
+| options                  | Object | Yes       | Options that can be passed when adding an update listener. The options that can be given are `downloadIDs: string[]` and `updateImmediately: boolean`. `downloadIDs` is an array of the downloads which should be listened to. `updateImmediately` calls the listener directly after it has been added.
+
+**Platforms:** All
+</p>
+</details>
+
+<details>removeUpdateListener()</summary>
+<p>
+
+`removeUpdateListener()`
+```
+removeUpdateListener(listener: ?(() => \[Download\]))
+```
+
+Removes an update listener.
+
+| Name                     | Type    | Required | Description                                    |
+|--------------------------|---------|----------|------------------------------------------------|
+| downloadID               | listener: ?(() => \[Download\])  | Yes      | The callback function that should be removed. (The same callback function that was added using addUpdateListener)). |
+
+**Platforms:** All
+</p>
+</details>
+
+<details>getDownload()</summary>
+<p>
+
+`getDownload()`
+```
+getDownload(downloadIDs: string[], returnWithLabels: boolean)
+```
+
+Retrieves all the `download` objects with the given IDs.
+
+| Name                     | Type    | Required | Description                                    |
+|--------------------------|---------|----------|------------------------------------------------|
+| downloadIDs              | string[]  | Yes      | The download IDs of the `download` objects to be retrieved.  |
+| returnWithLabels              | boolean  | No      | Boolean indicating whether the downloads returned should be labeled with their download IDs. |
+
+**Platforms:** All
+</p>
+</details>
+
+<details>isDownloaded()</summary>
+<p>
+
+`isDownloaded()`
+```
+isDownloaded(downloadID: string)
+```
+
+Retrieves all the `download` objects with the given IDs.
+
+| Name                     | Type    | Required | Description                                    |
+|--------------------------|---------|----------|------------------------------------------------|
+| downloadID              | string  | Yes      | The download ID of the download to be checked. |
+
+**Platforms:** All
+</p>
+</details>
 
 Methods can be passed to the constructor to be called when events occur. The following callbacks are supported.
 

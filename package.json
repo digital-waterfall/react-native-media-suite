@@ -31,7 +31,7 @@
   ],
   "author": "Digital Waterfall",
   "license": "MIT",
-  "homepage": "https://bitbucket.org/cellcdigital/cellc-digital-black-native-player#readme",
+  "homepage": "https://github.com/digital-waterfall/react-native-media-suite#readme",
   "dependencies": {
     "lodash": "4.17.10",
     "prop-types": "15.6.1",

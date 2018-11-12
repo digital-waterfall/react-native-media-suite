@@ -251,7 +251,7 @@ class DownloadManager {
         _.remove(this.updateListeners, listenerObject => listenerObject.listener === listener);
     }
 
-    getDownload(downloadIDs, returnWithLabels) {
+    getDownload(downloadIDs, returnWithLabels = false) {
         const matchedDownloads = _.filter(this.downloads, download => {
             if (download.state !== DOWNLOAD_STATES.deleted) {
                 if (_.isArray(downloadIDs)) {
