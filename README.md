@@ -371,9 +371,180 @@ Retrieves all the `download` objects with the given IDs.
 </details>
 
 
-For details about the usage of above APIs, check [`library/media-downloader/download-manager.js`](/blob/master/library/media-downloader/download-manager.js).
+For details about the usage of above APIs, check [`library/media-downloader/download-manager.js`](/library/media-downloader/download-manager.js).
 
 # Download Class API
+
+The download class manages a single download and its state.
+
+The following are all the available methods in the Download class.
+
+<details><summary>start()</summary>
+<p>
+
+```
+start(retry: boolean)
+```
+
+Starts the download.
+
+| Name                     | Type    | Required | Description                                    |
+|--------------------------|---------|----------|------------------------------------------------|
+| retry              | boolean | No      | Retry the download (it already exists but has failed).  |
+
+**Platforms:** All
+
+---
+</p>
+</details>
+
+<details><summary>pause()</summary>
+<p>
+
+```
+pause()
+```
+
+Pauses the download.
+
+**Platforms:** All
+
+---
+</p>
+</details>
+
+<details><summary>resume()</summary>
+<p>
+
+```
+resume()
+```
+
+Resumes the download.
+
+**Platforms:** All
+
+---
+</p>
+</details>
+
+<details><summary>cancel()</summary>
+<p>
+
+```
+cancel()
+```
+
+Cancels the download.
+
+**Platforms:** All
+
+---
+</p>
+</details>
+
+<details><summary>delete()</summary>
+<p>
+
+```
+delete()
+```
+
+Deletes the download.
+
+**Platforms:** All
+
+---
+</p>
+</details>
+
+<details><summary>retry()</summary>
+<p>
+
+```
+retry()
+```
+
+Retries the download.
+
+**Platforms:** All
+
+---
+</p>
+</details>
+
+<details><summary>isDestroyed()</summary>
+<p>
+
+```
+isDestroyed()
+```
+
+Checks if the download has been deleted.
+
+**Platforms:** All
+
+---
+</p>
+</details>
+
+<details><summary>addEventListener()</summary>
+<p>
+
+```
+addEventListener(type: EVENT_LISTENER_TYPE, listener: ?(() => data))
+```
+
+Adds event listener to be called when a specific event occurs on the download.
+
+| Name                     | Type    | Required | Description                                    |
+|--------------------------|---------|----------|------------------------------------------------|
+| type              | EVENT_LISTENER_TYPE | Yes      | The type of event to listen for.  |
+| listener              | () => data | Yes      | The callback function that will be called when the specific event for the download occurs.  |
+
+**Platforms:** All
+
+---
+</p>
+</details>
+
+<details><summary>removeEventListener()</summary>
+<p>
+
+```
+removeEventListener(listener: ?(() => data))
+```
+
+Removes the event listener.
+
+| Name                     | Type    | Required | Description                                    |
+|--------------------------|---------|----------|------------------------------------------------|
+| listener              | () => data | Yes      | The callback function that should be removed. |
+
+**Platforms:** All
+
+---
+</p>
+</details>
+
+<details><summary>removeEventListener()</summary>
+<p>
+
+```
+removeEventListener(listener: ?(() => data))
+```
+
+Removes the event listener.
+
+| Name                     | Type    | Required | Description                                    |
+|--------------------------|---------|----------|------------------------------------------------|
+| listener              | () => data | Yes      | The callback function that should be removed. |
+
+**Platforms:** All
+
+---
+</p>
+</details>
 
 ## TODO
 
