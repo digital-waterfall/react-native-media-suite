@@ -110,40 +110,6 @@ var styles = StyleSheet.create({
 });
 ```
 
-### Properties
-### Configurable props
-| Property Name          | Type | Description                              | iOS  | Android |
-| ---------------------- | ---- |---------------------------------------- | ---- | ------- |
-| `src`                  | string | The URL of the video or downloadID                                                                                                               | :white_check_mark:   | :white_check_mark:      |
-| `autoplay`             | boolean | True to automatically begins to play. Default is `false`.                                                                          | :white_check_mark:   | :white_check_mark:      |
-| `loop`                 | boolean | `true` to automatically seek back to the start upon reaching the end of the video. Default is `false`.                             | :white_check_mark:   | :white_check_mark:      |
-| `muted`                | boolean |`true` to silence the audio. Default is `false`.                                                                                   | :white_check_mark:   | :white_check_mark:      |
-| `ignoreSilentSwitch`   | boolean |`true` to ignore the iPhone silent switch when playing audio.                                                              | :white_check_mark:   | :x:      |
-
-### Events
-| Property Name                   | Description                              | iOS  | Android |
-| ------------------------------- | ---------------------------------------- | ---- | ------- |
-| `onPlayerPause`                 | Called when playback is paused.                                                                                                                                                                      | :white_check_mark:          | :white_check_mark:      |
-| `onPlayerPlay`                  | Called when playback is resumed or started.                                                                                                                                                          | :white_check_mark:          | :white_check_mark:      |
-| `onPlayerEnd`                   | Called when playback is finished.                                                                                                                                                                    | :white_check_mark:          | :white_check_mark:      |
-| `onPlayerBuffer`                | Called when the player buffers.                                                                                                                                                                      | :white_check_mark:          | :white_check_mark:      |
-| `onPlayerBufferOk`              | Called when the player's buffer is full enough to resume playback without stalling.                                                                                                                  | :white_check_mark:          | :white_check_mark:      |
-| `onPlayerProgress`              | Called every second if the player is playing, with the player's current progress.                                                                                                                    | :white_check_mark:          | :white_check_mark:      |
-| `onPlayerError`                 | Called when the player has encountered an error.                                                                                                                                                     | :white_check_mark:          | :white_check_mark:      |
-| `onPlayerBufferChange`          | Called when the buffered duration changes.                                                                                                                                                           | :white_check_mark:          | :white_check_mark:      |
-| `onPlayerLoadStart`             | Called when player loads for the first time.                                                                                                                                                         | :white_check_mark:          | :white_check_mark:      |
-| `onPlayerLoad`                  | Called when the player loaded content.                                                                                                                                                               | :white_check_mark:          | :white_check_mark:      |
-| `onPlayerSeek`                  | Called when the player is seeking.                                                                                                                                                                   | :x:                         | :white_check_mark:      |
-| `onPlayerTimedMetadata`         | Called with The timed metadata encountered most recently by the media stream.                                                                                                                        | :black_circle_for_record:   | :white_check_mark:      |
-| `onFullscreenPlayerWillPresent` | Called when the the player will start to go into fullscreen.                                                                                                                                         | :x:                         | :white_check_mark:      |
-| `onFullscreenPlayerDidPresent`  | Called when the the player has gone into fullscreen.                                                                                                                                                 | :x:                         | :white_check_mark:      |
-| `onFullscreenPlayerWillDismiss` | Called when the the player will start to exit fullscreen.                                                                                                                                            | :x:                         | :white_check_mark:      |
-| `onFullscreenPlayerDidDismiss`  | Called when the the player has exited fullscreen.                                                                                                                                                    | :x:                         | :white_check_mark:      |
-| `onPlayerReadyForDisplay`       | Called when player is ready for playback to begin.                                                                                                                                                   | :x:                         | :white_check_mark:      |
-| `onPlayerRateChange`            | Called when the playback rate has changed.                                                                                                                                                           | :x:                         | :white_check_mark:      |
-| `onPlayerAudioFocusChanged`     | Called when the audio focus of the app has changed. (Lost audio focus or received audio focus). See Android's explanation [here](https://developer.android.com/guide/topics/media-apps/audio-focus). | :x:                         | :white_check_mark:      |
-| `onPlayerAudioBecomingNoisy`    | Called when the audio becomes noisy. See Android's explanation [here](https://developer.android.com/guide/topics/media-apps/volume-and-earphones#becoming-noisy).                                    | :x:                         | :white_check_mark:      |
-
 ### Reference Methods
 <details><summary>play()</summary>
 <p>
@@ -227,9 +193,45 @@ Platforms: **Android**
 </p>
 </details>
 
+### Properties
+### Configurable props
+| Property Name          | Type | Description                              | iOS  | Android |
+| ---------------------- | ---- |---------------------------------------- | ---- | ------- |
+| `src`                  | string | The URL of the video or downloadID                                                                                                               | :white_check_mark:   | :white_check_mark:      |
+| `autoplay`             | boolean | True to automatically begins to play. Default is `false`.                                                                          | :white_check_mark:   | :white_check_mark:      |
+| `loop`                 | boolean | `true` to automatically seek back to the start upon reaching the end of the video. Default is `false`.                             | :white_check_mark:   | :white_check_mark:      |
+| `muted`                | boolean |`true` to silence the audio. Default is `false`.                                                                                   | :white_check_mark:   | :white_check_mark:      |
+| `ignoreSilentSwitch`   | boolean |`true` to ignore the iPhone silent switch when playing audio.                                                              | :white_check_mark:   | :x:      |
+
+### Events
+| Property Name                   | Description                              | iOS  | Android |
+| ------------------------------- | ---------------------------------------- | ---- | ------- |
+| `onPlayerPause`                 | Called when playback is paused.                                                                                                                                                                      | :white_check_mark:          | :white_check_mark:      |
+| `onPlayerPlay`                  | Called when playback is resumed or started.                                                                                                                                                          | :white_check_mark:          | :white_check_mark:      |
+| `onPlayerEnd`                   | Called when playback is finished.                                                                                                                                                                    | :white_check_mark:          | :white_check_mark:      |
+| `onPlayerBuffer`                | Called when the player buffers.                                                                                                                                                                      | :white_check_mark:          | :white_check_mark:      |
+| `onPlayerBufferOk`              | Called when the player's buffer is full enough to resume playback without stalling.                                                                                                                  | :white_check_mark:          | :white_check_mark:      |
+| `onPlayerProgress`              | Called every second if the player is playing, with the player's current progress.                                                                                                                    | :white_check_mark:          | :white_check_mark:      |
+| `onPlayerError`                 | Called when the player has encountered an error.                                                                                                                                                     | :white_check_mark:          | :white_check_mark:      |
+| `onPlayerBufferChange`          | Called when the buffered duration changes.                                                                                                                                                           | :white_check_mark:          | :white_check_mark:      |
+| `onPlayerLoadStart`             | Called when player loads for the first time.                                                                                                                                                         | :white_check_mark:          | :white_check_mark:      |
+| `onPlayerLoad`                  | Called when the player loaded content.                                                                                                                                                               | :white_check_mark:          | :white_check_mark:      |
+| `onPlayerSeek`                  | Called when the player is seeking.                                                                                                                                                                   | :x:                         | :white_check_mark:      |
+| `onPlayerTimedMetadata`         | Called with The timed metadata encountered most recently by the media stream.                                                                                                                        | :x:                         | :white_check_mark:      |
+| `onFullscreenPlayerWillPresent` | Called when the the player will start to go into fullscreen.                                                                                                                                         | :x:                         | :white_check_mark:      |
+| `onFullscreenPlayerDidPresent`  | Called when the the player has gone into fullscreen.                                                                                                                                                 | :x:                         | :white_check_mark:      |
+| `onFullscreenPlayerWillDismiss` | Called when the the player will start to exit fullscreen.                                                                                                                                            | :x:                         | :white_check_mark:      |
+| `onFullscreenPlayerDidDismiss`  | Called when the the player has exited fullscreen.                                                                                                                                                    | :x:                         | :white_check_mark:      |
+| `onPlayerReadyForDisplay`       | Called when player is ready for playback to begin.                                                                                                                                                   | :x:                         | :white_check_mark:      |
+| `onPlayerRateChange`            | Called when the playback rate has changed.                                                                                                                                                           | :x:                         | :white_check_mark:      |
+| `onPlayerAudioFocusChanged`     | Called when the audio focus of the app has changed. (Lost audio focus or received audio focus). See Android's explanation [here](https://developer.android.com/guide/topics/media-apps/audio-focus). | :x:                         | :white_check_mark:      |
+| `onPlayerAudioBecomingNoisy`    | Called when the audio becomes noisy. See Android's explanation [here](https://developer.android.com/guide/topics/media-apps/volume-and-earphones#becoming-noisy).                                    | :x:                         | :white_check_mark:      |
+
 # Downloader API
 
 ### Initialisation
+
+Please note this documentation is VERY out of date and is in the progress of being updated.
 
 Methods can be passed to the constructor to be called when events occur. The following callbacks are supported.
 
