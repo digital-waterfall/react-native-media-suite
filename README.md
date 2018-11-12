@@ -260,6 +260,7 @@ Sets the maximum number of downloads that can download concurrently.
 | Name                     | Type    | Required | Description                                    |
 |--------------------------|---------|----------|------------------------------------------------|
 | maxSimultaneousDownloads | integer | Yes      | The maximum simultaneous downloads.            |
+
 **Platforms:** iOS (Android is fixed at 2).
 
 ---
