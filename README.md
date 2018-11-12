@@ -245,6 +245,7 @@ Restores the downloader. Should be called when app starts. Returns a `Promise` o
 
 Platforms: **All**
 
+---
 </p>
 </details>
 
@@ -372,48 +373,6 @@ Retrieves all the `download` objects with the given IDs.
 ---
 </p>
 </details>
-
-Methods can be passed to the constructor to be called when events occur. The following callbacks are supported.
-
-```
-import { Downloader } from 'react-native-media-suite';
-...
-const downloader = new Downloader({
-    onDownloadFinished: eventData => console.log(`eventData: ${eventData}`),
-    onDownloadProgress: eventData => console.log(`eventData: ${eventData}`),
-    onDownloadStarted: eventData => console.log(`eventData: ${eventData}`),
-    onDownloadError: eventData => console.log(`eventData: ${eventData}`),
-    onDownloadCancelled: eventData => console.log(`eventData: ${eventData}`)
-});
-```
-
-| Method Name          | Evocation Property                                                                                  | iOS | Android  |
-|----------------------|-----------------------------------------------------------------------------------------------------|-----|----------|
-| `onDownloadFinished` | `{ `**`downloadID`**`: string, `**`downloadLocation`**`: string, `**`size`**`: integer (bytes) }`   | :white_check_mark:  | :white_check_mark:      |
-| `onDownloadProgress` | `{ `**`downloadID`**`: string, `**`percentComplete`**`: float }`                                    | :white_check_mark:  | :white_check_mark:      |
-| `onDownloadStarted`  | `{ `**`downloadID`**`: string }`                                                                    | :white_check_mark:  | :white_check_mark:      |
-| `onDownloadError`    | `{ `**`downloadID`**`: string, `**`error`**`: string, `**`errorType`**`: string }`                  | :white_check_mark:  | :white_check_mark:      |
-| `onDownloadCanceled` | `{ `**`downloadID`**`: string }`                                                                    | :white_check_mark:  | :white_check_mark:      |
-
-##### Methods
-
-```
-downloader.restoreMediaDownloader();
-downloader.downloadStream('someMediaUrl', 'someDownloadId', );
-downloader.deleteDownloadedStream('someDownloadId');
-downloader.pauseDownload('someDownloadId');
-downloader.resumeDownload('someDownloadId');
-downloader.cancelDownload('someDownloadId');
-```
-
-| Method Name              | Properties               | iOS | Android |
-|--------------------------|--------------------------|-----|---------|
-| `restoreMediaDownloader` |                                                                                                 | :white_check_mark:  | :white_check_mark:      |
-| `downloadStream`         | url: `string`, downloadID: `string`, bitRate: `integer` (Optional - defaults to max bit-rate)   | :white_check_mark:  | :white_check_mark:      |
-| `deleteDownloadedStream` | downloadID: `string`                                                                            | :white_check_mark:  | :white_check_mark:      |
-| `pauseDownload`          | downloadID: `string`                                                                            | :white_check_mark:  | :white_check_mark:      |
-| `resumeDownload`         | downloadID: `string`                                                                            | :white_check_mark:  | :white_check_mark:      |
-| `cancelDownload`         | downloadID: `string`                                                                            | :white_check_mark:  | :white_check_mark:      |
 
 For details about the usage of above APIs, check [`library/media-downloader/download-manager.js`](library/media-downloader/media-downloader.js).
 
