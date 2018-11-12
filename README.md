@@ -233,7 +233,7 @@ Please note this documentation is VERY out of date and is in the progress of bei
 
 The download manager manages downloads. It persists details to storage and handles update listeners.
 
-<details><restoreMediaDownloader()</summary>
+<details><summary>restoreMediaDownloader()</summary>
 <p>
 
 `restoreMediaDownloader()`
@@ -248,7 +248,7 @@ Platforms: **All**
 </p>
 </details>
 
-<details>setMaxSimultaneousDownloads()</summary>
+<details><summary>setMaxSimultaneousDownloads()</summary>
 <p>
 
 `setMaxSimultaneousDownloads()`
@@ -268,7 +268,7 @@ Sets the maximum number of downloads that can download concurrently.
 </p>
 </details>
 
-<details>createNewDownload()</summary>
+<details><summary>createNewDownload()</summary>
 <p>
 
 `createNewDownload()`
@@ -290,7 +290,7 @@ Creates a new download. Returns a `Promise` object, if the promise resolves it w
 </p>
 </details>
 
-<details>addUpdateListener()</summary>
+<details><summary>addUpdateListener()</summary>
 <p>
 
 `addUpdateListener()`
@@ -309,7 +309,7 @@ Adds an update listener for a particular download or list of downloads.
 </p>
 </details>
 
-<details>removeUpdateListener()</summary>
+<details><summary>removeUpdateListener()</summary>
 <p>
 
 `removeUpdateListener()`
@@ -327,7 +327,7 @@ Removes an update listener.
 </p>
 </details>
 
-<details>getDownload()</summary>
+<details><summary>getDownload()</summary>
 <p>
 
 `getDownload()`
@@ -346,7 +346,7 @@ Retrieves all the `download` objects with the given IDs.
 </p>
 </details>
 
-<details>isDownloaded()</summary>
+<details><summary>isDownloaded()</summary>
 <p>
 
 `isDownloaded()`
