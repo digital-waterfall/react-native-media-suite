@@ -371,7 +371,8 @@ Retrieves all the `download` objects with the given IDs.
 </details>
 
 
-For details about the usage of above APIs, check [`library/media-downloader/download-manager.js`](/library/media-downloader/download-manager.js).
+
+For details about the usage of the above APIs, check [`library/media-downloader/download-manager.js`](https://github.com/digital-waterfall/react-native-media-suite/blob/master/library/media-downloader/download-manager.js).
 
 # Download Class API
 
@@ -565,9 +566,11 @@ Removes the event listener.
 * `paused`: Called when the download has been paused.
 * `resumed`: Called when the download has been resumed after being paused.
 
+For details about the usage of the above APIs, check [`library/media-downloader/download.js`](https://github.com/digital-waterfall/react-native-media-suite/blob/master/library/media-downloader/download.js).
+
 ## TODO
 
-- [ ] Downloading
+- [x] Downloading
 - [ ] DRM
 - [ ] Google Play
 - [ ] Air Play
