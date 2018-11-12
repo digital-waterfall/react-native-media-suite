@@ -546,6 +546,25 @@ Removes the event listener.
 </p>
 </details>
 
+### Download States
+* `initialized`: The download is created but has not been queued.
+* `started`: The download has been queued and will start to download when it is at the front of the queue.
+* `downloading`: The download is downloading, progress updates have been received.
+* `downloaded`: The download is finished downloaded.
+* `paused`: The download has been paused.
+* `failed`: The download has failed.
+* `deleted`: The download has been deleted.
+
+### Download Event Types
+* `started`: Called when the download has been queued and should start when it is at the front of the queue.
+* `progress`: Called when there is a progress update for the download.
+* `finished`: Called when the download has finished downloading.
+* `error`: Called when the download has encountered an error.
+* `cancelled`: Called when the download has been cancelled.
+* `deleted`: Called when the download has been cancelled.
+* `paused`: Called when the download has been paused.
+* `resumed`: Called when the download has been resumed after being paused.
+
 ## TODO
 
 - [ ] Downloading
