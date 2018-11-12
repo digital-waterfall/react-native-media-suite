@@ -235,8 +235,6 @@ The download manager manages downloads. It persists details to storage and handl
 
 <details><summary>restoreMediaDownloader()</summary>
 <p>
-
-`restoreMediaDownloader()`
 ```
 restoreMediaDownloader()
 ```
@@ -251,8 +249,6 @@ Platforms: **All**
 
 <details><summary>setMaxSimultaneousDownloads()</summary>
 <p>
-
-`setMaxSimultaneousDownloads()`
 ```
 setMaxSimultaneousDownloads(maxSimultaneousDownloads: integer)
 ```
@@ -270,8 +266,6 @@ Sets the maximum number of downloads that can download concurrently.
 
 <details><summary>createNewDownload()</summary>
 <p>
-
-`createNewDownload()`
 ```
 createNewDownload(url: string, downloadID: string, title: string, assetArtworkURL: string, bitRate: number)
 ```
@@ -294,8 +288,6 @@ Creates a new download. Returns a `Promise` object, if the promise resolves it w
 
 <details><summary>addUpdateListener()</summary>
 <p>
-
-`addUpdateListener()`
 ```
 addUpdateListener(listener: ?(() => \[Download\]), options: Object)
 ```
@@ -315,8 +307,6 @@ Adds an update listener for a particular download or list of downloads.
 
 <details><summary>removeUpdateListener()</summary>
 <p>
-
-`removeUpdateListener()`
 ```
 removeUpdateListener(listener: ?(() => \[Download\]))
 ```
@@ -335,8 +325,6 @@ Removes an update listener.
 
 <details><summary>getDownload()</summary>
 <p>
-
-`getDownload()`
 ```
 getDownload(downloadIDs: string[], returnWithLabels: boolean)
 ```
@@ -356,8 +344,6 @@ Retrieves all the `download` objects with the given IDs.
 
 <details><summary>isDownloaded()</summary>
 <p>
-
-`isDownloaded()`
 ```
 isDownloaded(downloadID: string)
 ```
