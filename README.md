@@ -82,7 +82,7 @@ protected List<ReactPackage> getPackages() {
 
 # Documentation
 
-### Video Player API
+## Video Player API
 
 ```
 import Video from 'react-native-media-suite';
