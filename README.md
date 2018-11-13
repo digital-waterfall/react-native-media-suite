@@ -2,7 +2,7 @@ React Native Media Suite
 ========================
 
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
-[![npm](https://img.shields.io/npm/v/:package.svg)](https://www.npmjs.com/package/react-native-media-suite)
+[![npm](https://img.shields.io/badge/dynamic/json.svg?label=npm&url=https%3A%2F%2Fraw.githubusercontent.com%2Fdigital-waterfall%2Freact-native-media-suite%2Fmaster%2Fpackage.json&query=version&colorB=blue)](https://www.npmjs.com/package/react-native-media-suite)
 
 Forked from [react-native-media-kit](https://www.npmjs.com/package/react-native-media-kit)
 
