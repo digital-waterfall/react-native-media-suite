@@ -229,8 +229,6 @@ Platforms: **Android**
 
 # Downloader Manager API
 
-Please note this documentation is incomplete and is in the progress of being updated.
-
 The download manager manages downloads. It persists details to storage and handles update listeners.
 
 The following are the all the methods of the Download Manager.
@@ -567,6 +565,28 @@ Removes the event listener.
 * `resumed`: Called when the download has been resumed after being paused.
 
 For details about the usage of the above APIs, check [`library/media-downloader/download.js`](https://github.com/digital-waterfall/react-native-media-suite/blob/master/library/media-downloader/download.js).
+
+### Basic Example
+```
+import { DownloadManager } from 'react-native-media-suite';
+
+download() {
+    const download = DownloadManager.createNewDownload('https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8',
+                                                       'any-unique-string',
+                                                       'Red Bull Parkour,
+                                                       'https://greece.greekreporter.com/files/RedBull2.jpg',
+                                                       75000
+                                                      );
+    download.start();
+
+    DownloadManager.addUpdateListener(downloads => console.warn({downloads}),
+                                      {downloadIDs: [download.downloadID], updateImmediately: true}
+                                     );
+}
+```
+For a more in depth example check out [`TestVideo/App.js`](https://github.com/digital-waterfall/react-native-media-suite/blob/master/TestVideo/App.js).
+
+_Note: This example app is very confusing and is in the process of being rewritten._
 
 ## TODO
 
