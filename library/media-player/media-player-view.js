@@ -66,7 +66,7 @@ export default class MediaPlayerView extends Component {
     }
 
     componentDidMount() {
-        this.mapViewHandle = findNodeHandle(this.RCTMediaPlayerView);
+        this.mediaPlayerViewHandle = findNodeHandle(this.mediaPlayerViewRef);
     }
 
     componentWillUnmount() {
@@ -149,15 +149,11 @@ export default class MediaPlayerView extends Component {
     }
 
     setNativeProps(nativeProps) {
-        this.root.setNativeProps(nativeProps);
+        this.mediaPlayerViewRef.setNativeProps(nativeProps);
     }
 
     setReference(component) {
-        if (Platform.OS === 'ios') {
-            this.RCTMediaPlayerView = RCTMediaPlayerView;
-        } else {
-            this.root = component;
-        }
+        this.mediaPlayerViewRef = component;
     }
 
     onPlayerAudioBecomingNoisy() {
@@ -272,7 +268,7 @@ export default class MediaPlayerView extends Component {
     pause() {
         if (Platform.OS === 'ios') {
             UIManager.dispatchViewManagerCommand(
-                this.RCTMediaPlayerView._nativeTag,
+                this.mediaPlayerViewHandle,
                 UIManager.RCTMediaPlayerView.Commands.pause,
                 null
             );
@@ -284,7 +280,7 @@ export default class MediaPlayerView extends Component {
     play() {
         if (Platform.OS === 'ios') {
             UIManager.dispatchViewManagerCommand(
-                this.RCTMediaPlayerView._nativeTag,
+                this.mediaPlayerViewHandle,
                 UIManager.RCTMediaPlayerView.Commands.play,
                 null
             );
@@ -301,7 +297,7 @@ export default class MediaPlayerView extends Component {
         if (Platform.OS === 'ios') {
             let args = [timeMs];
             UIManager.dispatchViewManagerCommand(
-                this.RCTMediaPlayerView._nativeTag,
+                this.mediaPlayerViewHandle,
                 UIManager.RCTMediaPlayerView.Commands.seekTo,
                 args
             );
@@ -313,7 +309,7 @@ export default class MediaPlayerView extends Component {
     stop() {
         if (Platform.OS === 'ios') {
             UIManager.dispatchViewManagerCommand(
-                this.RCTMediaPlayerView._nativeTag,
+                this.mediaPlayerViewHandle,
                 UIManager.RCTMediaPlayerView.Commands.stop,
                 null
             );
@@ -397,10 +393,4 @@ let styles = StyleSheet.create({
     }
 });
 
-const RCTMediaPlayerView = requireNativeComponent('RCTMediaPlayerView', MediaPlayerView, {
-    nativeOnly: {
-        src: true,
-        seek: true,
-        fullscreen: true
-    }
-});
+const RCTMediaPlayerView = requireNativeComponent('RCTMediaPlayerView');
