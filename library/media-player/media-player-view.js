@@ -63,7 +63,6 @@ export default class MediaPlayerView extends Component {
         this.presentFullscreenPlayer = this.presentFullscreenPlayer.bind(this);
         this.seekTo = this.seekTo.bind(this);
         this.stop = this.stop.bind(this);
-        this.setPreferredPeakBitRate = this.setPreferredPeakBitRate.bind(this);
     }
 
     componentDidMount() {
@@ -328,6 +327,8 @@ export default class MediaPlayerView extends Component {
                 UIManager.RCTMediaPlayerView.Commands.setMaxBitRate,
                 args
             );
+        } else {
+            this.setNativeProps({ maxBitRate: bitRate });
         }
     }
 }
@@ -343,6 +344,7 @@ MediaPlayerView.propTypes = {
     repeat: PropTypes.bool,
     rate: PropTypes.number,
     seek: PropTypes.number,
+    maxBitRate: PropTypes.number,
     renderToHardwareTextureAndroid: PropTypes.bool,
     textTracks: PropTypes.array,
     accessibilityComponentType: PropTypes.string,
