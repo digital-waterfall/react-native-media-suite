@@ -165,7 +165,7 @@ export default class App extends React.Component {
                         <Button
                             type="primary"
                             size="small"
-                            onClick={() => this.player.setPreferredPeakBitRate(6500000)}
+                            onClick={() => this.player.setMaxBitRate(6500000)}
                         >
                             Set
                         </Button>

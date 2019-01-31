@@ -44,6 +44,7 @@ public class ReactMediaPlayerViewManager extends ViewGroupManager<ReactMediaPlay
     private static final String PROP_DISABLE_FOCUS = "disableFocus";
     private static final String PROP_FULLSCREEN = "fullscreen";
     private static final String PROP_USE_TEXTURE_VIEW = "useTextureView";
+    private static final String PROP_MAXIMUM_BIT_RATE = "maxBitRate";
 
 
     public ReactMediaPlayerViewManager(ReactApplicationContext reactContext)
@@ -199,6 +200,11 @@ public class ReactMediaPlayerViewManager extends ViewGroupManager<ReactMediaPlay
     @ReactProp(name = PROP_USE_TEXTURE_VIEW, defaultBoolean = false)
     public void setUseTextureView(final ReactMediaPlayerView videoView, final boolean useTextureView) {
         videoView.setUseTextureView(useTextureView);
+    }
+
+    @ReactProp(name = PROP_MAXIMUM_BIT_RATE)
+    public void setMaxBitRate(final ReactMediaPlayerView videoView, final int maxBitRate) {
+        videoView.setMaxBitRateModifier(maxBitRate);
     }
 
     private boolean startsWithValidScheme(String uriString) {

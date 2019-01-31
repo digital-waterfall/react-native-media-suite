@@ -327,6 +327,8 @@ export default class MediaPlayerView extends Component {
                 UIManager.RCTMediaPlayerView.Commands.setMaxBitRate,
                 args
             );
+        } else {
+            this.setNativeProps({ maxBitRate: bitRate });
         }
     }
 }
@@ -342,6 +344,7 @@ MediaPlayerView.propTypes = {
     repeat: PropTypes.bool,
     rate: PropTypes.number,
     seek: PropTypes.number,
+    maxBitRate: PropTypes.number,
     renderToHardwareTextureAndroid: PropTypes.bool,
     textTracks: PropTypes.array,
     accessibilityComponentType: PropTypes.string,
