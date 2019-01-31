@@ -63,6 +63,7 @@ export default class MediaPlayerView extends Component {
         this.presentFullscreenPlayer = this.presentFullscreenPlayer.bind(this);
         this.seekTo = this.seekTo.bind(this);
         this.stop = this.stop.bind(this);
+        this.setPreferredPeakBitRate = this.setPreferredPeakBitRate.bind(this);
     }
 
     componentDidMount() {
@@ -316,6 +317,17 @@ export default class MediaPlayerView extends Component {
         } else {
             this.setNativeProps({ paused: true });
             this.setNativeProps({ seek: 0 });
+        }
+    }
+
+    setMaxBitRate(bitRate) {
+        if (Platform.OS === 'ios') {
+            let args = [bitRate];
+            UIManager.dispatchViewManagerCommand(
+                this.mediaPlayerViewHandle,
+                UIManager.RCTMediaPlayerView.Commands.setMaxBitRate,
+                args
+            );
         }
     }
 }

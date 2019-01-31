@@ -59,6 +59,12 @@ RCT_EXPORT_METHOD(seekTo:(nonnull NSNumber *)reactTag :(double)timeMs) {
     } withTag:reactTag];
 }
 
+RCT_EXPORT_METHOD(setMaxBitRate:(nonnull NSNumber *)reactTag :(double)bitRate) {
+    [self executeBlock:^(RCTMediaPlayerView *view) {
+        [view setMaxBitRate:bitRate];
+    } withTag:reactTag];
+}
+
 
 typedef void (^RCTMediaPlayerViewManagerBlock)(RCTMediaPlayerView *view);
 

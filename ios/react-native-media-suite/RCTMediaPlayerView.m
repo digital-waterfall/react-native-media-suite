@@ -427,4 +427,11 @@
         [player seekToTime:cmTime];
     }
 }
+
+- (void)setMaxBitRate: (double) bitRate {
+    NSLog(@"setMaxBitRate...bitRate=%f", bitRate);
+    if (player) {
+        [[player currentItem] setPreferredPeakBitRate:bitRate];
+    }
+}
 @end

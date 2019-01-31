@@ -318,6 +318,17 @@ export default class MediaPlayerView extends Component {
             this.setNativeProps({ seek: 0 });
         }
     }
+
+    setMaxBitRate(bitRate) {
+        if (Platform.OS === 'ios') {
+            let args = [bitRate];
+            UIManager.dispatchViewManagerCommand(
+                this.mediaPlayerViewHandle,
+                UIManager.RCTMediaPlayerView.Commands.setMaxBitRate,
+                args
+            );
+        }
+    }
 }
 
 MediaPlayerView.propTypes = {

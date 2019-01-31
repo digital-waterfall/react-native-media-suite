@@ -28,5 +28,6 @@
 - (void)play;
 - (void)stop;
 - (void)seekTo: (NSTimeInterval)timeInSec;
+- (void)setMaxBitRate: (double)bitRate;
 
 @end

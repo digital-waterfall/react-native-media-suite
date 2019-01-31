@@ -162,8 +162,12 @@ export default class App extends React.Component {
                         <Button type="primary" size="small" onClick={() => this.player.play()}>
                             Play
                         </Button>
-                        <Button type="primary" size="small" onClick={() => this.player.stop()}>
-                            Stop
+                        <Button
+                            type="primary"
+                            size="small"
+                            onClick={() => this.player.setPreferredPeakBitRate(6500000)}
+                        >
+                            Set
                         </Button>
                         <Button type="primary" size="small" onClick={() => this.player.pause()}>
                             Pause
