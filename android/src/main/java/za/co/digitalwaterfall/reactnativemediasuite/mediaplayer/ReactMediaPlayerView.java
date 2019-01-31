@@ -114,6 +114,7 @@ class ReactMediaPlayerView extends FrameLayout implements
     private boolean playInBackground = false;
     private boolean useTextureView = false;
     private String userAgent;
+    private int maxBitRate = 0;
     // \ End props
 
     // React
@@ -225,6 +226,7 @@ class ReactMediaPlayerView extends FrameLayout implements
         if (player == null) {
             TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
             trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
+            trackSelector.setParameters(trackSelector.buildUponParameters().setMaxVideoBitrate(maxBitRate == 0 ? Integer.MAX_VALUE : maxBitRate));
             player = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector, new DefaultLoadControl());
             player.addListener(this);
             player.setMetadataOutput(this);
@@ -805,6 +807,14 @@ class ReactMediaPlayerView extends FrameLayout implements
         if (player != null) {
             PlaybackParameters params = new PlaybackParameters(rate, 1f);
             player.setPlaybackParameters(params);
+        }
+    }
+
+    public void setMaxBitRateModifier(int newMaxBitRate) {
+        maxBitRate = newMaxBitRate;
+        if (player != null) {
+            trackSelector.setParameters(trackSelector.buildUponParameters()
+                    .setMaxVideoBitrate(maxBitRate == 0 ? Integer.MAX_VALUE : maxBitRate));
         }
     }
 
