@@ -32,8 +32,7 @@ RCT_EXPORT_VIEW_PROPERTY(onPlayerLoad, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onPlayerLoadStart, RCTBubblingEventBlock)
 
 
-- (NSDictionary *)constantsToExport
-{
+- (NSDictionary *)constantsToExport {
     return @{
              @"ScaleNone": AVLayerVideoGravityResizeAspect,
              @"ScaleToFill": AVLayerVideoGravityResize,
@@ -42,8 +41,7 @@ RCT_EXPORT_VIEW_PROPERTY(onPlayerLoadStart, RCTBubblingEventBlock)
              };
 }
 
-+ (BOOL)requiresMainQueueSetup
-{
++ (BOOL)requiresMainQueueSetup {
     return YES;
 }
 
