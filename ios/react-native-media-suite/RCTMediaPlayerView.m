@@ -8,8 +8,11 @@
 @end
 
 @implementation RCTMediaPlayerView {
+    
 @private
     AVPlayer *player;
+    NSString *_resizeMode;
+    AVPlayerLayer *_playerLayer;
     id progressObserverHandle;
     BOOL shouldResumePlay;
     BOOL shouldContinuePlayWhenForeground;
@@ -20,13 +23,30 @@
 + (Class)layerClass {
     return [AVPlayerLayer class];
 }
+
 - (AVPlayer*)player {
     return [(AVPlayerLayer *)[self layer] player];
 }
+
 - (void)setPlayer:(AVPlayer *)player {
     [(AVPlayerLayer *)[self layer] setPlayer:player];
 }
 
+- (void)setPlayerLayer {
+
+    if (player) {
+        _playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
+        _playerLayer.frame = self.bounds;
+        _playerLayer.needsDisplayOnBoundsChange = YES;
+        
+        // to prevent video from being animated when resizeMode is 'cover'
+        // resize mode must be set before layer is added
+        [self setResizeMode:_resizeMode];
+        
+        [self.layer addSublayer:_playerLayer];
+        self.layer.needsDisplayOnBoundsChange = YES;
+    }
+}
 
 - (instancetype) init {
     self = [super init];
@@ -91,6 +111,7 @@
         }
         
         [self setPlayer:player];
+        [self setPlayerLayer];
         [self addProgressObserver];
         [self addObservers];
         
@@ -153,6 +174,14 @@
     NSLog(@"setIgnoreSilentSwitch...ignoreSilentSwitch=%d", ignoreSilentSwitch);
     _ignoreSilentSwitch = ignoreSilentSwitch;
     [self updateProps];
+}
+
+- (void) setResizeMode:(NSString*)resizeMode {
+    NSLog(@"setResizeMode...resizeMode=%@", resizeMode);
+    if (_playerLayer) {
+        _playerLayer.videoGravity = resizeMode;
+        _resizeMode = resizeMode;
+    }
 }
 
 - (void) layoutSubviews {
