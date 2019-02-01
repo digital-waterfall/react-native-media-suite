@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import ResizeModes from './VideoResizeMode';
 
 import {
     View,
@@ -82,6 +83,19 @@ export default class MediaPlayerView extends Component {
     }
 
     renderPlayer() {
+        const resizeMode = this.props.resizeMode;
+
+        let nativeResizeMode;
+        if (resizeMode === ResizeModes.stretch) {
+            nativeResizeMode = NativeModules.UIManager.RCTMediaPlayerView.Constants.ScaleToFill;
+        } else if (resizeMode === ResizeModes.contain) {
+            nativeResizeMode = NativeModules.UIManager.RCTMediaPlayerView.Constants.ScaleAspectFit;
+        } else if (resizeMode === ResizeModes.cover) {
+            nativeResizeMode = NativeModules.UIManager.RCTMediaPlayerView.Constants.ScaleAspectFill;
+        } else {
+            nativeResizeMode = NativeModules.UIManager.RCTMediaPlayerView.Constants.ScaleNone;
+        }
+
         if (Platform.OS === 'ios') {
             const { autoplay, src, preload, loop, muted, ignoreSilentSwitch } = this.props;
             return (
@@ -104,6 +118,7 @@ export default class MediaPlayerView extends Component {
                     onPlayerLoadStart={this.onPlayerLoadStart}
                     onPlayerLoad={this.onPlayerLoad}
                     style={styles.backgroundVideoIos}
+                    resizeMode={nativeResizeMode}
                 />
             );
         } else {
@@ -142,6 +157,7 @@ export default class MediaPlayerView extends Component {
                     onPlaybackRateChange={this.onPlayerRateChange}
                     onAudioFocusChanged={this.onPlayerAudioFocusChanged}
                     onAudioBecomingNoisy={this.onPlayerAudioBecomingNoisy}
+                    resizeMode={nativeResizeMode}
                     style={styles.backgroundVideoAndroid}
                 />
             );
@@ -334,7 +350,7 @@ export default class MediaPlayerView extends Component {
 }
 
 MediaPlayerView.propTypes = {
-    resizeMode: PropTypes.number,
+    resizeMode: PropTypes.string,
     src: PropTypes.string,
     autoplay: PropTypes.bool,
     preload: PropTypes.string,
