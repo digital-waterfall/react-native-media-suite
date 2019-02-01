@@ -178,8 +178,10 @@
 
 - (void) setResizeMode:(NSString*)resizeMode {
     NSLog(@"setResizeMode...resizeMode=%@", resizeMode);
-    _playerLayer.videoGravity = resizeMode;
-    _resizeMode = resizeMode;
+    if (_playerLayer) {
+        _playerLayer.videoGravity = resizeMode;
+        _resizeMode = resizeMode;
+    }
 }
 
 - (void) layoutSubviews {
