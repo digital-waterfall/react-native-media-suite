@@ -122,7 +122,7 @@ export default class MediaPlayerView extends Component {
                 />
             );
         } else {
-            const { autoplay, src } = this.props;
+            const { autoplay, src, fullscreen } = this.props;
             const download = DownloadManager.getDownload(src);
             const remoteUrl = _.get(download, 'remoteURL', src);
             let { paused } = this.state;
@@ -137,6 +137,7 @@ export default class MediaPlayerView extends Component {
                 <RCTMediaPlayerView
                     src={{ uri: remoteUrl }}
                     paused={paused}
+                    fullscreen={fullscreen}
                     ref={this.setReference}
                     onVideoLoadStart={this.onPlayerLoadStart}
                     onVideoLoad={this.onPlayerLoad}

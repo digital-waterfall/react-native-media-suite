@@ -12,7 +12,6 @@
 @private
     AVPlayer *player;
     NSString *_resizeMode;
-    AVPlayerLayer *_playerLayer;
     id progressObserverHandle;
     BOOL shouldResumePlay;
     BOOL shouldContinuePlayWhenForeground;
@@ -30,22 +29,6 @@
 
 - (void)setPlayer:(AVPlayer *)player {
     [(AVPlayerLayer *)[self layer] setPlayer:player];
-}
-
-- (void)setPlayerLayer {
-
-    if (player) {
-        _playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
-        _playerLayer.frame = self.bounds;
-        _playerLayer.needsDisplayOnBoundsChange = YES;
-        
-        // to prevent video from being animated when resizeMode is 'cover'
-        // resize mode must be set before layer is added
-        [self setResizeMode:_resizeMode];
-        
-        [self.layer addSublayer:_playerLayer];
-        self.layer.needsDisplayOnBoundsChange = YES;
-    }
 }
 
 - (instancetype) init {
@@ -111,7 +94,6 @@
         }
         
         [self setPlayer:player];
-        [self setPlayerLayer];
         [self addProgressObserver];
         [self addObservers];
         
@@ -178,10 +160,7 @@
 
 - (void) setResizeMode:(NSString*)resizeMode {
     NSLog(@"setResizeMode...resizeMode=%@", resizeMode);
-    if (_playerLayer) {
-        _playerLayer.videoGravity = resizeMode;
-        _resizeMode = resizeMode;
-    }
+    [(AVPlayerLayer *)[self layer] setVideoGravity:resizeMode];
 }
 
 - (void) layoutSubviews {
