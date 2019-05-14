@@ -1,3 +1,7 @@
+## IMPORTANT NOTICE
+
+This project is not actively being developed anymore. All of the development effort has been stopped. The code in this repo works and remains here for that reason. However, take the code as it is. No active support will be given.
+
 React Native Media Suite
 ========================
 
