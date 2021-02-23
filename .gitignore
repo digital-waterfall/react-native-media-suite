@@ -30,3 +30,5 @@ node_modules/
 .gradle
 local.properties
 *.log
+.project
+.settings

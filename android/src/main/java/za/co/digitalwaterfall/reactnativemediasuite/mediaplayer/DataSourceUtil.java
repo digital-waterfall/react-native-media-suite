@@ -62,7 +62,7 @@ public class DataSourceUtil {
 
     /** Returns a {@link HttpDataSource.Factory}. */
     public static HttpDataSource.Factory buildHttpDataSourceFactory(
-            TransferListener<? super DataSource> listener) {
+            TransferListener listener) {
         return new DefaultHttpDataSourceFactory(userAgent, listener);
     }
 
