@@ -2,15 +2,13 @@ package za.co.digitalwaterfall.reactnativemediasuite.mediadownloader.downloader;
 
 import android.app.Notification;
 
-import android.content.Context;
+
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+
 import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.scheduler.PlatformScheduler;
-import com.google.android.exoplayer2.ui.DownloadNotificationHelper;
-import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
 
 import za.co.digitalwaterfall.reactnativemediasuite.R;
@@ -32,13 +30,7 @@ public class NativeDownloadService extends DownloadService {
     @Override
     @NonNull
     protected DownloadManager getDownloadManager() {
-        DownloadManager downloadManager = DownloadUtil.getDownloadManager(/* context= */ this);
-        DownloadNotificationHelper downloadNotificationHelper =
-                DownloadUtil.getDownloadNotificationHelper(/* context= */ this);
-        downloadManager.addListener(
-                new TerminalStateNotificationHelper(
-                        this, downloadNotificationHelper, FOREGROUND_NOTIFICATION_ID + 1));
-        return downloadManager;
+        return DownloadUtil.getDownloadManager(/* context= */ this);
     }
 
     @Override
@@ -56,46 +48,5 @@ public class NativeDownloadService extends DownloadService {
                         /* contentIntent= */ null,
                         /* message= */ null,
                         downloads);
-    }
-
-
-
-    private static final class TerminalStateNotificationHelper implements DownloadManager.Listener {
-
-        private final Context context;
-        private final DownloadNotificationHelper notificationHelper;
-
-        private int nextNotificationId;
-
-        public TerminalStateNotificationHelper(
-                Context context, DownloadNotificationHelper notificationHelper, int firstNotificationId) {
-            this.context = context.getApplicationContext();
-            this.notificationHelper = notificationHelper;
-            nextNotificationId = firstNotificationId;
-        }
-
-        @Override
-        public void onDownloadChanged(
-                DownloadManager downloadManager, Download download, @Nullable Exception finalException) {
-            Notification notification;
-            if (download.state == Download.STATE_COMPLETED) {
-                notification =
-                        notificationHelper.buildDownloadCompletedNotification(
-                                context,
-                                R.drawable.exo_controls_play,
-                                /* contentIntent= */ null,
-                                Util.fromUtf8Bytes(download.request.data));
-            } else if (download.state == Download.STATE_FAILED) {
-                notification =
-                        notificationHelper.buildDownloadFailedNotification(
-                                context,
-                                R.drawable.exo_controls_play,
-                                /* contentIntent= */ null,
-                                Util.fromUtf8Bytes(download.request.data));
-            } else {
-                return;
-            }
-            NotificationUtil.setNotification(context, nextNotificationId++, notification);
-        }
     }
 }

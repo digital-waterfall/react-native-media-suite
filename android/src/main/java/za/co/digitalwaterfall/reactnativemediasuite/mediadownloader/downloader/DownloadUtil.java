@@ -1,23 +1,19 @@
 package za.co.digitalwaterfall.reactnativemediasuite.mediadownloader.downloader;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
-import com.facebook.react.BuildConfig;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.google.android.exoplayer2.DefaultRenderersFactory;
-import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
 import com.google.android.exoplayer2.ext.cronet.CronetDataSource;
 import com.google.android.exoplayer2.ext.cronet.CronetEngineWrapper;
 import com.google.android.exoplayer2.offline.ActionFileUpgradeUtil;
 import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
+import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.ui.DownloadNotificationHelper;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.upstream.*;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
@@ -57,22 +53,24 @@ public class DownloadUtil {
     private static @MonotonicNonNull DownloadNotificationHelper downloadNotificationHelper;
 
 
-    /** Returns whether extension renderers should be used. */
-    public static boolean useExtensionRenderers() {
-        return false;
+    private static Uri resolveUri(Uri uri, String queryParams) {
+        String resultPath = queryParams == null ? uri.toString() : String.format("%s%s", uri.toString(), queryParams);
+        return Uri.parse(resultPath);
     }
 
-    public static RenderersFactory buildRenderersFactory(
-            ReactApplicationContext context, boolean preferExtensionRenderer) {
-        @DefaultRenderersFactory.ExtensionRendererMode
-        int extensionRendererMode =
-                useExtensionRenderers()
-                        ? (preferExtensionRenderer
-                        ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
-                        : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
-                        : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;
-        return new DefaultRenderersFactory(context.getApplicationContext())
-                .setExtensionRendererMode(extensionRendererMode);
+    public static ResolvingDataSource.Factory getResolvingFactory(DataSource.Factory factory, String queryParams) {
+        return new ResolvingDataSource.Factory(factory,
+                (DataSpec dataSpec) -> {
+
+            DataSpec ds = dataSpec;
+
+            if(dataSpec.uri.getQuery() == null) {
+                ds = dataSpec.withUri(resolveUri(dataSpec.uri, queryParams));
+            }
+
+            Log.i(TAG, ds.uri.toString());
+            return ds;
+        });
     }
 
     public static synchronized HttpDataSource.Factory getHttpDataSourceFactory(Context context) {
@@ -80,7 +78,6 @@ public class DownloadUtil {
             String USER_AGENT = Util.getUserAgent(context, "MediaDownloader");
             if (USE_CRONET_FOR_NETWORKING) {
                 context = context.getApplicationContext();
-
                 CronetEngineWrapper cronetEngineWrapper =
                         new CronetEngineWrapper(context, USER_AGENT, /* preferGMSCoreCronet= */ false);
                 httpDataSourceFactory =
@@ -94,6 +91,7 @@ public class DownloadUtil {
         }
         return httpDataSourceFactory;
     }
+
 
     /** Returns a {@link DataSource.Factory}. */
     public static synchronized DataSource.Factory getDataSourceFactory(Context context) {
@@ -146,16 +144,50 @@ public class DownloadUtil {
                     DOWNLOAD_TRACKER_ACTION_FILE,
                     downloadIndex,
                     /* addNewDownloadsAsCompleted= */ true);
-            downloadManager = new DownloadManager(context, getDatabaseProvider(context),getDownloadCache(context), getHttpDataSourceFactory(context), Executors.newFixedThreadPool(6));
+
+            HttpDataSource.Factory ds = getHttpDataSourceFactory(context);
+
+
+            DataSource.Factory dataSource = () -> {
+
+                Log.i(TAG, "Creating new datasource");
+
+                HttpDataSource.Factory newDataSource = ds;
+                if (downloadTracker != null) {
+                    Download download = downloadTracker.getCurrentDownload();
+                    if (download != null) {
+                        String downloadID = download.request.id;
+
+                        if (downloadID != null) {
+                            Log.i(TAG, download.request.id);
+                            DownloadCred downloadCred = downloadTracker.getDownloadCred(downloadID);
+                            String queryParams = downloadCred.queryParams;
+
+                            if (queryParams != null) {
+                                return getResolvingFactory(newDataSource, queryParams).createDataSource();
+                            }
+                        }
+                    }
+                }
+                return newDataSource.createDataSource();
+            };
+
+
+            downloadManager = new DownloadManager(context, getDatabaseProvider(context),getDownloadCache(context), dataSource, Executors.newFixedThreadPool(6));
             downloadManager.setMaxParallelDownloads(MAX_SIMULTANEOUS_DOWNLOADS);
+            downloadManager.setMinRetryCount(5);
             downloadTracker =
                     new DownloadTracker(
-                            context,
-                            getHttpDataSourceFactory(context),
+                            (ReactApplicationContext) context,
+                            ds,
                             downloadManager);
 
-        }
+            downloadTracker.addListener(() -> {
+                Log.d(TAG,"onDownloadsChanged");
+            });
 
+            downloadManager.resumeDownloads();
+        }
     }
 
     private static synchronized void upgradeActionFile(

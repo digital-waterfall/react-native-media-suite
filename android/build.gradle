@@ -58,8 +58,8 @@ dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.annotation:annotation:1.0.2'
-    implementation 'com.google.android.exoplayer:exoplayer:2.13.1'
-    implementation 'com.google.android.exoplayer:extension-cronet:2.13.1'
+    implementation 'com.google.android.exoplayer:exoplayer:2.13.2'
+    implementation 'com.google.android.exoplayer:extension-cronet:2.13.2'
 
 
     compileOnly 'org.checkerframework:checker-qual:3.8.0'
