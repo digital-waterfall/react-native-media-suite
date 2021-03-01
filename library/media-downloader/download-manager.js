@@ -300,6 +300,10 @@ class DownloadManager {
         });
     }
 
+    updateDownloadCreds(downloadID, queryParam, cookie) {
+        this.nativeDownloader.updateDownloadCreds(downloadID, queryParam, cookie);
+    }
+
     persistDownload(download) {
         storageService.setItem(this.tenant, download.downloadID, {
             downloadID: download.downloadID,

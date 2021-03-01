@@ -23,35 +23,23 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
+import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MergingMediaSource;
 import com.google.android.exoplayer2.source.SingleSampleMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.dash.DashMediaSource;
-import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
-import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
-import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
@@ -70,7 +58,7 @@ class ReactMediaPlayerView extends FrameLayout implements
         LifecycleEventListener,
         ExoPlayer.EventListener,
         AudioManager.OnAudioFocusChangeListener,
-        MetadataRenderer.Output {
+        MetadataOutput {
 
     private static final String TAG = "ReactExoplayerView";
 
@@ -224,12 +212,9 @@ class ReactMediaPlayerView extends FrameLayout implements
 
     private void initializePlayer() {
         if (player == null) {
-            TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
-            trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-            trackSelector.setParameters(trackSelector.buildUponParameters().setMaxVideoBitrate(maxBitRate == 0 ? Integer.MAX_VALUE : maxBitRate));
-            player = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector, new DefaultLoadControl());
+            player = new SimpleExoPlayer.Builder(getContext()).build();
             player.addListener(this);
-            player.setMetadataOutput(this);
+            player.addMetadataOutput(this);
             exoPlayerView.setPlayer(player);
             setPlayWhenReady(!isPaused);
             playerNeedsSource = true;
@@ -238,88 +223,88 @@ class ReactMediaPlayerView extends FrameLayout implements
             player.setPlaybackParameters(params);
         }
 
-        if (playerNeedsSource && srcUri != null) {
-            ArrayList<MediaSource> mediaSourceList = buildTextSources();
-            MediaSource videoSource = buildMediaSource(srcUri, extension);
-            MediaSource mediaSource;
-            if (mediaSourceList.size() == 0) {
-                mediaSource = videoSource;
-            } else {
-                mediaSourceList.add(0, videoSource);
-                MediaSource[] textSourceArray = mediaSourceList.toArray(
-                        new MediaSource[mediaSourceList.size()]
-                );
-                mediaSource = new MergingMediaSource(textSourceArray);
-            }
-
-            MediaDownloaderModule downloader = MediaDownloaderModule.newInstance(reactContext);
-            mediaSource =  downloader.getDownloadedMediaSource(srcUri.toString());
-
-            boolean haveResumePosition = resumeWindow != C.INDEX_UNSET;
-            if (haveResumePosition) {
-                player.seekTo(resumeWindow, resumePosition);
-            }
-            player.prepare(mediaSource, !haveResumePosition, false);
-            playerNeedsSource = false;
-
-            eventEmitter.loadStart();
-            loadVideoStarted = true;
-        }
+//        if (playerNeedsSource && srcUri != null) {
+//            ArrayList<MediaSource> mediaSourceList = buildTextSources();
+//            MediaSource videoSource = buildMediaSource(srcUri, extension);
+//            MediaSource mediaSource;
+//            if (mediaSourceList.size() == 0) {
+//                mediaSource = videoSource;
+//            } else {
+//                mediaSourceList.add(0, videoSource);
+//                MediaSource[] textSourceArray = mediaSourceList.toArray(
+//                        new MediaSource[mediaSourceList.size()]
+//                );
+//                mediaSource = new MergingMediaSource(textSourceArray);
+//            }
+//
+//            MediaDownloaderModule downloader = MediaDownloaderModule.newInstance(reactContext);
+//            mediaSource =  downloader.getDownloadedMediaSource(srcUri.toString());
+//
+//            boolean haveResumePosition = resumeWindow != C.INDEX_UNSET;
+//            if (haveResumePosition) {
+//                player.seekTo(resumeWindow, resumePosition);
+//            }
+//            player.prepare(mediaSource, !haveResumePosition, false);
+//            playerNeedsSource = false;
+//
+//            eventEmitter.loadStart();
+//            loadVideoStarted = true;
+//        }
     }
 
-    private MediaSource buildMediaSource(Uri uri, String overrideExtension) {
-        int type = Util.inferContentType(!TextUtils.isEmpty(overrideExtension) ? "." + overrideExtension
-                : uri.getLastPathSegment());
-        switch (type) {
-            case C.TYPE_SS:
-                return new SsMediaSource(uri, buildDataSourceFactory(false),
-                        new DefaultSsChunkSource.Factory(mediaDataSourceFactory), mainHandler, null);
-            case C.TYPE_DASH:
-                return new DashMediaSource(uri, buildDataSourceFactory(false),
-                        new DefaultDashChunkSource.Factory(mediaDataSourceFactory), mainHandler, null);
-            case C.TYPE_HLS:
-                return new HlsMediaSource(uri, mediaDataSourceFactory, mainHandler, null);
-            case C.TYPE_OTHER:
-                return new ExtractorMediaSource(uri, mediaDataSourceFactory, new DefaultExtractorsFactory(),
-                        mainHandler, null);
-            default: {
-                throw new IllegalStateException("Unsupported type: " + type);
-            }
-        }
-    }
+//    private MediaSource buildMediaSource(Uri uri, String overrideExtension) {
+//        int type = Util.inferContentType(!TextUtils.isEmpty(overrideExtension) ? "." + overrideExtension
+//                : uri.getLastPathSegment());
+//        switch (type) {
+//            case C.TYPE_SS:
+//                return new SsMediaSource(uri, buildDataSourceFactory(false),
+//                        new DefaultSsChunkSource.Factory(mediaDataSourceFactory), mainHandler, null);
+//            case C.TYPE_DASH:
+//                return new DashMediaSource(uri, buildDataSourceFactory(false),
+//                        new DefaultDashChunkSource.Factory(mediaDataSourceFactory), mainHandler, null);
+//            case C.TYPE_HLS:
+//                return new HlsMediaSource(uri, mediaDataSourceFactory, mainHandler, null);
+//            case C.TYPE_OTHER:
+//                return new ExtractorMediaSource(uri, mediaDataSourceFactory, new DefaultExtractorsFactory(),
+//                        mainHandler, null);
+//            default: {
+//                throw new IllegalStateException("Unsupported type: " + type);
+//            }
+//        }
+//    }
 
-    private ArrayList<MediaSource> buildTextSources() {
-        ArrayList<MediaSource> textSources = new ArrayList<>();
-        if (textTracks == null) {
-            return textSources;
-        }
+//    private ArrayList<MediaSource> buildTextSources() {
+//        ArrayList<MediaSource> textSources = new ArrayList<>();
+//        if (textTracks == null) {
+//            return textSources;
+//        }
+//
+//        for (int i = 0; i < textTracks.size(); ++i) {
+//            ReadableMap textTrack = textTracks.getMap(i);
+//            String language = textTrack.getString("language");
+//            String title = textTrack.hasKey("title")
+//                    ? textTrack.getString("title") : language + " " + i;
+//            Uri uri = Uri.parse(textTrack.getString("uri"));
+//            MediaSource textSource = buildTextSource(title, uri, textTrack.getString("type"),
+//                    language);
+//            if (textSource != null) {
+//                textSources.add(textSource);
+//            }
+//        }
+//        return textSources;
+//    }
 
-        for (int i = 0; i < textTracks.size(); ++i) {
-            ReadableMap textTrack = textTracks.getMap(i);
-            String language = textTrack.getString("language");
-            String title = textTrack.hasKey("title")
-                    ? textTrack.getString("title") : language + " " + i;
-            Uri uri = Uri.parse(textTrack.getString("uri"));
-            MediaSource textSource = buildTextSource(title, uri, textTrack.getString("type"),
-                    language);
-            if (textSource != null) {
-                textSources.add(textSource);
-            }
-        }
-        return textSources;
-    }
-
-    private MediaSource buildTextSource(String title, Uri uri, String mimeType, String language) {
-        Format textFormat = Format.createTextSampleFormat(title, mimeType, Format.NO_VALUE, language);
-        return new SingleSampleMediaSource(uri, mediaDataSourceFactory, textFormat, C.TIME_UNSET);
-    }
+//    private MediaSource buildTextSource(String title, Uri uri, String mimeType, String language) {
+//        Format textFormat = Format.createTextSampleFormat(title, mimeType, Format.NO_VALUE, language);
+//        return new SingleSampleMediaSource(uri, mediaDataSourceFactory, textFormat, C.TIME_UNSET);
+//    }
 
     private void releasePlayer() {
         if (player != null) {
             isPaused = player.getPlayWhenReady();
             updateResumePosition();
             player.release();
-            player.setMetadataOutput(null);
+            player.addMetadataOutput(null);
             player = null;
             trackSelector = null;
         }
@@ -594,19 +579,19 @@ class ReactMediaPlayerView extends FrameLayout implements
             Exception cause = e.getRendererException();
             if (cause instanceof MediaCodecRenderer.DecoderInitializationException) {
                 // Special case for decoder initialization failures.
-                MediaCodecRenderer.DecoderInitializationException decoderInitializationException =
-                        (MediaCodecRenderer.DecoderInitializationException) cause;
-                if (decoderInitializationException.decoderName == null) {
-                    if (decoderInitializationException.getCause() instanceof MediaCodecUtil.DecoderQueryException) {
-                        errorString = "Error queying Decoders";
-                    } else if (decoderInitializationException.secureDecoderRequired) {
-                        errorString = "Error No Secure Decoder";
-                    } else {
-                        errorString = "Error no Decoder";
-                    }
-                } else {
-                    errorString = "Error Instantiating Decoder";
-                }
+//                MediaCodecRenderer.DecoderInitializationException decoderInitializationException =
+//                        (MediaCodecRenderer.DecoderInitializationException) cause;
+//                if (decoderInitializationException.decoderName == null) {
+//                    if (decoderInitializationException.getCause() instanceof MediaCodecUtil.DecoderQueryException) {
+//                        errorString = "Error queying Decoders";
+//                    } else if (decoderInitializationException.secureDecoderRequired) {
+//                        errorString = "Error No Secure Decoder";
+//                    } else {
+//                        errorString = "Error no Decoder";
+//                    }
+//                } else {
+//                    errorString = "Error Instantiating Decoder";
+//                }
             }
         }
         else if (e.type == ExoPlaybackException.TYPE_SOURCE) {
